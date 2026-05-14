@@ -341,6 +341,7 @@ export default function Page() {
             >
               SolarWinds
             </div>
+
             <div className="text-xs font-bold uppercase tracking-[0.24em] opacity-60">
               GITEX 2026 Deck
             </div>
@@ -351,9 +352,12 @@ export default function Page() {
               onClick={() => setTheme("light")}
               className="rounded-full px-3 py-1 text-xs font-bold"
               style={{
-                background: theme === "light" ? themeVars.accent : themeVars.panel,
+                background:
+                  theme === "light" ? themeVars.accent : themeVars.panel,
                 color: theme === "light" ? "#fff" : themeVars.text,
-                border: `1px solid ${theme === "light" ? themeVars.accent : themeVars.border}`,
+                border: `1px solid ${
+                  theme === "light" ? themeVars.accent : themeVars.border
+                }`,
               }}
             >
               Light
@@ -363,9 +367,12 @@ export default function Page() {
               onClick={() => setTheme("dark")}
               className="rounded-full px-3 py-1 text-xs font-bold"
               style={{
-                background: theme === "dark" ? themeVars.accent : themeVars.panel,
+                background:
+                  theme === "dark" ? themeVars.accent : themeVars.panel,
                 color: theme === "dark" ? "#fff" : themeVars.text,
-                border: `1px solid ${theme === "dark" ? themeVars.accent : themeVars.border}`,
+                border: `1px solid ${
+                  theme === "dark" ? themeVars.accent : themeVars.border
+                }`,
               }}
             >
               Dark
@@ -421,7 +428,11 @@ export default function Page() {
               {slide.bullets && slide.layout !== "commercial" && (
                 <div className="mt-8 grid gap-3 md:grid-cols-2">
                   {slide.bullets.map((bullet) => (
-                    <InfoPill key={bullet} text={bullet} themeVars={themeVars} />
+                    <InfoPill
+                      key={bullet}
+                      text={bullet}
+                      themeVars={themeVars}
+                    />
                   ))}
                 </div>
               )}
@@ -429,7 +440,11 @@ export default function Page() {
               {slide.bullets && slide.layout === "commercial" && (
                 <div className="mt-8 space-y-3">
                   {slide.bullets.map((bullet) => (
-                    <InfoPill key={bullet} text={bullet} themeVars={themeVars} />
+                    <InfoPill
+                      key={bullet}
+                      text={bullet}
+                      themeVars={themeVars}
+                    />
                   ))}
                 </div>
               )}
@@ -565,7 +580,10 @@ function RightPanel({
       )}
 
       {slide.imagePlaceholders ? (
-        <ImagePlaceholderGrid count={slide.imagePlaceholders} themeVars={themeVars} />
+        <ImagePlaceholderGrid
+          count={slide.imagePlaceholders}
+          themeVars={themeVars}
+        />
       ) : null}
 
       {slide.rightTitle && (
@@ -612,7 +630,7 @@ function ImagePlaceholderGrid({
         <div
           key={i}
           className={`flex items-center justify-center rounded-2xl text-center text-xs font-black uppercase tracking-[0.2em] ${
-            count === 1 ? "h-56" : "h-28"
+            count === 1 ? "h-[360px]" : "h-[190px]"
           }`}
           style={{
             background: themeVars.cardInner,
@@ -671,18 +689,23 @@ function CommercialTable({ themeVars }: { themeVars: any }) {
         >
           Total Media Investment
         </div>
+
         <div
           className="mt-2 text-5xl font-black tracking-[-0.06em]"
           style={{ color: themeVars.accent }}
         >
           {grandTotal}
         </div>
+
         <div className="mt-2 text-xs font-bold uppercase tracking-[0.18em] opacity-60">
           Excluding 5% VAT
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl" style={{ border: `1px solid ${themeVars.border}` }}>
+      <div
+        className="overflow-hidden rounded-2xl"
+        style={{ border: `1px solid ${themeVars.border}` }}
+      >
         <table className="w-full border-collapse text-left text-[12px]">
           <thead>
             <tr style={{ background: themeVars.cardInner }}>
@@ -698,7 +721,10 @@ function CommercialTable({ themeVars }: { themeVars: any }) {
                 <th
                   key={head}
                   className="px-3 py-3 text-[10px] font-black uppercase tracking-[0.18em]"
-                  style={{ color: themeVars.accent, borderBottom: `1px solid ${themeVars.border}` }}
+                  style={{
+                    color: themeVars.accent,
+                    borderBottom: `1px solid ${themeVars.border}`,
+                  }}
                 >
                   {head}
                 </th>
@@ -709,27 +735,51 @@ function CommercialTable({ themeVars }: { themeVars: any }) {
           <tbody>
             {commercialRows.map((row) => (
               <tr key={row.location}>
-                <td className="px-3 py-4 font-bold" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+                <td
+                  className="px-3 py-4 font-bold"
+                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
+                >
                   {row.location}
                   <div className="mt-1 text-[10px] font-medium opacity-60">
                     {row.format}
                   </div>
                 </td>
-                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+
+                <td
+                  className="px-3 py-4"
+                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
+                >
                   {row.screens}
                 </td>
-                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+
+                <td
+                  className="px-3 py-4"
+                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
+                >
                   {row.duration}
                 </td>
-                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+
+                <td
+                  className="px-3 py-4"
+                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
+                >
                   {row.productionFee}
                 </td>
-                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+
+                <td
+                  className="px-3 py-4"
+                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
+                >
                   {row.grossRate}
                 </td>
-                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+
+                <td
+                  className="px-3 py-4"
+                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
+                >
                   {row.netRate}
                 </td>
+
                 <td
                   className="px-3 py-4 font-black"
                   style={{
@@ -752,8 +802,12 @@ function CommercialTable({ themeVars }: { themeVars: any }) {
           border: `1px solid ${themeVars.border}`,
         }}
       >
-        Kindly note: all rates are in USD. Prices exclude 5% VAT. Municipality fee:
-        <span style={{ color: themeVars.accent }}> $141.59 per artwork.</span>
+        Kindly note: all rates are in USD. Prices exclude 5% VAT. Municipality
+        fee:
+        <span style={{ color: themeVars.accent }}>
+          {" "}
+          $141.59 per artwork.
+        </span>
       </div>
     </div>
   );
