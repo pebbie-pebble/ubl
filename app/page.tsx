@@ -279,8 +279,6 @@ export default function Page() {
   const prev = () => setCurrent((p) => Math.max(p - 1, 0));
 
   useEffect(() => {
-    document.title = "Solarwinds Campaign";
-
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") prev();
@@ -419,7 +417,9 @@ export default function Page() {
             className={`mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:items-center ${
               slide.layout === "commercial"
                 ? "lg:grid-cols-[0.78fr_1.22fr]"
-                : "lg:grid-cols-[1.1fr_.9fr]"
+                : slide.mediaLayout === "twoPlusVideo"
+                  ? "lg:grid-cols-[1fr_1fr]"
+                  : "lg:grid-cols-[1.1fr_.9fr]"
             }`}
           >
             <div>
@@ -438,7 +438,9 @@ export default function Page() {
                 className={`whitespace-pre-line font-black leading-[0.94] tracking-[-0.06em] ${
                   slide.layout === "cover"
                     ? "text-6xl md:text-8xl lg:text-[92px]"
-                    : "text-5xl md:text-7xl"
+                    : slide.mediaLayout === "twoPlusVideo"
+                      ? "text-5xl md:text-6xl lg:text-[66px]"
+                      : "text-5xl md:text-7xl"
                 }`}
               >
                 {slide.title}
@@ -559,12 +561,13 @@ function RightPanel({
   themeVars: any;
 }) {
   const hasImages = Boolean(slide.imagePlaceholders);
+  const isTwoPlusVideo = slide.mediaLayout === "twoPlusVideo";
 
   return (
     <div
       className={`rounded-[30px] p-6 md:p-7 ${
         hasImages ? "min-h-[690px]" : ""
-      }`}
+      } ${isTwoPlusVideo ? "min-h-[720px]" : ""}`}
       style={{
         background: themeVars.panel,
         border: `1px solid ${themeVars.border}`,
@@ -579,7 +582,7 @@ function RightPanel({
         <div
           className={
             hasImages
-              ? "mb-4 rounded-[24px] p-6"
+              ? "mb-4 rounded-[24px] p-5"
               : "mb-6 rounded-[24px] p-6"
           }
           style={{
@@ -588,7 +591,9 @@ function RightPanel({
           }}
         >
           <div
-            className="text-6xl font-black tracking-[-0.06em] md:text-7xl"
+            className={`font-black tracking-[-0.06em] ${
+              isTwoPlusVideo ? "text-5xl md:text-6xl" : "text-6xl md:text-7xl"
+            }`}
             style={{ color: themeVars.accent }}
           >
             {slide.stat}
@@ -628,7 +633,9 @@ function RightPanel({
 
       {slide.rightTitle && (
         <div
-          className="mb-4 mt-5 text-xs font-black uppercase tracking-[0.24em]"
+          className={`mb-4 text-xs font-black uppercase tracking-[0.24em] ${
+            isTwoPlusVideo ? "mt-4" : "mt-5"
+          }`}
           style={{ color: themeVars.accent }}
         >
           {slide.rightTitle}
@@ -672,12 +679,12 @@ function ImagePlaceholderGrid({
 }) {
   if (mediaLayout === "twoPlusVideo") {
     return (
-      <div className="mb-5 space-y-4">
+      <div className="mb-4 space-y-4">
         <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: count }).map((_, i) => (
             <div
               key={i}
-              className="flex h-[210px] items-center justify-center rounded-[24px] text-center text-xs font-black uppercase tracking-[0.22em]"
+              className="flex h-[180px] items-center justify-center rounded-[24px] text-center text-xs font-black uppercase tracking-[0.22em]"
               style={{
                 background: themeVars.cardInner,
                 border: `1px dashed ${themeVars.accentLine}`,
@@ -691,7 +698,7 @@ function ImagePlaceholderGrid({
 
         {videoPlaceholder && (
           <div
-            className="flex h-[230px] items-center justify-center rounded-[26px] text-center text-xs font-black uppercase tracking-[0.22em]"
+            className="flex h-[260px] items-center justify-center rounded-[26px] text-center text-xs font-black uppercase tracking-[0.22em]"
             style={{
               background: themeVars.accentSoft,
               border: `1px dashed ${themeVars.accentLine}`,
