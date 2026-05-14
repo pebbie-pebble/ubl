@@ -1,6 +1,57 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+  ArrowUpRight,
+  Award,
+  BadgeCheck,
+  Briefcase,
+  Building2,
+  CalendarRange,
+  ChevronRight,
+  Compass,
+  FileText,
+  Globe2,
+  Handshake,
+  HeartHandshake,
+  Layers,
+  LayoutGrid,
+  LineChart,
+  MapPinned,
+  Megaphone,
+  MonitorPlay,
+  Moon,
+  Package,
+  Palette,
+  Plane,
+  Receipt,
+  Sparkles,
+  Sun,
+  Table2,
+  Target,
+  Timer,
+  TrainFront,
+  Tv,
+  Users,
+  Wallet,
+  Workflow,
+  Zap,
+} from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
+import Lightbox from "yet-another-react-lightbox";
+import Counter from "yet-another-react-lightbox/plugins/counter";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+
+import { AnimatedStat } from "@/components/animated-stat";
+import { RippleLineGridBackdrop } from "@/components/ripple-line-grid";
 
 type ThemeMode = "dark" | "light";
 
@@ -29,7 +80,82 @@ type Slide = {
   imagePlaceholders?: number;
   videoPlaceholder?: boolean;
   mediaLayout?: "standard" | "twoPlusVideo";
+  /** Local `/public` paths or absolute URLs — one per image slot, in order. */
+  billboardImages?: string[];
+  /**
+   * With `imagePlaceholders === 4`, render `stat` / `statLabel` inside this
+   * grid cell (0–3, row-major) instead of above the grid. `billboardImages` is
+   * then only the photo URLs in row-major order, skipping this index.
+   */
+  statInGridIndex?: number;
+  /** Wide still for the horizontal “video” block on `twoPlusVideo` layouts. */
+  billboardVideoPoster?: string;
 };
+
+/** Maps each slide’s image slots to indices in the global deck lightbox strip (billboards only). */
+type SlideGalleryNav = {
+  images: (number | null)[];
+  poster: number | null;
+};
+
+function buildDeckGallery(slides: Slide[]): {
+  lightboxSlides: { src: string; alt: string }[];
+  navBySlide: (SlideGalleryNav | null)[];
+} {
+  const lightboxSlides: { src: string; alt: string }[] = [];
+
+  const navBySlide = slides.map((s, si) => {
+    const n = s.imagePlaceholders ?? 0;
+    const hasPosterInUi =
+      Boolean(s.billboardVideoPoster) &&
+      Boolean(s.videoPlaceholder) &&
+      s.mediaLayout === "twoPlusVideo";
+
+    if (n === 0 && !hasPosterInUi) return null;
+
+    const images: (number | null)[] = [];
+    let hasAny = false;
+    const useStatSlot =
+      s.statInGridIndex != null &&
+      n === 4 &&
+      s.statInGridIndex >= 0 &&
+      s.statInGridIndex < n;
+
+    let imgCursor = 0;
+    for (let i = 0; i < n; i++) {
+      if (useStatSlot && i === s.statInGridIndex) {
+        images[i] = null;
+        continue;
+      }
+      const src = s.billboardImages?.[imgCursor++];
+      if (src) {
+        images[i] = lightboxSlides.length;
+        hasAny = true;
+        lightboxSlides.push({
+          src,
+          alt: `Slide ${si + 1} · Reference ${i + 1}`,
+        });
+      } else {
+        images[i] = null;
+      }
+    }
+
+    let poster: number | null = null;
+    if (hasPosterInUi) {
+      poster = lightboxSlides.length;
+      hasAny = true;
+      lightboxSlides.push({
+        src: s.billboardVideoPoster!,
+        alt: `Slide ${si + 1} · Wide reference`,
+      });
+    }
+
+    if (!hasAny) return null;
+    return { images, poster };
+  });
+
+  return { lightboxSlides, navBySlide };
+}
 
 const commercialRows: CommercialRow[] = [
   {
@@ -68,6 +194,177 @@ const commercialRows: CommercialRow[] = [
 ];
 
 const grandTotal = "$252,094.09";
+
+function iconForAsideTitle(title: string | undefined): LucideIcon | undefined {
+  if (!title) return undefined;
+  const t = title.trim();
+  if (t === "Core Plan") return LayoutGrid;
+  if (t === "Why this fits SolarWinds") return BadgeCheck;
+  if (t === "Commercial logic") return Workflow;
+  if (t === "Commercial role") return Briefcase;
+  if (t === "Total Package") return Package;
+  if (t === "Suggested message hierarchy") return Layers;
+  if (t === "Closing thought") return Sparkles;
+  return undefined;
+}
+
+function eyebrowLeadIcon(eyebrow: string): LucideIcon | undefined {
+  const l = eyebrow.toLowerCase();
+  if (l.startsWith("touchpoint")) return MapPinned;
+  if (l.includes("brand objective")) return Target;
+  if (l.includes("audience")) return Users;
+  if (l.includes("commercial plan")) return Receipt;
+  if (l.includes("creative")) return Palette;
+  if (l.includes("gitex")) return Sparkles;
+  return undefined;
+}
+
+function asideRowIcon(slideIndex: number, rowIndex: number): LucideIcon {
+  const matrix: Record<number, LucideIcon[]> = {
+    0: [MapPinned, TrainFront, Building2, CalendarRange],
+    1: [Target, LineChart, Layers, Zap],
+    2: [Users, Globe2, Target, LineChart],
+    3: [Plane, Target, Sparkles, Award],
+    4: [TrainFront, Tv, Timer, Zap],
+    6: [Building2, MapPinned, Palette, Compass],
+    7: [FileText, Table2, MapPinned, Receipt],
+    8: [Plane, TrainFront, Megaphone, Palette],
+    9: [Sparkles, HeartHandshake, Sparkles],
+  };
+  const row = matrix[slideIndex];
+  if (!row?.length) return ArrowUpRight;
+  return row[Math.min(rowIndex, row.length - 1)]!;
+}
+
+function AsideSectionHeading({
+  title,
+  themeVars,
+}: {
+  title: string;
+  themeVars: any;
+}) {
+  const Icon = iconForAsideTitle(title);
+  return (
+    <div className="mb-4 mt-6 w-full sm:mt-7">
+      <div className="flex items-center gap-3">
+        {Icon ? (
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg sm:h-11 sm:w-11"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+              boxShadow: "0 4px 28px rgba(244,124,32,0.14)",
+            }}
+          >
+            <Icon
+              className="h-[18px] w-[18px] sm:h-5 sm:w-5"
+              strokeWidth={2.15}
+              style={{ color: themeVars.accent }}
+              aria-hidden
+            />
+          </div>
+        ) : null}
+        <span
+          className="min-w-0 flex-1 text-[11px] font-black uppercase tracking-[0.26em] sm:text-xs sm:tracking-[0.28em]"
+          style={{ color: themeVars.accent }}
+        >
+          {title}
+        </span>
+      </div>
+      <div
+        className="mt-3 h-px w-full rounded-full opacity-50"
+        style={{
+          background: `linear-gradient(90deg, ${themeVars.accent}, transparent)`,
+        }}
+      />
+    </div>
+  );
+}
+
+function AsideContentRow({
+  children,
+  Icon,
+  themeVars,
+}: {
+  children: ReactNode;
+  Icon: LucideIcon;
+  themeVars: any;
+}) {
+  return (
+    <div
+      className="group flex min-h-0 items-center gap-3 rounded-lg px-3 py-3 transition-[border-color,box-shadow,transform] duration-200 sm:rounded-xl sm:px-3.5 sm:py-3.5"
+      style={{
+        background: themeVars.cardInner,
+        border: `1px solid ${themeVars.border}`,
+        boxShadow:
+          "0 1px 0 rgba(255,255,255,0.05) inset, 0 1px 2px rgba(15,23,34,0.04)",
+      }}
+    >
+      <span
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors duration-200 sm:h-11 sm:w-11 sm:rounded-[10px]"
+        style={{
+          background: themeVars.accentSoft,
+          border: `1px solid ${themeVars.accentLine}`,
+        }}
+      >
+        <Icon
+          className="h-[18px] w-[18px] opacity-95 sm:h-5 sm:w-5"
+          strokeWidth={2.2}
+          style={{ color: themeVars.accent }}
+          aria-hidden
+        />
+      </span>
+      <div className="min-w-0 flex-1 text-left text-[13px] font-semibold leading-snug sm:text-sm sm:leading-relaxed">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** Compact 2×2 tiles: icon + label centered (slides with four short aside lines, no gallery). */
+function AsideFeatureTile({
+  children,
+  Icon,
+  themeVars,
+}: {
+  children: ReactNode;
+  Icon: LucideIcon;
+  themeVars: any;
+}) {
+  return (
+    <div
+      className="flex h-full min-h-[132px] flex-col items-center justify-center gap-3 rounded-lg px-3 py-5 text-center transition-[border-color,box-shadow] duration-200 sm:min-h-[148px] sm:rounded-xl sm:px-4 sm:py-6"
+      style={{
+        background: themeVars.cardInner,
+        border: `1px solid ${themeVars.border}`,
+        boxShadow:
+          "0 1px 0 rgba(255,255,255,0.05) inset, 0 2px 8px rgba(15,23,34,0.05)",
+      }}
+    >
+      <span
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl sm:h-14 sm:w-14 sm:rounded-2xl"
+        style={{
+          background: themeVars.accentSoft,
+          border: `1px solid ${themeVars.accentLine}`,
+          boxShadow: "0 6px 20px rgba(244,124,32,0.12)",
+        }}
+      >
+        <Icon
+          className="h-6 w-6 sm:h-7 sm:w-7"
+          strokeWidth={2.05}
+          style={{ color: themeVars.accent }}
+          aria-hidden
+        />
+      </span>
+      <p
+        className="w-full px-0.5 text-[12.5px] font-semibold leading-snug tracking-[-0.02em] sm:text-sm sm:leading-snug"
+        style={{ color: themeVars.text }}
+      >
+        {children}
+      </p>
+    </div>
+  );
+}
 
 const slides: Slide[] = [
   {
@@ -143,6 +440,7 @@ const slides: Slide[] = [
       "Supports premium market perception",
     ],
     imagePlaceholders: 1,
+    billboardImages: ["/images/dxb-terminal-3-arrivals.webp"],
   },
   {
     eyebrow: "Touchpoint 02",
@@ -165,6 +463,12 @@ const slides: Slide[] = [
       "Best layer for scale and frequency",
     ],
     imagePlaceholders: 4,
+    statInGridIndex: 1,
+    billboardImages: [
+      "/images/metro-1.webp",
+      "/images/metro-3.webp",
+      "/images/metro-4.webp",
+    ],
   },
   {
     layout: "mediaOnly",
@@ -175,6 +479,11 @@ const slides: Slide[] = [
     imagePlaceholders: 2,
     videoPlaceholder: true,
     mediaLayout: "twoPlusVideo",
+    billboardImages: [
+      "/images/metro-5.webp",
+      "/images/metro-6.webp",
+    ],
+    billboardVideoPoster: "/images/metro-7.webp",
   },
   {
     eyebrow: "Touchpoint 03",
@@ -197,6 +506,12 @@ const slides: Slide[] = [
       "Excellent support for recall and booth directionality",
     ],
     imagePlaceholders: 4,
+    statInGridIndex: 1,
+    billboardImages: [
+      "/images/metro-2.webp",
+      "/images/metro-5.webp",
+      "/images/metro-6.webp",
+    ],
   },
   {
     layout: "commercial",
@@ -257,15 +572,45 @@ const slides: Slide[] = [
   },
 ];
 
+const DECK_GALLERY = buildDeckGallery(slides);
+
 export default function Page() {
   const [current, setCurrent] = useState(0);
   const [theme, setTheme] = useState<ThemeMode>("dark");
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
   const next = () => setCurrent((p) => Math.min(p + 1, slides.length - 1));
   const prev = () => setCurrent((p) => Math.max(p - 1, 0));
 
+  const openGalleryAt = useCallback((index: number) => {
+    setGalleryIndex(index);
+    setGalleryOpen(true);
+  }, []);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const el = e.target as HTMLElement;
+    if (el.closest("[data-no-swipe]")) {
+      touchStartX.current = null;
+      return;
+    }
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStartX.current;
+    touchStartX.current = null;
+    if (start == null) return;
+    const dx = e.changedTouches[0].clientX - start;
+    if (Math.abs(dx) < 52) return;
+    if (dx < 0) setCurrent((p) => Math.min(p + 1, slides.length - 1));
+    else setCurrent((p) => Math.max(p - 1, 0));
+  };
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      if (galleryOpen) return;
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") prev();
       if (e.key.toLowerCase() === "d") setTheme("dark");
@@ -274,9 +619,12 @@ export default function Page() {
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
+  }, [galleryOpen]);
 
   const slide = slides[current];
+  const galleryNav = DECK_GALLERY.navBySlide[current] ?? null;
+  const gallerySlides = DECK_GALLERY.lightboxSlides;
+  const hasDeckGallery = gallerySlides.length > 0;
 
   const themeVars = useMemo(() => {
     if (theme === "light") {
@@ -316,116 +664,241 @@ export default function Page() {
 
   return (
     <main
-      className="h-screen w-screen overflow-hidden"
+      className="flex h-dvh max-h-dvh w-full max-w-[100vw] flex-col overflow-hidden antialiased"
       style={{
         background: themeVars.bg,
         color: themeVars.text,
       }}
     >
-      <div className="relative h-full w-full overflow-hidden">
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <div className="absolute inset-0">
           <div
-            className="absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full blur-[110px]"
+            className="absolute -left-24 -top-24 z-0 h-[420px] w-[420px] rounded-full blur-[110px]"
             style={{ background: themeVars.orb1 }}
           />
           <div
-            className="absolute -bottom-24 -right-24 h-[420px] w-[420px] rounded-full blur-[120px]"
+            className="absolute -bottom-24 -right-24 z-0 h-[420px] w-[420px] rounded-full blur-[120px]"
             style={{ background: themeVars.orb2 }}
           />
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `linear-gradient(${themeVars.grid} 1px, transparent 1px), linear-gradient(90deg, ${themeVars.grid} 1px, transparent 1px)`,
-              backgroundSize: "52px 52px",
-            }}
+          <RippleLineGridBackdrop
+            themeKey={theme}
+            baseLine={themeVars.grid}
+            glow={themeVars.accent}
+            background={themeVars.bg}
           />
         </div>
 
-        <header className="absolute left-8 right-8 top-6 z-30 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <header
+          className="absolute left-3 right-3 top-[max(0.5rem,env(safe-area-inset-top))] z-30 sm:left-8 sm:right-8 sm:top-6"
+          style={{
+            paddingLeft: "max(0px, env(safe-area-inset-left))",
+            paddingRight: "max(0px, env(safe-area-inset-right))",
+          }}
+        >
+          <div className="relative flex w-full min-w-0 items-center justify-between gap-2 sm:gap-3">
+            <div className="relative z-10 shrink-0">
+              <img
+                src="/brands/solarwinds-logo.svg"
+                alt="SolarWinds"
+                width={220}
+                height={44}
+                loading="eager"
+                fetchPriority="high"
+                className="block h-[18px] w-auto max-w-[min(148px,38vw)] object-contain object-left sm:h-5 md:h-[22px]"
+              />
+            </div>
+
             <div
-              className="rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.28em]"
-              style={{
-                background: themeVars.accentSoft,
-                color: themeVars.accent,
-                border: `1px solid ${themeVars.accentLine}`,
-              }}
+              className="pointer-events-none absolute inset-0 flex items-center justify-center px-18 sm:px-36 md:px-44"
             >
-              SolarWinds
+              <div
+                className="max-w-full truncate text-center text-[10px] font-bold uppercase tracking-[0.18em] opacity-60 sm:text-xs sm:tracking-[0.24em]"
+                style={{ color: themeVars.text }}
+              >
+                <span className="sm:hidden">GITEX ’26</span>
+                <span className="hidden sm:inline">GITEX 2026 Deck</span>
+              </div>
             </div>
 
-            <div className="text-xs font-bold uppercase tracking-[0.24em] opacity-60">
-              GITEX 2026 Deck
-            </div>
-          </div>
+            <div className="relative z-10 flex shrink-0 flex-col-reverse items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+              <div
+                className="box-border inline-flex h-8 cursor-pointer items-center gap-0 rounded-full p-0.5"
+                style={{
+                  background: themeVars.cardInner,
+                  border: `1px solid ${themeVars.border}`,
+                  boxShadow:
+                    theme === "light"
+                      ? "inset 0 1px 2px rgba(15,23,34,0.06)"
+                      : "inset 0 1px 3px rgba(0,0,0,0.35)",
+                }}
+                role="group"
+                aria-label="Color theme"
+              >
+                <button
+                  type="button"
+                  onClick={() => setTheme("light")}
+                  aria-pressed={theme === "light"}
+                  aria-label="Use light theme"
+                  title="Light"
+                  className="grid size-7 shrink-0 cursor-pointer place-items-center rounded-full transition-all duration-200 ease-out"
+                  style={{
+                    background:
+                      theme === "light" ? themeVars.accent : "transparent",
+                    color: theme === "light" ? "#fff" : themeVars.sub,
+                    boxShadow:
+                      theme === "light"
+                        ? "0 2px 8px rgba(244,124,32,0.35)"
+                        : "none",
+                  }}
+                >
+                  <Sun
+                    className="size-3.5"
+                    strokeWidth={2.35}
+                    aria-hidden
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTheme("dark")}
+                  aria-pressed={theme === "dark"}
+                  aria-label="Use dark theme"
+                  title="Dark"
+                  className="grid size-7 shrink-0 cursor-pointer place-items-center rounded-full transition-all duration-200 ease-out"
+                  style={{
+                    background:
+                      theme === "dark" ? themeVars.accent : "transparent",
+                    color: theme === "dark" ? "#fff" : themeVars.sub,
+                    boxShadow:
+                      theme === "dark"
+                        ? "0 2px 8px rgba(244,124,32,0.35)"
+                        : "none",
+                  }}
+                >
+                  <Moon
+                    className="size-3.5"
+                    strokeWidth={2.35}
+                    aria-hidden
+                  />
+                </button>
+              </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setTheme("light")}
-              className="rounded-full px-3 py-1 text-xs font-bold"
-              style={{
-                background:
-                  theme === "light" ? themeVars.accent : themeVars.panel,
-                color: theme === "light" ? "#fff" : themeVars.text,
-                border: `1px solid ${
-                  theme === "light" ? themeVars.accent : themeVars.border
-                }`,
-              }}
-            >
-              Light
-            </button>
-
-            <button
-              onClick={() => setTheme("dark")}
-              className="rounded-full px-3 py-1 text-xs font-bold"
-              style={{
-                background:
-                  theme === "dark" ? themeVars.accent : themeVars.panel,
-                color: theme === "dark" ? "#fff" : themeVars.text,
-                border: `1px solid ${
-                  theme === "dark" ? themeVars.accent : themeVars.border
-                }`,
-              }}
-            >
-              Dark
-            </button>
-
-            <div className="text-xs font-semibold uppercase tracking-[0.22em] opacity-50">
-              {String(current + 1).padStart(2, "0")} /{" "}
-              {String(slides.length).padStart(2, "0")}
+              <div
+                className="whitespace-nowrap tabular-nums text-[10px] font-semibold uppercase tracking-[0.16em] opacity-50 sm:text-xs sm:tracking-[0.22em]"
+                style={{ color: themeVars.text }}
+              >
+                {String(current + 1).padStart(2, "0")} /{" "}
+                {String(slides.length).padStart(2, "0")}
+              </div>
             </div>
           </div>
         </header>
 
-        <section className="relative z-10 flex h-full items-center px-8 pb-24 pt-24 md:px-14 lg:px-20">
+        <section
+          className={`relative z-10 flex min-h-0 flex-1 flex-col justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-[calc(5.75rem+env(safe-area-inset-top))] [-webkit-overflow-scrolling:touch] sm:px-6 sm:pb-28 sm:pt-24 md:px-14 lg:px-20 lg:pt-24 lg:items-center lg:justify-center`}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {slide.layout === "mediaOnly" ? (
-            <MediaOnlySlide slide={slide} theme={theme} themeVars={themeVars} />
+            <MediaOnlySlide
+              slide={slide}
+              theme={theme}
+              themeVars={themeVars}
+              slideIndex={current}
+              galleryNav={galleryNav}
+              onOpenGallery={hasDeckGallery ? openGalleryAt : undefined}
+            />
           ) : (
             <div
               key={`${theme}-${current}`}
-              className={`mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:items-center ${
+              className={`mx-auto grid w-full max-w-full animate-[fadeUp_.45s_ease-out] gap-6 sm:gap-8 lg:max-w-7xl lg:items-center ${
                 slide.layout === "commercial"
                   ? "lg:grid-cols-[0.78fr_1.22fr]"
                   : "lg:grid-cols-[1.1fr_.9fr]"
               }`}
             >
-              <div>
+              <div className="min-w-0">
+                {slide.layout === "cover" ? (
+                  <div className="mb-4 flex flex-col items-start gap-3 sm:mb-5 sm:gap-3.5">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
+                      <img
+                        src={
+                          theme === "light"
+                            ? "/ooh-ae-black.webp"
+                            : "/ooh-ae-white.webp"
+                        }
+                        alt="OOH.ae"
+                        width={200}
+                        height={48}
+                        loading="eager"
+                        fetchPriority="high"
+                        className="block h-[26px] w-auto max-w-[min(188px,52vw)] shrink-0 object-contain object-left sm:h-[30px] md:h-8"
+                      />
+                      <span
+                        className="select-none text-base font-light leading-none sm:text-lg"
+                        style={{ color: themeVars.sub }}
+                        aria-hidden
+                      >
+                        ×
+                      </span>
+                      <img
+                        src="/brands/solarwinds-logo.svg"
+                        alt="SolarWinds"
+                        width={220}
+                        height={44}
+                        loading="eager"
+                        fetchPriority="high"
+                        className="block h-[22px] w-auto max-w-[min(200px,46vw)] shrink-0 object-contain object-left sm:h-[26px] md:h-7"
+                        style={
+                          theme === "dark"
+                            ? { filter: "brightness(0) invert(1)" }
+                            : undefined
+                        }
+                      />
+                    </div>
+                    <div
+                      className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] sm:gap-2.5 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.25em]"
+                      style={{
+                        color: themeVars.accent,
+                        background: themeVars.accentSoft,
+                        border: `1px solid ${themeVars.accentLine}`,
+                      }}
+                    >
+                      <Handshake
+                        className="h-3 w-3 shrink-0 opacity-90 sm:h-3.5 sm:w-3.5"
+                        strokeWidth={2.25}
+                        aria-hidden
+                      />
+                      {slide.eyebrow}
+                    </div>
+                  </div>
+                ) : (
                 <div
-                  className="mb-5 inline-flex rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.25em]"
+                  className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] sm:mb-5 sm:gap-2.5 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.25em]"
                   style={{
                     color: themeVars.accent,
                     background: themeVars.accentSoft,
                     border: `1px solid ${themeVars.accentLine}`,
                   }}
                 >
+                  {(() => {
+                    const Icon = eyebrowLeadIcon(slide.eyebrow);
+                    return Icon ? (
+                      <Icon
+                        className="h-3 w-3 shrink-0 opacity-90 sm:h-3.5 sm:w-3.5"
+                        strokeWidth={2.25}
+                        aria-hidden
+                      />
+                    ) : null;
+                  })()}
                   {slide.eyebrow}
                 </div>
+                )}
 
                 <h1
-                  className={`whitespace-pre-line font-black leading-[0.94] tracking-[-0.06em] ${
+                  className={`whitespace-pre-line font-black leading-[0.96] tracking-[-0.05em] sm:leading-[0.94] sm:tracking-[-0.06em] ${
                     slide.layout === "cover"
-                      ? "text-6xl md:text-8xl lg:text-[92px]"
-                      : "text-5xl md:text-7xl"
+                      ? "text-[clamp(1.85rem,9.2vw,2.75rem)] sm:text-4xl md:text-5xl md:leading-[0.94] lg:text-7xl xl:text-8xl 2xl:text-[92px]"
+                      : "text-[clamp(1.65rem,7.5vw,2.4rem)] sm:text-4xl md:text-5xl lg:text-7xl"
                   }`}
                 >
                   {slide.title}
@@ -433,7 +906,7 @@ export default function Page() {
 
                 {slide.subtitle && (
                   <p
-                    className="mt-7 max-w-3xl text-lg leading-8 md:text-[21px]"
+                    className="mt-5 max-w-3xl text-[15px] leading-[1.55] sm:mt-7 sm:text-lg sm:leading-8 md:text-[21px]"
                     style={{ color: themeVars.sub }}
                   >
                     {slide.subtitle}
@@ -441,7 +914,7 @@ export default function Page() {
                 )}
 
                 {slide.bullets && slide.layout !== "commercial" && (
-                  <div className="mt-8 grid gap-3 md:grid-cols-2">
+                  <div className="mt-6 grid gap-2.5 sm:mt-8 sm:gap-3 md:grid-cols-2">
                     {slide.bullets.map((bullet) => (
                       <InfoPill
                         key={bullet}
@@ -453,7 +926,7 @@ export default function Page() {
                 )}
 
                 {slide.bullets && slide.layout === "commercial" && (
-                  <div className="mt-8 space-y-3">
+                  <div className="mt-6 grid min-w-0 grid-cols-2 gap-x-2.5 gap-y-2.5 sm:mt-8 sm:gap-x-3 sm:gap-y-3 *:min-w-0">
                     {slide.bullets.map((bullet) => (
                       <InfoPill
                         key={bullet}
@@ -466,16 +939,23 @@ export default function Page() {
               </div>
 
               {slide.layout === "commercial" ? (
-                <CommercialTable themeVars={themeVars} />
+                <CommercialTable themeVars={themeVars} slideIndex={current} />
               ) : (
-                <RightPanel slide={slide} theme={theme} themeVars={themeVars} />
+                <RightPanel
+                  slide={slide}
+                  theme={theme}
+                  themeVars={themeVars}
+                  slideIndex={current}
+                  galleryNav={galleryNav}
+                  onOpenGallery={hasDeckGallery ? openGalleryAt : undefined}
+                />
               )}
             </div>
           )}
         </section>
 
         <nav
-          className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-full px-2 py-1.5"
+          className="absolute bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-1/2 z-30 flex w-[min(calc(100vw-1.25rem),26rem)] max-w-[calc(100vw-1.25rem)] -translate-x-1/2 items-center gap-1.5 rounded-full px-2 py-2 shadow-lg shadow-black/10 sm:bottom-5 sm:w-auto sm:max-w-none sm:gap-2 sm:px-2.5 sm:py-1.5 sm:shadow-none"
           style={{
             background: themeVars.nav,
             border: `1px solid ${themeVars.border}`,
@@ -483,20 +963,23 @@ export default function Page() {
           }}
         >
           <button
+            type="button"
             onClick={prev}
             disabled={current === 0}
-            className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-bold leading-none transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-35 disabled:active:scale-100 sm:h-9 sm:w-9 sm:text-sm"
             style={{ background: themeVars.panel, color: themeVars.text }}
+            aria-label="Previous slide"
           >
             ‹
           </button>
 
-          <div className="flex gap-1">
+          <div className="flex min-w-0 flex-1 justify-center gap-1 overflow-x-auto px-0.5 [scrollbar-width:none] sm:flex-initial sm:overflow-visible [&::-webkit-scrollbar]:hidden">
             {slides.map((_, i) => (
               <button
+                type="button"
                 key={i}
                 onClick={() => setCurrent(i)}
-                className="h-1 rounded-full transition-all"
+                className="h-1 shrink-0 rounded-full transition-all active:scale-110"
                 style={{
                   width: i === current ? 14 : 4,
                   background:
@@ -506,19 +989,53 @@ export default function Page() {
                         ? "#cbd5e1"
                         : "rgba(255,255,255,0.22)",
                 }}
+                aria-label={`Go to slide ${i + 1}`}
               />
             ))}
           </div>
 
           <button
+            type="button"
             onClick={next}
             disabled={current === slides.length - 1}
-            className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-bold leading-none transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-35 disabled:active:scale-100 sm:h-9 sm:w-9 sm:text-sm"
             style={{ background: themeVars.panel, color: themeVars.text }}
+            aria-label="Next slide"
           >
             ›
           </button>
         </nav>
+
+        {hasDeckGallery ? (
+          <Lightbox
+            open={galleryOpen}
+            close={() => setGalleryOpen(false)}
+            index={galleryIndex}
+            slides={gallerySlides}
+            plugins={[Counter, Thumbnails]}
+            carousel={{ finite: true, preload: 2 }}
+            thumbnails={{
+              position: "bottom",
+              width: 88,
+              height: 56,
+              gap: 10,
+              padding: 3,
+              border: 2,
+              borderRadius: 8,
+              imageFit: "cover",
+              vignette: true,
+            }}
+            controller={{ closeOnBackdropClick: true }}
+            portal={{
+              container: {
+                "data-no-swipe": "",
+              } as ComponentProps<"div">,
+            }}
+            on={{
+              view: ({ index }) => setGalleryIndex(index),
+            }}
+          />
+        ) : null}
       </div>
 
       <style jsx global>{`
@@ -541,20 +1058,24 @@ function MediaOnlySlide({
   slide,
   theme,
   themeVars,
+  slideIndex,
+  galleryNav,
+  onOpenGallery,
 }: {
   slide: Slide;
   theme: ThemeMode;
   themeVars: any;
+  slideIndex: number;
+  galleryNav: SlideGalleryNav | null;
+  onOpenGallery?: (index: number) => void;
 }) {
   return (
     <div
-      key="media-only-slide"
-      className="mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-center"
+      key={`media-only-${slideIndex}`}
+      className="mx-auto w-full max-w-full animate-[fadeUp_.45s_ease-out] lg:max-w-7xl"
     >
-      <div className="hidden lg:block" />
-
       <div
-        className="rounded-[30px] p-6 md:p-7"
+        className="w-full rounded-xl p-4 sm:rounded-2xl sm:p-6 md:p-7"
         style={{
           background: themeVars.panel,
           border: `1px solid ${themeVars.border}`,
@@ -566,20 +1087,51 @@ function MediaOnlySlide({
         }}
       >
         <div
-          className="mb-4 rounded-[24px] p-5"
+          className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] sm:mb-5 sm:gap-2.5 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.25em]"
           style={{
+            color: themeVars.accent,
             background: themeVars.accentSoft,
             border: `1px solid ${themeVars.accentLine}`,
           }}
         >
-          <div
-            className="text-5xl font-black tracking-[-0.06em] md:text-6xl"
-            style={{ color: themeVars.accent }}
+          <MonitorPlay
+            className="h-3 w-3 shrink-0 opacity-90 sm:h-3.5 sm:w-3.5"
+            strokeWidth={2.25}
+            aria-hidden
+          />
+          {slide.eyebrow}
+        </div>
+
+        <div className="mb-4 grid grid-cols-3 items-center gap-x-3 gap-y-2 sm:mb-5 sm:gap-x-5 md:gap-x-6">
+          <h2
+            className="col-span-2 min-w-0 self-center text-xl font-black leading-[1.08] tracking-[-0.04em] sm:text-2xl md:text-3xl lg:text-4xl"
+            style={{ color: themeVars.text }}
           >
-            {slide.stat}
-          </div>
-          <div className="mt-2 text-xs font-black uppercase tracking-[0.25em] opacity-65">
-            {slide.statLabel}
+            {slide.title}
+          </h2>
+
+          <div
+            className="col-span-1 min-w-0 justify-self-stretch rounded-lg p-3 sm:rounded-xl sm:p-4"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+            }}
+          >
+            <div
+              className="text-center text-3xl font-black tracking-[-0.06em] sm:text-4xl md:text-5xl"
+              style={{ color: themeVars.accent }}
+            >
+              {slide.stat ? (
+                <AnimatedStat
+                  value={slide.stat}
+                  playKey={slideIndex}
+                  duration={1.35}
+                />
+              ) : null}
+            </div>
+            <div className="mt-1.5 text-center text-[10px] font-black uppercase tracking-[0.2em] opacity-65 sm:mt-2 sm:text-xs sm:tracking-[0.25em]">
+              {slide.statLabel}
+            </div>
           </div>
         </div>
 
@@ -588,6 +1140,10 @@ function MediaOnlySlide({
           themeVars={themeVars}
           videoPlaceholder={slide.videoPlaceholder}
           mediaLayout={slide.mediaLayout}
+          billboardImages={slide.billboardImages}
+          billboardVideoPoster={slide.billboardVideoPoster}
+          galleryNav={galleryNav}
+          onOpenGallery={onOpenGallery}
         />
       </div>
     </div>
@@ -598,18 +1154,30 @@ function RightPanel({
   slide,
   theme,
   themeVars,
+  slideIndex,
+  galleryNav,
+  onOpenGallery,
 }: {
   slide: Slide;
   theme: ThemeMode;
   themeVars: any;
+  slideIndex: number;
+  galleryNav: SlideGalleryNav | null;
+  onOpenGallery?: (index: number) => void;
 }) {
   const hasImages = Boolean(slide.imagePlaceholders);
+  const fourAsideItems = slide.rightContent?.length === 4;
+  const useFeatureTiles = fourAsideItems && !hasImages;
+  /** Slides 4, 5, 7 (1-based): DXB T3, Expo Metro, Expo outdoor — center stat copy */
+  const centerStatInPanel = [3, 4, 6].includes(slideIndex);
+  const embedStatInGrid =
+    Boolean(slide.stat) &&
+    slide.statInGridIndex != null &&
+    slide.imagePlaceholders === 4;
 
   return (
     <div
-      className={`rounded-[30px] p-6 md:p-7 ${
-        hasImages ? "min-h-[690px]" : ""
-      }`}
+      className="min-w-0 w-full rounded-xl p-4 sm:rounded-2xl sm:p-6 md:p-7"
       style={{
         background: themeVars.panel,
         border: `1px solid ${themeVars.border}`,
@@ -620,47 +1188,51 @@ function RightPanel({
             : "0 20px 60px rgba(0,0,0,0.28)",
       }}
     >
-      {slide.stat ? (
+      {slide.stat && !embedStatInGrid ? (
         <div
-          className={
+          className={`${
             hasImages
-              ? "mb-4 rounded-[24px] p-5"
-              : "mb-6 rounded-[24px] p-6"
-          }
+              ? "mb-3 rounded-lg p-4 sm:mb-4 sm:rounded-xl sm:p-5"
+              : "mb-5 rounded-lg p-4 sm:mb-6 sm:rounded-xl sm:p-6"
+          }${centerStatInPanel ? " text-center" : ""}`}
           style={{
             background: themeVars.accentSoft,
             border: `1px solid ${themeVars.accentLine}`,
           }}
         >
           <div
-            className="text-6xl font-black tracking-[-0.06em] md:text-7xl"
+            className={`text-4xl font-black tracking-[-0.06em] sm:text-5xl md:text-6xl lg:text-7xl${centerStatInPanel ? " text-center" : ""}`}
             style={{ color: themeVars.accent }}
           >
-            {slide.stat}
+            <AnimatedStat
+              value={slide.stat}
+              playKey={slideIndex}
+              duration={1.35}
+            />
           </div>
           <div className="mt-2 text-xs font-black uppercase tracking-[0.25em] opacity-65">
             {slide.statLabel}
           </div>
         </div>
-      ) : (
+      ) : !slide.stat ? (
         <div
-          className="mb-6 rounded-[24px] p-6"
+          className="mb-5 rounded-lg p-4 sm:rounded-xl sm:p-6"
           style={{
             background: themeVars.accentSoft,
             border: `1px solid ${themeVars.accentLine}`,
           }}
         >
           <div
-            className="text-xs font-black uppercase tracking-[0.25em]"
+            className="text-[10px] font-black uppercase tracking-[0.22em] sm:text-xs sm:tracking-[0.25em]"
             style={{ color: themeVars.accent }}
           >
             Commercial Focus
           </div>
-          <div className="mt-3 text-3xl font-black tracking-[-0.04em]">
+          <div className="mt-2 text-2xl font-black tracking-[-0.04em] sm:mt-3 sm:text-3xl">
             Awareness · Recall · Booth Influence
           </div>
         </div>
-      )}
+      ) : null}
 
       {slide.imagePlaceholders ? (
         <ImagePlaceholderGrid
@@ -668,40 +1240,82 @@ function RightPanel({
           themeVars={themeVars}
           videoPlaceholder={slide.videoPlaceholder}
           mediaLayout={slide.mediaLayout}
+          billboardImages={slide.billboardImages}
+          billboardVideoPoster={slide.billboardVideoPoster}
+          galleryNav={galleryNav}
+          onOpenGallery={onOpenGallery}
+          statInGrid={
+            embedStatInGrid
+              ? {
+                  index: slide.statInGridIndex!,
+                  value: slide.stat!,
+                  label: slide.statLabel,
+                  playKey: slideIndex,
+                }
+              : undefined
+          }
         />
       ) : null}
 
-      {slide.rightTitle && (
-        <div
-          className="mb-4 mt-5 text-xs font-black uppercase tracking-[0.24em]"
-          style={{ color: themeVars.accent }}
-        >
-          {slide.rightTitle}
-        </div>
-      )}
+      {slide.rightTitle ? (
+        <AsideSectionHeading title={slide.rightTitle} themeVars={themeVars} />
+      ) : null}
 
       <div
         className={
-          hasImages && slide.rightContent?.length === 4
-            ? "grid grid-cols-2 gap-3"
-            : "space-y-3"
+          fourAsideItems
+            ? "grid grid-cols-2 gap-2.5 sm:gap-3"
+            : "space-y-2.5 sm:space-y-3"
         }
       >
-        {slide.rightContent?.map((item) => (
-          <div
-            key={item}
-            className="rounded-2xl px-4 py-4 text-sm leading-6"
-            style={{
-              background: themeVars.cardInner,
-              border: `1px solid ${themeVars.border}`,
-            }}
-          >
-            {item}
-          </div>
-        ))}
+        {slide.rightContent?.map((item, i) => {
+          const RowIcon = asideRowIcon(slideIndex, i);
+          return useFeatureTiles ? (
+            <AsideFeatureTile key={item} Icon={RowIcon} themeVars={themeVars}>
+              {item}
+            </AsideFeatureTile>
+          ) : (
+            <AsideContentRow key={item} Icon={RowIcon} themeVars={themeVars}>
+              {item}
+            </AsideContentRow>
+          );
+        })}
       </div>
     </div>
   );
+}
+
+/** Clickable deck reference image → opens global lightbox at `globalIndex`. */
+function GalleryImageTrigger({
+  src,
+  alt,
+  globalIndex,
+  onOpenGallery,
+  imgClassName,
+}: {
+  src: string;
+  alt: string;
+  globalIndex: number | null | undefined;
+  onOpenGallery?: (index: number) => void;
+  imgClassName: string;
+}) {
+  if (onOpenGallery != null && globalIndex != null) {
+    return (
+      <button
+        type="button"
+        onClick={() => onOpenGallery(globalIndex)}
+        aria-label={`Open image viewer: ${alt}`}
+        className="group relative block h-full w-full cursor-pointer border-0 bg-transparent p-0 outline-none transition-opacity hover:opacity-[0.98] focus-visible:opacity-[0.98] focus-visible:ring-2 focus-visible:ring-orange-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+      >
+        <img src={src} alt={alt} className={imgClassName} loading="lazy" />
+        <span
+          className="pointer-events-none absolute inset-0 rounded-[inherit] bg-black/0 transition-colors group-hover:bg-black/8 group-focus-visible:bg-black/8"
+          aria-hidden
+        />
+      </button>
+    );
+  }
+  return <img src={src} alt={alt} className={imgClassName} loading="lazy" />;
 }
 
 function ImagePlaceholderGrid({
@@ -709,41 +1323,140 @@ function ImagePlaceholderGrid({
   themeVars,
   videoPlaceholder,
   mediaLayout,
+  billboardImages,
+  billboardVideoPoster,
+  galleryNav,
+  onOpenGallery,
+  statInGrid,
 }: {
   count: number;
   themeVars: any;
   videoPlaceholder?: boolean;
   mediaLayout?: "standard" | "twoPlusVideo";
+  billboardImages?: string[];
+  billboardVideoPoster?: string;
+  galleryNav: SlideGalleryNav | null;
+  onOpenGallery?: (index: number) => void;
+  statInGrid?: {
+    index: number;
+    value: string;
+    label?: string;
+    playKey: number;
+  };
 }) {
+  const slotSrc = (i: number) => billboardImages?.[i];
+  const cellRound = "rounded-md sm:rounded-lg";
+  const videoRound = "rounded-lg sm:rounded-xl";
+
   if (mediaLayout === "twoPlusVideo") {
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          {Array.from({ length: count }).map((_, i) => (
-            <div
-              key={i}
-              className="flex h-[205px] items-center justify-center rounded-[24px] text-center text-xs font-black uppercase tracking-[0.22em]"
-              style={{
-                background: themeVars.cardInner,
-                border: `1px dashed ${themeVars.accentLine}`,
-                color: themeVars.accent,
-              }}
-            >
-              Image Placeholder {i + 1}
+      <div className="space-y-3 sm:space-y-4">
+        {count === 2 ? (
+          <div
+            className={`relative h-[200px] w-full overflow-hidden sm:h-[220px] md:h-[240px] ${cellRound}`}
+            style={{
+              background: themeVars.cardInner,
+              border:
+                slotSrc(0) || slotSrc(1)
+                  ? `1px solid ${themeVars.border}`
+                  : `1px dashed ${themeVars.accentLine}`,
+            }}
+          >
+            <div className="flex h-full min-h-0 w-full gap-2.5 sm:gap-3">
+              {[0, 1].map((i) => {
+                const src = slotSrc(i);
+                return (
+                  <div
+                    key={i}
+                    className="relative min-h-0 min-w-0 flex-1 basis-0 overflow-hidden"
+                    style={{
+                      background: themeVars.cardInner,
+                    }}
+                  >
+                    {src ? (
+                      <GalleryImageTrigger
+                        src={src}
+                        alt={`Reference billboard ${i + 1}`}
+                        globalIndex={galleryNav?.images[i]}
+                        onOpenGallery={onOpenGallery}
+                        imgClassName="h-full w-full object-cover object-center"
+                      />
+                    ) : (
+                      <div
+                        className="flex h-full items-center justify-center text-center text-xs font-black uppercase tracking-[0.22em]"
+                        style={{ color: themeVars.accent }}
+                      >
+                        Image Placeholder {i + 1}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+            {Array.from({ length: count }).map((_, i) => {
+              const src = slotSrc(i);
+              return (
+                <div
+                  key={i}
+                  className={`relative aspect-video w-full overflow-hidden ${cellRound}`}
+                  style={{
+                    background: themeVars.cardInner,
+                    border: src
+                      ? `1px solid ${themeVars.border}`
+                      : `1px dashed ${themeVars.accentLine}`,
+                  }}
+                >
+                  {src ? (
+                    <GalleryImageTrigger
+                      src={src}
+                      alt={`Reference billboard ${i + 1}`}
+                      globalIndex={galleryNav?.images[i]}
+                      onOpenGallery={onOpenGallery}
+                      imgClassName="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="flex h-full items-center justify-center text-center text-xs font-black uppercase tracking-[0.22em]"
+                      style={{ color: themeVars.accent }}
+                    >
+                      Image Placeholder {i + 1}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {videoPlaceholder && (
           <div
-            className="flex h-[310px] items-center justify-center rounded-[26px] text-center text-xs font-black uppercase tracking-[0.22em]"
+            className={`relative h-[150px] w-full overflow-hidden sm:h-[176px] md:h-[200px] ${videoRound}`}
             style={{
               background: themeVars.accentSoft,
-              border: `1px dashed ${themeVars.accentLine}`,
-              color: themeVars.accent,
+              border: billboardVideoPoster
+                ? `1px solid ${themeVars.border}`
+                : `1px dashed ${themeVars.accentLine}`,
             }}
           >
-            Horizontal Video Placeholder
+            {billboardVideoPoster ? (
+              <GalleryImageTrigger
+                src={billboardVideoPoster}
+                alt="Wide reference for horizontal video placement"
+                globalIndex={galleryNav?.poster}
+                onOpenGallery={onOpenGallery}
+                imgClassName="h-full w-full object-cover"
+              />
+            ) : (
+              <div
+                className="flex h-full items-center justify-center text-center text-xs font-black uppercase tracking-[0.22em]"
+                style={{ color: themeVars.accent }}
+              >
+                Horizontal Video Placeholder
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -751,35 +1464,106 @@ function ImagePlaceholderGrid({
   }
 
   if (count === 1) {
+    const src = slotSrc(0);
     return (
       <div
-        className="mb-5 flex h-[410px] items-center justify-center rounded-[26px] text-center text-xs font-black uppercase tracking-[0.22em]"
+        className={`relative mb-4 aspect-video w-full max-w-full overflow-hidden sm:mb-5 ${videoRound}`}
         style={{
           background: themeVars.cardInner,
-          border: `1px dashed ${themeVars.accentLine}`,
-          color: themeVars.accent,
+          border: src
+            ? `1px solid ${themeVars.border}`
+            : `1px dashed ${themeVars.accentLine}`,
         }}
       >
-        Image Placeholder 1
+        {src ? (
+          <GalleryImageTrigger
+            src={src}
+            alt="Reference billboard"
+            globalIndex={galleryNav?.images[0]}
+            onOpenGallery={onOpenGallery}
+            imgClassName="h-full w-full object-cover"
+          />
+        ) : (
+          <div
+            className="flex h-full items-center justify-center text-center text-xs font-black uppercase tracking-[0.22em]"
+            style={{ color: themeVars.accent }}
+          >
+            Image Placeholder 1
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="mb-5 grid grid-cols-2 gap-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="flex h-[215px] items-center justify-center rounded-[24px] text-center text-xs font-black uppercase tracking-[0.22em]"
-          style={{
-            background: themeVars.cardInner,
-            border: `1px dashed ${themeVars.accentLine}`,
-            color: themeVars.accent,
-          }}
-        >
-          Image Placeholder {i + 1}
-        </div>
-      ))}
+    <div className="mb-4 grid grid-cols-2 gap-2.5 sm:mb-5 sm:gap-3">
+      {Array.from({ length: count }, (_, i) => {
+        if (statInGrid && i === statInGrid.index) {
+          return (
+            <div
+              key={`stat-slot-${i}`}
+              className={`relative flex aspect-video w-full min-h-0 flex-col items-center justify-center overflow-hidden ${cellRound} px-2 py-3 text-center sm:px-3 sm:py-4`}
+              style={{
+                background: themeVars.accentSoft,
+                border: `1px solid ${themeVars.accentLine}`,
+              }}
+            >
+              <div
+                className="text-3xl font-black tracking-[-0.06em] sm:text-4xl md:text-5xl"
+                style={{ color: themeVars.accent }}
+              >
+                <AnimatedStat
+                  value={statInGrid.value}
+                  playKey={statInGrid.playKey}
+                  duration={1.35}
+                />
+              </div>
+              {statInGrid.label ? (
+                <div className="mt-1 max-w-full px-1 text-[9px] font-black uppercase leading-tight tracking-[0.18em] opacity-65 sm:mt-1.5 sm:text-[10px] sm:tracking-[0.22em]">
+                  {statInGrid.label}
+                </div>
+              ) : null}
+            </div>
+          );
+        }
+
+        let bi = 0;
+        for (let j = 0; j < i; j++) {
+          if (statInGrid && j === statInGrid.index) continue;
+          bi++;
+        }
+        const src = statInGrid != null ? billboardImages?.[bi] : slotSrc(i);
+
+        return (
+          <div
+            key={i}
+            className={`relative aspect-video w-full overflow-hidden ${cellRound}`}
+            style={{
+              background: themeVars.cardInner,
+              border: src
+                ? `1px solid ${themeVars.border}`
+                : `1px dashed ${themeVars.accentLine}`,
+            }}
+          >
+            {src ? (
+              <GalleryImageTrigger
+                src={src}
+                alt={`Reference billboard ${i + 1}`}
+                globalIndex={galleryNav?.images[i]}
+                onOpenGallery={onOpenGallery}
+                imgClassName="h-full w-full object-cover"
+              />
+            ) : (
+              <div
+                className="flex h-full items-center justify-center text-center text-xs font-black uppercase tracking-[0.22em]"
+                style={{ color: themeVars.accent }}
+              >
+                Image Placeholder {i + 1}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -787,28 +1571,48 @@ function ImagePlaceholderGrid({
 function InfoPill({ text, themeVars }: { text: string; themeVars: any }) {
   return (
     <div
-      className="rounded-2xl px-4 py-4 text-sm leading-6"
+      className="group flex h-full min-h-0 flex-col rounded-lg border px-3 py-3 text-[13px] leading-snug transition-[border-color,box-shadow] duration-200 sm:rounded-xl sm:px-3.5 sm:py-3.5 sm:text-sm sm:leading-relaxed"
       style={{
         background: themeVars.panel,
-        border: `1px solid ${themeVars.border}`,
+        borderColor: themeVars.border,
         backdropFilter: "blur(14px)",
+        boxShadow:
+          "0 1px 0 rgba(255,255,255,0.05) inset, 0 1px 2px rgba(15,23,34,0.04)",
       }}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex min-h-0 flex-1 items-center gap-3">
         <span
-          className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full"
-          style={{ background: themeVars.accent }}
-        />
-        <span>{text}</span>
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-hover:translate-x-0.5 sm:h-10 sm:w-10 sm:rounded-[10px]"
+          style={{
+            background: themeVars.accentSoft,
+            border: `1px solid ${themeVars.accentLine}`,
+          }}
+        >
+          <ChevronRight
+            className="h-4 w-4 sm:h-[18px] sm:w-[18px]"
+            strokeWidth={2.35}
+            style={{ color: themeVars.accent }}
+            aria-hidden
+          />
+        </span>
+        <span className="min-w-0 flex-1 font-medium leading-snug sm:leading-relaxed">
+          {text}
+        </span>
       </div>
     </div>
   );
 }
 
-function CommercialTable({ themeVars }: { themeVars: any }) {
+function CommercialTable({
+  themeVars,
+  slideIndex,
+}: {
+  themeVars: any;
+  slideIndex: number;
+}) {
   return (
     <div
-      className="rounded-[30px] p-5 md:p-6"
+      className="min-w-0 w-full rounded-xl p-4 sm:rounded-2xl sm:p-5 md:p-6"
       style={{
         background: themeVars.panel,
         border: `1px solid ${themeVars.border}`,
@@ -816,36 +1620,55 @@ function CommercialTable({ themeVars }: { themeVars: any }) {
       }}
     >
       <div
-        className="mb-5 rounded-[24px] p-5"
+        className="mb-4 rounded-lg p-4 sm:mb-5 sm:rounded-xl sm:p-5"
         style={{
           background: themeVars.accentSoft,
           border: `1px solid ${themeVars.accentLine}`,
         }}
       >
         <div
-          className="text-xs font-black uppercase tracking-[0.25em]"
+          className="flex items-center gap-2.5 text-[10px] font-black uppercase tracking-[0.2em] sm:gap-3 sm:text-xs sm:tracking-[0.25em]"
           style={{ color: themeVars.accent }}
         >
-          Total Media Investment
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-[10px]"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+            }}
+          >
+            <Wallet
+              className="h-[18px] w-[18px] sm:h-5 sm:w-5"
+              strokeWidth={2.15}
+              style={{ color: themeVars.accent }}
+              aria-hidden
+            />
+          </span>
+          <span>Total Media Investment</span>
         </div>
 
         <div
-          className="mt-2 text-5xl font-black tracking-[-0.06em]"
+          className="mt-1 text-4xl font-black tracking-[-0.06em] sm:mt-2 sm:text-5xl"
           style={{ color: themeVars.accent }}
         >
-          {grandTotal}
+          <AnimatedStat
+            value={grandTotal}
+            playKey={slideIndex}
+            duration={1.55}
+          />
         </div>
 
-        <div className="mt-2 text-xs font-bold uppercase tracking-[0.18em] opacity-60">
+        <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] opacity-60 sm:mt-2 sm:text-xs sm:tracking-[0.18em]">
           Excluding 5% VAT
         </div>
       </div>
 
       <div
-        className="overflow-hidden rounded-2xl"
+        data-no-swipe
+        className="-mx-1 overflow-x-auto rounded-lg [scrollbar-width:thin] sm:mx-0 sm:rounded-xl"
         style={{ border: `1px solid ${themeVars.border}` }}
       >
-        <table className="w-full border-collapse text-left text-[12px]">
+        <table className="w-full min-w-[620px] border-collapse text-left text-[10px] sm:text-[12px]">
           <thead>
             <tr style={{ background: themeVars.cardInner }}>
               {[
@@ -859,7 +1682,7 @@ function CommercialTable({ themeVars }: { themeVars: any }) {
               ].map((head) => (
                 <th
                   key={head}
-                  className="px-3 py-3 text-[10px] font-black uppercase tracking-[0.18em]"
+                  className="whitespace-nowrap px-2 py-2.5 text-[9px] font-black uppercase tracking-[0.12em] sm:px-3 sm:py-3 sm:text-[10px] sm:tracking-[0.18em]"
                   style={{
                     color: themeVars.accent,
                     borderBottom: `1px solid ${themeVars.border}`,
@@ -875,52 +1698,52 @@ function CommercialTable({ themeVars }: { themeVars: any }) {
             {commercialRows.map((row) => (
               <tr key={row.location}>
                 <td
-                  className="px-3 py-4 font-bold"
+                  className="max-w-[140px] px-2 py-3 font-bold sm:max-w-none sm:px-3 sm:py-4"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.location}
-                  <div className="mt-1 text-[10px] font-medium opacity-60">
+                  <div className="mt-1 text-[9px] font-medium opacity-60 sm:text-[10px]">
                     {row.format}
                   </div>
                 </td>
 
                 <td
-                  className="px-3 py-4"
+                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.screens}
                 </td>
 
                 <td
-                  className="px-3 py-4"
+                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.duration}
                 </td>
 
                 <td
-                  className="px-3 py-4"
+                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.productionFee}
                 </td>
 
                 <td
-                  className="px-3 py-4"
+                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.grossRate}
                 </td>
 
                 <td
-                  className="px-3 py-4"
+                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.netRate}
                 </td>
 
                 <td
-                  className="px-3 py-4 font-black"
+                  className="whitespace-nowrap px-2 py-3 font-black sm:px-3 sm:py-4"
                   style={{
                     color: themeVars.accent,
                     borderBottom: `1px solid ${themeVars.border}`,
@@ -935,7 +1758,7 @@ function CommercialTable({ themeVars }: { themeVars: any }) {
       </div>
 
       <div
-        className="mt-4 rounded-2xl p-4 text-xs font-semibold leading-6"
+        className="mt-4 rounded-lg p-4 text-xs font-semibold leading-6 sm:rounded-xl"
         style={{
           background: themeVars.cardInner,
           border: `1px solid ${themeVars.border}`,
