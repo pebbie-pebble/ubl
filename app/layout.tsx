@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Loop Restaurant Launch Campaign',
-  description: 'OOH and elevator media campaign proposal for Loop Restaurant Dubai.',
+  title: 'SolarWinds Campaign',
+  description: 'SolarWinds GITEX 2026 OOH and digital media campaign proposal.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-icon.png',
   },
-}
+
 
 export default function RootLayout({
   children,
