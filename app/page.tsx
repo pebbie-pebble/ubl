@@ -1,293 +1,527 @@
-export default function SolarWindsPlanPage() {
-  const touchpoints = [
-    {
-      number: "01",
-      label: "Metro Gateway",
-      title: "Expo City Metro Station Digital Network",
-      stat: "134",
-      statLabel: "Digital Screens",
-      description:
-        "Station-wide digital domination across entrance, concourse, platform and footbridge zones. SolarWinds reaches GITEX visitors before they enter the venue environment.",
-      details: [
-        "LED display formats",
-        "8-second creative spots",
-        "Once per minute frequency",
-        "2-week GITEX campaign period",
-        "Coverage across Entrance, Concourse, Platform and Footbridge",
-      ],
-    },
-    {
-      number: "02",
-      label: "Venue Journey",
-      title: "Expo City Outdoor Digital Network",
-      stat: "49",
-      statLabel: "Outdoor Screens",
-      description:
-        "A venue-level digital layer across the Expo City promenade, capturing visitors as they move between the metro station, open-air zones and exhibition halls.",
-      details: [
-        "MUPI totems",
-        "Horizontal LED screens",
-        "Step screens",
-        "High-footfall pedestrian journey coverage",
-        "Positioned across Expo City grounds",
-      ],
-    },
-    {
-      number: "03",
-      label: "Airport Arrival",
-      title: "DXB Terminal 3 Arrivals",
-      stat: "2.92M",
-      statLabel: "Monthly Impressions",
-      description:
-        "Premium airport exposure at passport control, reaching international business leaders, investors and enterprise decision-makers as they arrive in Dubai.",
-      details: [
-        "3 screens at passport control",
-        "Captive premium arrival audience",
-        "Global business traveller exposure",
-        "Average frequency: 5.84x",
-        "First Dubai brand impression opportunity",
-      ],
-    },
-  ];
+"use client";
 
-  const strategyCards = [
-    {
-      title: "Audience Fit",
-      text: "GITEX attracts CIOs, CTOs, IT procurement managers, enterprise technology buyers and senior decision-makers from global markets.",
-    },
-    {
-      title: "Pre-Booth Influence",
-      text: "The campaign builds familiarity before attendees reach the exhibition hall, helping SolarWinds feel present, established and easier to recall.",
-    },
-    {
-      title: "Journey Ownership",
-      text: "SolarWinds appears across the full visitor journey: arrival, transit, venue approach and event movement.",
-    },
-    {
-      title: "Contextual Relevance",
-      text: "Expo City’s tech-forward environment makes the campaign feel naturally aligned with SolarWinds’ enterprise software positioning.",
-    },
-  ];
+import { useEffect, useMemo, useState } from "react";
+
+type ThemeMode = "dark" | "light";
+
+type Slide = {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  stat?: string;
+  statLabel?: string;
+  bullets?: string[];
+  rightTitle?: string;
+  rightContent?: string[];
+  layout?: "cover" | "standard" | "split" | "commercial";
+};
+
+const slides: Slide[] = [
+  {
+    layout: "cover",
+    eyebrow: "SolarWinds × OOH.ae",
+    title: "GITEX 2026\nCommercial Plan & Strategy",
+    subtitle:
+      "A premium journey-based OOH plan built to place SolarWinds in front of enterprise technology buyers before they ever reach the exhibition hall.",
+    rightTitle: "Core Plan",
+    rightContent: [
+      "DXB Terminal 3 Arrivals",
+      "Expo City Metro Station",
+      "Expo City Digital Outdoor Network",
+      "2-week GITEX campaign window",
+    ],
+  },
+  {
+    eyebrow: "Brand Objective",
+    title: "Make SolarWinds visible before competitor noise begins.",
+    subtitle:
+      "The commercial goal is not just event presence. It is to warm the audience before booth interaction, lift brand familiarity across the full visitor journey, and improve the quality of conversations at GITEX.",
+    bullets: [
+      "Pre-booth awareness",
+      "Higher recall at point of conversation",
+      "Premium enterprise presence",
+      "Repeated exposure across key journey touchpoints",
+    ],
+    rightTitle: "Why this fits SolarWinds",
+    rightContent: [
+      "Observability",
+      "Database performance",
+      "Incident response",
+      "ITSM and enterprise operations",
+    ],
+  },
+  {
+    eyebrow: "Audience Strategy",
+    title: "Target the enterprise technology audience in motion.",
+    subtitle:
+      "GITEX gathers CIOs, CTOs, infrastructure heads, IT procurement managers, transformation teams, partners and enterprise decision-makers from across the region and beyond.",
+    bullets: [
+      "180,000+ registered visitors",
+      "170+ countries represented",
+      "Enterprise tech buyer concentration",
+      "High receptivity before booth overload",
+    ],
+    rightTitle: "Commercial logic",
+    rightContent: [
+      "Reach them before they enter the hall",
+      "Build recognition before direct sales meetings",
+      "Use contextually relevant premium digital environments",
+      "Support booth investment with upstream visibility",
+    ],
+  },
+  {
+    eyebrow: "Touchpoint 01",
+    title: "DXB Terminal 3 Arrivals",
+    subtitle:
+      "Capture international arrivals at the first business-touchpoint in Dubai. This layer is about premium first impression and senior traveller visibility.",
+    stat: "2.92M",
+    statLabel: "Monthly Impressions",
+    bullets: [
+      "3 screens at passport control",
+      "Captive arrivals audience",
+      "Average frequency: 5.84x",
+      "Best for premium senior-business visibility",
+    ],
+    rightTitle: "Commercial role",
+    rightContent: [
+      "Top-of-funnel prestige",
+      "International executive exposure",
+      "Sets tone before city movement",
+      "Supports premium market perception",
+    ],
+  },
+  {
+    eyebrow: "Touchpoint 02",
+    title: "Expo City Metro Station",
+    subtitle:
+      "This is the mass-arrival layer. SolarWinds becomes visible to GITEX visitors as they enter the venue ecosystem through the metro route.",
+    stat: "134",
+    statLabel: "Digital Screens",
+    bullets: [
+      "Entrance, concourse, platform and footbridge coverage",
+      "8-second spot length",
+      "Once per minute frequency",
+      "2-week GITEX campaign period",
+    ],
+    rightTitle: "Commercial role",
+    rightContent: [
+      "Mass awareness at event gateway",
+      "High repetition",
+      "Strong arrival dominance",
+      "Best layer for scale and frequency",
+    ],
+  },
+  {
+    eyebrow: "Touchpoint 03",
+    title: "Expo City Digital Outdoor Network",
+    subtitle:
+      "This is the venue-journey reinforcement layer. It keeps SolarWinds visible as people move through Expo City between the metro and the halls.",
+    stat: "49",
+    statLabel: "Outdoor Screens",
+    bullets: [
+      "41 MUPI Totems",
+      "6 Step Screens",
+      "2 Horizontal LED screens",
+      "Zones include Entrance Gate, Al Wasl Plaza, Jubilee Park and Sustainability",
+    ],
+    rightTitle: "Commercial role",
+    rightContent: [
+      "Venue presence near pedestrian flow",
+      "Last-mile reinforcement before hall entry",
+      "Multi-format visual variety",
+      "Excellent support for recall and booth directionality",
+    ],
+  },
+  {
+    layout: "commercial",
+    eyebrow: "Recommended Commercial Package",
+    title: "Run the campaign in three layers.",
+    subtitle:
+      "The strongest commercial recommendation is a full-journey package. Airport builds prestige, metro builds scale, and Expo City outdoor builds venue recall.",
+    rightTitle: "Package recommendation",
+    rightContent: [
+      "Layer 1 · DXB T3 for premium arrival audience",
+      "Layer 2 · Metro for event-scale frequency",
+      "Layer 3 · Outdoor for venue reinforcement",
+      "Outcome · awareness + recall + warmer booth conversations",
+    ],
+    bullets: [
+      "Best option: Full Journey Ownership",
+      "Alternative option: Metro + Expo City only",
+      "Premium option: DXB + Metro + Outdoor with tailored creative by format",
+      "Use sequential messaging rather than one static message everywhere",
+    ],
+  },
+  {
+    eyebrow: "Creative Strategy",
+    title: "Adapt the message to each environment.",
+    subtitle:
+      "Do not run one generic event message everywhere. Use the environment to shape the creative and move the audience toward the booth with clearer intent.",
+    bullets: [
+      "Airport: category authority and enterprise confidence",
+      "Metro: bold GITEX presence and quick brand recognition",
+      "Outdoor: booth reminder, product themes, directional reinforcement",
+      "Keep copy minimal and highly legible from distance",
+    ],
+    rightTitle: "Suggested message hierarchy",
+    rightContent: [
+      "Unified observability",
+      "Operational resilience",
+      "Database performance",
+      "Meet SolarWinds at GITEX",
+    ],
+  },
+  {
+    eyebrow: "Commercial Outcome",
+    title: "What this plan is meant to achieve.",
+    subtitle:
+      "This is a commercial visibility plan designed to improve the efficiency of the event investment, not just beautify it. The media should make SolarWinds easier to remember, easier to notice, and easier to approach.",
+    bullets: [
+      "Stronger pre-booth familiarity",
+      "Higher enterprise-brand salience",
+      "Better use of booth investment",
+      "More qualified walk-up and warmer meeting context",
+    ],
+    rightTitle: "Next steps",
+    rightContent: [
+      "Confirm asset mix",
+      "Lock GITEX dates",
+      "Approve creative route",
+      "Adapt artwork to each format",
+    ],
+  },
+];
+
+export default function Page() {
+  const [current, setCurrent] = useState(0);
+  const [theme, setTheme] = useState<ThemeMode>("dark");
+
+  const next = () => setCurrent((p) => (p + 1) % slides.length);
+  const prev = () => setCurrent((p) => (p - 1 + slides.length) % slides.length);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key.toLowerCase() === "d") setTheme("dark");
+      if (e.key.toLowerCase() === "l") setTheme("light");
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  const slide = slides[current];
+
+  const themeVars = useMemo(() => {
+    if (theme === "light") {
+      return {
+        bg: "#f7f8fb",
+        panel: "rgba(255,255,255,0.75)",
+        panelSolid: "#ffffff",
+        text: "#0f1722",
+        sub: "#475569",
+        accent: "#f47c20",
+        accentSoft: "rgba(244,124,32,0.12)",
+        accentLine: "rgba(244,124,32,0.35)",
+        grid: "rgba(15,23,34,0.06)",
+        orb1: "rgba(244,124,32,0.18)",
+        orb2: "rgba(19,34,61,0.10)",
+        nav: "rgba(255,255,255,0.78)",
+      };
+    }
+
+    return {
+      bg: "#0d1420",
+      panel: "rgba(255,255,255,0.06)",
+      panelSolid: "#111b2a",
+      text: "#f8fafc",
+      sub: "#cbd5e1",
+      accent: "#f47c20",
+      accentSoft: "rgba(244,124,32,0.12)",
+      accentLine: "rgba(244,124,32,0.35)",
+      grid: "rgba(255,255,255,0.05)",
+      orb1: "rgba(244,124,32,0.18)",
+      orb2: "rgba(75,107,161,0.18)",
+      nav: "rgba(13,20,32,0.84)",
+    };
+  }, [theme]);
 
   return (
-    <main className="min-h-screen bg-[#101820] text-white">
-      {/* Hero */}
-      <section className="relative overflow-hidden px-6 py-24 md:px-12 lg:px-20">
-        <div className="absolute inset-0 opacity-40">
-          <div className="absolute left-[-10%] top-[-20%] h-[420px] w-[420px] rounded-full bg-[#4F6583] blur-[120px]" />
-          <div className="absolute bottom-[-20%] right-[-10%] h-[420px] w-[420px] rounded-full bg-[#2f4258] blur-[120px]" />
+    <main
+      className="h-screen w-screen overflow-hidden"
+      style={{
+        background: themeVars.bg,
+        color: themeVars.text,
+      }}
+    >
+      <div className="relative h-full w-full overflow-hidden">
+        <div className="absolute inset-0">
+          <div
+            className="absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full blur-[110px]"
+            style={{ background: themeVars.orb1 }}
+          />
+          <div
+            className="absolute -bottom-24 -right-24 h-[420px] w-[420px] rounded-full blur-[120px]"
+            style={{ background: themeVars.orb2 }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `linear-gradient(${themeVars.grid} 1px, transparent 1px), linear-gradient(90deg, ${themeVars.grid} 1px, transparent 1px)`,
+              backgroundSize: "52px 52px",
+            }}
+          />
         </div>
 
-        <div className="relative mx-auto max-w-7xl">
-          <div className="mb-8 inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#d6d6d6]">
-            SolarWinds × OOH.ae · GITEX 2026 · 2 Weeks
+        <header className="absolute left-8 right-8 top-6 z-30 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className="rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.28em]"
+              style={{
+                background: themeVars.accentSoft,
+                color: themeVars.accent,
+                border: `1px solid ${themeVars.accentLine}`,
+              }}
+            >
+              SolarWinds
+            </div>
+            <div className="text-xs font-bold uppercase tracking-[0.24em] opacity-60">
+              GITEX 2026 Deck
+            </div>
           </div>
 
-          <h1 className="max-w-5xl text-5xl font-black leading-[0.95] tracking-[-0.05em] md:text-7xl lg:text-8xl">
-            Own the Journey.
-            <br />
-            <span className="text-[#7f9abb]">Before the Hall Door.</span>
-          </h1>
-
-          <p className="mt-8 max-w-3xl text-lg leading-8 text-[#d6d6d6]">
-            A precision out-of-home campaign placing SolarWinds across the
-            GITEX visitor journey, from Dubai arrival and metro movement to the
-            Expo City venue approach.
-          </p>
-
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
-            <HeroMetric value="134" label="Metro digital screens" />
-            <HeroMetric value="49" label="Expo City outdoor screens" />
-            <HeroMetric value="2.92M" label="DXB T3 monthly impressions" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setTheme("light")}
+              className="rounded-full px-3 py-1 text-xs font-bold"
+              style={{
+                background: theme === "light" ? themeVars.accent : themeVars.panel,
+                color: theme === "light" ? "#fff" : themeVars.text,
+                border: `1px solid ${
+                  theme === "light" ? themeVars.accent : "rgba(255,255,255,0.08)"
+                }`,
+              }}
+            >
+              Light
+            </button>
+            <button
+              onClick={() => setTheme("dark")}
+              className="rounded-full px-3 py-1 text-xs font-bold"
+              style={{
+                background: theme === "dark" ? themeVars.accent : themeVars.panel,
+                color: theme === "dark" ? "#fff" : themeVars.text,
+                border: `1px solid ${
+                  theme === "dark" ? themeVars.accent : "rgba(255,255,255,0.08)"
+                }`,
+              }}
+            >
+              Dark
+            </button>
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] opacity-50">
+              {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+            </div>
           </div>
-        </div>
-      </section>
+        </header>
 
-      {/* Strategy */}
-      <section className="border-y border-white/10 bg-white/[0.03] px-6 py-20 md:px-12 lg:px-20">
-        <div className="mx-auto max-w-7xl">
-          <SectionLabel text="Campaign Rationale" />
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+        <section className="relative z-10 flex h-full items-center px-8 pb-24 pt-24 md:px-14 lg:px-20">
+          <div
+            key={`${theme}-${current}`}
+            className="mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:grid-cols-[1.2fr_.8fr] lg:items-center"
+          >
             <div>
-              <h2 className="text-4xl font-black tracking-[-0.04em] md:text-5xl">
-                Why this works for SolarWinds
-              </h2>
-              <p className="mt-5 text-base leading-8 text-[#d6d6d6]">
-                The campaign is designed to reach enterprise technology
-                decision-makers before competitor messaging becomes dense inside
-                the exhibition hall. It makes SolarWinds visible early,
-                repeatedly and in context.
-              </p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              {strategyCards.map((card) => (
-                <div
-                  key={card.title}
-                  className="rounded-2xl border border-white/10 bg-[#1b2836] p-6 shadow-2xl shadow-black/10"
-                >
-                  <h3 className="text-lg font-bold text-white">
-                    {card.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-7 text-[#d6d6d6]">
-                    {card.text}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Touchpoints */}
-      <section className="px-6 py-20 md:px-12 lg:px-20">
-        <div className="mx-auto max-w-7xl">
-          <SectionLabel text="Three-Touchpoint Coverage" />
-          <h2 className="max-w-4xl text-4xl font-black tracking-[-0.04em] md:text-5xl">
-            The GITEX visitor journey, covered from arrival to venue.
-          </h2>
-
-          <div className="mt-12 grid gap-6">
-            {touchpoints.map((item) => (
-              <article
-                key={item.number}
-                className="grid gap-8 rounded-3xl border border-white/10 bg-[#172331] p-6 md:grid-cols-[0.8fr_1.2fr] md:p-8"
+              <div
+                className="mb-5 inline-flex rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.25em]"
+                style={{
+                  color: themeVars.accent,
+                  background: themeVars.accentSoft,
+                  border: `1px solid ${themeVars.accentLine}`,
+                }}
               >
-                <div className="rounded-2xl bg-[#4F6583]/15 p-6">
-                  <div className="text-sm font-black uppercase tracking-[0.3em] text-[#7f9abb]">
-                    Touchpoint {item.number}
-                  </div>
-                  <div className="mt-5 text-6xl font-black tracking-[-0.06em] text-[#7f9abb]">
-                    {item.stat}
-                  </div>
-                  <div className="mt-2 text-sm font-semibold uppercase tracking-[0.2em] text-[#d6d6d6]/70">
-                    {item.statLabel}
-                  </div>
-                </div>
+                {slide.eyebrow}
+              </div>
 
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-[0.25em] text-[#7f9abb]">
-                    {item.label}
-                  </div>
-                  <h3 className="mt-3 text-3xl font-black tracking-[-0.03em]">
-                    {item.title}
-                  </h3>
-                  <p className="mt-4 max-w-3xl text-base leading-8 text-[#d6d6d6]">
-                    {item.description}
-                  </p>
+              <h1
+                className={`whitespace-pre-line font-black leading-[0.94] tracking-[-0.06em] ${
+                  slide.layout === "cover"
+                    ? "text-6xl md:text-8xl lg:text-[92px]"
+                    : "text-5xl md:text-7xl"
+                }`}
+              >
+                {slide.title}
+              </h1>
 
-                  <div className="mt-6 grid gap-3 md:grid-cols-2">
-                    {item.details.map((detail) => (
-                      <div
-                        key={detail}
-                        className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-[#d6d6d6]"
-                      >
-                        {detail}
+              {slide.subtitle && (
+                <p
+                  className="mt-7 max-w-3xl text-lg leading-8 md:text-[21px]"
+                  style={{ color: themeVars.sub }}
+                >
+                  {slide.subtitle}
+                </p>
+              )}
+
+              {slide.bullets && (
+                <div className="mt-8 grid gap-3 md:grid-cols-2">
+                  {slide.bullets.map((bullet) => (
+                    <div
+                      key={bullet}
+                      className="rounded-2xl px-4 py-4 text-sm leading-6"
+                      style={{
+                        background: themeVars.panel,
+                        border: `1px solid ${
+                          theme === "light" ? "rgba(15,23,34,0.08)" : "rgba(255,255,255,0.08)"
+                        }`,
+                        backdropFilter: "blur(14px)",
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span
+                          className="mt-2 h-2.5 w-2.5 rounded-full"
+                          style={{ background: themeVars.accent }}
+                        />
+                        <span>{bullet}</span>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Campaign Plan */}
-      <section className="bg-[#d6d6d6] px-6 py-20 text-[#101820] md:px-12 lg:px-20">
-        <div className="mx-auto max-w-7xl">
-          <SectionLabel text="Recommended Plan" dark />
-          <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
-            <div>
-              <h2 className="text-4xl font-black tracking-[-0.04em] md:text-5xl">
-                A high-frequency, premium visibility layer for GITEX 2026.
-              </h2>
-              <p className="mt-5 text-base leading-8 text-[#334155]">
-                The recommended approach is to run all three media layers
-                together for maximum journey ownership. Metro builds mass event
-                arrival visibility, Expo City outdoor reinforces the venue path,
-                and DXB Terminal 3 captures senior international arrivals before
-                they reach the city.
-              </p>
+              )}
             </div>
 
-            <div className="rounded-3xl bg-white p-6 shadow-xl">
-              <h3 className="text-xl font-black">Plan Summary</h3>
+            <div
+              className="rounded-[30px] p-6 md:p-7"
+              style={{
+                background: themeVars.panel,
+                border: `1px solid ${
+                  theme === "light" ? "rgba(15,23,34,0.08)" : "rgba(255,255,255,0.09)"
+                }`,
+                backdropFilter: "blur(18px)",
+                boxShadow:
+                  theme === "light"
+                    ? "0 20px 60px rgba(15,23,34,0.08)"
+                    : "0 20px 60px rgba(0,0,0,0.28)",
+              }}
+            >
+              {slide.stat ? (
+                <div
+                  className="mb-6 rounded-[24px] p-6"
+                  style={{
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                  }}
+                >
+                  <div
+                    className="text-6xl font-black tracking-[-0.06em] md:text-7xl"
+                    style={{ color: themeVars.accent }}
+                  >
+                    {slide.stat}
+                  </div>
+                  <div className="mt-2 text-xs font-black uppercase tracking-[0.25em] opacity-65">
+                    {slide.statLabel}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="mb-6 rounded-[24px] p-6"
+                  style={{
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                  }}
+                >
+                  <div
+                    className="text-xs font-black uppercase tracking-[0.25em]"
+                    style={{ color: themeVars.accent }}
+                  >
+                    Commercial Focus
+                  </div>
+                  <div className="mt-3 text-3xl font-black tracking-[-0.04em]">
+                    Awareness · Recall · Booth Influence
+                  </div>
+                </div>
+              )}
 
-              <div className="mt-6 space-y-4">
-                <PlanRow label="Client" value="SolarWinds" />
-                <PlanRow label="Event" value="GITEX 2026" />
-                <PlanRow label="Campaign Duration" value="2 Weeks" />
-                <PlanRow label="Primary Location" value="Expo City Dubai" />
-                <PlanRow
-                  label="Core Objective"
-                  value="Awareness, recall and pre-booth influence"
-                />
-                <PlanRow
-                  label="Recommended Media"
-                  value="Metro Digital + Expo City Outdoor + DXB T3 Arrivals"
-                />
+              {slide.rightTitle && (
+                <div
+                  className="mb-4 text-xs font-black uppercase tracking-[0.24em]"
+                  style={{ color: themeVars.accent }}
+                >
+                  {slide.rightTitle}
+                </div>
+              )}
+
+              <div className="space-y-3">
+                {slide.rightContent?.map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl px-4 py-4 text-sm leading-6"
+                    style={{
+                      background: theme === "light" ? "rgba(15,23,34,0.03)" : "rgba(0,0,0,0.14)",
+                      border: `1px solid ${
+                        theme === "light" ? "rgba(15,23,34,0.07)" : "rgba(255,255,255,0.07)"
+                      }`,
+                    }}
+                  >
+                    {item}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA */}
-      <section className="px-6 py-20 md:px-12 lg:px-20">
-        <div className="mx-auto max-w-7xl rounded-3xl border border-white/10 bg-[#4F6583]/20 p-8 md:p-12">
-          <div className="max-w-3xl">
-            <SectionLabel text="Next Step" />
-            <h2 className="text-4xl font-black tracking-[-0.04em]">
-              Confirm availability, lock the GITEX window, and adapt creative
-              for each screen format.
-            </h2>
-            <p className="mt-5 text-base leading-8 text-[#d6d6d6]">
-              Once the media route is approved, the next step is to finalise
-              artwork formats, booking timelines, production specifications and
-              go-live checks across the selected digital networks.
-            </p>
+        <nav
+          className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-full px-4 py-3"
+          style={{
+            background: themeVars.nav,
+            border: `1px solid ${
+              theme === "light" ? "rgba(15,23,34,0.08)" : "rgba(255,255,255,0.08)"
+            }`,
+            backdropFilter: "blur(18px)",
+          }}
+        >
+          <button
+            onClick={prev}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-lg"
+            style={{ background: themeVars.panel, color: themeVars.text }}
+          >
+            ‹
+          </button>
+
+          <div className="flex gap-2">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className="h-2 rounded-full transition-all"
+                style={{
+                  width: i === current ? 34 : 8,
+                  background: i === current ? themeVars.accent : theme === "light" ? "#cbd5e1" : "rgba(255,255,255,0.22)",
+                }}
+              />
+            ))}
           </div>
-        </div>
-      </section>
+
+          <button
+            onClick={next}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-lg"
+            style={{ background: themeVars.panel, color: themeVars.text }}
+          >
+            ›
+          </button>
+        </nav>
+      </div>
+
+      <style jsx global>{`
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(18px) scale(0.985);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+      `}</style>
     </main>
-  );
-}
-
-function HeroMetric({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur">
-      <div className="text-4xl font-black tracking-[-0.05em] text-[#7f9abb]">
-        {value}
-      </div>
-      <div className="mt-2 text-sm font-semibold uppercase tracking-[0.16em] text-[#d6d6d6]/70">
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function SectionLabel({ text, dark = false }: { text: string; dark?: boolean }) {
-  return (
-    <div
-      className={`mb-5 text-xs font-black uppercase tracking-[0.28em] ${
-        dark ? "text-[#4F6583]" : "text-[#7f9abb]"
-      }`}
-    >
-      {text}
-    </div>
-  );
-}
-
-function PlanRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="grid gap-2 border-b border-slate-200 pb-4 last:border-b-0 last:pb-0 md:grid-cols-[180px_1fr]">
-      <div className="text-xs font-black uppercase tracking-[0.2em] text-[#4F6583]">
-        {label}
-      </div>
-      <div className="text-sm font-semibold leading-6 text-[#101820]">
-        {value}
-      </div>
-    </div>
   );
 }
