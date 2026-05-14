@@ -27,6 +27,8 @@ type Slide = {
   rightContent?: string[];
   layout?: "cover" | "standard" | "split" | "commercial";
   imagePlaceholders?: number;
+  videoPlaceholder?: boolean;
+  mediaLayout?: "standard" | "twoPlusVideo";
 };
 
 const commercialRows: CommercialRow[] = [
@@ -163,6 +165,30 @@ const slides: Slide[] = [
       "Best layer for scale and frequency",
     ],
     imagePlaceholders: 4,
+  },
+  {
+    eyebrow: "Touchpoint 02 · Visual Route",
+    title: "Expo City Metro Station creative visibility.",
+    subtitle:
+      "Additional visual references for the Expo City Metro Station network, including static placement views and a horizontal video preview area for campaign creative or motion mockups.",
+    stat: "134",
+    statLabel: "Digital Screens",
+    bullets: [
+      "Use static visuals to show placement context",
+      "Use video area for campaign motion preview",
+      "Ideal for showcasing SolarWinds creative in situ",
+      "Supports client understanding before production",
+    ],
+    rightTitle: "Visual Assets",
+    rightContent: [
+      "Two supporting image references",
+      "One horizontal video preview",
+      "Metro station environment focus",
+      "Creative mockup ready",
+    ],
+    imagePlaceholders: 2,
+    videoPlaceholder: true,
+    mediaLayout: "twoPlusVideo",
   },
   {
     eyebrow: "Touchpoint 03",
@@ -354,7 +380,8 @@ export default function Page() {
               onClick={() => setTheme("light")}
               className="rounded-full px-3 py-1 text-xs font-bold"
               style={{
-                background: theme === "light" ? themeVars.accent : themeVars.panel,
+                background:
+                  theme === "light" ? themeVars.accent : themeVars.panel,
                 color: theme === "light" ? "#fff" : themeVars.text,
                 border: `1px solid ${
                   theme === "light" ? themeVars.accent : themeVars.border
@@ -368,7 +395,8 @@ export default function Page() {
               onClick={() => setTheme("dark")}
               className="rounded-full px-3 py-1 text-xs font-bold"
               style={{
-                background: theme === "dark" ? themeVars.accent : themeVars.panel,
+                background:
+                  theme === "dark" ? themeVars.accent : themeVars.panel,
                 color: theme === "dark" ? "#fff" : themeVars.text,
                 border: `1px solid ${
                   theme === "dark" ? themeVars.accent : themeVars.border
@@ -428,7 +456,11 @@ export default function Page() {
               {slide.bullets && slide.layout !== "commercial" && (
                 <div className="mt-8 grid gap-3 md:grid-cols-2">
                   {slide.bullets.map((bullet) => (
-                    <InfoPill key={bullet} text={bullet} themeVars={themeVars} />
+                    <InfoPill
+                      key={bullet}
+                      text={bullet}
+                      themeVars={themeVars}
+                    />
                   ))}
                 </div>
               )}
@@ -436,7 +468,11 @@ export default function Page() {
               {slide.bullets && slide.layout === "commercial" && (
                 <div className="mt-8 space-y-3">
                   {slide.bullets.map((bullet) => (
-                    <InfoPill key={bullet} text={bullet} themeVars={themeVars} />
+                    <InfoPill
+                      key={bullet}
+                      text={bullet}
+                      themeVars={themeVars}
+                    />
                   ))}
                 </div>
               )}
@@ -451,7 +487,7 @@ export default function Page() {
         </section>
 
         <nav
-          className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full px-3 py-2"
+          className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-full px-2 py-1.5"
           style={{
             background: themeVars.nav,
             border: `1px solid ${themeVars.border}`,
@@ -461,20 +497,20 @@ export default function Page() {
           <button
             onClick={prev}
             disabled={current === 0}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-sm disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] disabled:cursor-not-allowed disabled:opacity-35"
             style={{ background: themeVars.panel, color: themeVars.text }}
           >
             ‹
           </button>
 
-          <div className="flex gap-1.5">
+          <div className="flex gap-1">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
-                className="h-1.5 rounded-full transition-all"
+                className="h-1 rounded-full transition-all"
                 style={{
-                  width: i === current ? 24 : 6,
+                  width: i === current ? 14 : 4,
                   background:
                     i === current
                       ? themeVars.accent
@@ -489,7 +525,7 @@ export default function Page() {
           <button
             onClick={next}
             disabled={current === slides.length - 1}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-sm disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] disabled:cursor-not-allowed disabled:opacity-35"
             style={{ background: themeVars.panel, color: themeVars.text }}
           >
             ›
@@ -542,7 +578,9 @@ function RightPanel({
       {slide.stat ? (
         <div
           className={
-            hasImages ? "mb-4 rounded-[24px] p-6" : "mb-6 rounded-[24px] p-6"
+            hasImages
+              ? "mb-4 rounded-[24px] p-6"
+              : "mb-6 rounded-[24px] p-6"
           }
           style={{
             background: themeVars.accentSoft,
@@ -583,6 +621,8 @@ function RightPanel({
         <ImagePlaceholderGrid
           count={slide.imagePlaceholders}
           themeVars={themeVars}
+          videoPlaceholder={slide.videoPlaceholder}
+          mediaLayout={slide.mediaLayout}
         />
       ) : null}
 
@@ -622,10 +662,49 @@ function RightPanel({
 function ImagePlaceholderGrid({
   count,
   themeVars,
+  videoPlaceholder,
+  mediaLayout,
 }: {
   count: number;
   themeVars: any;
+  videoPlaceholder?: boolean;
+  mediaLayout?: "standard" | "twoPlusVideo";
 }) {
+  if (mediaLayout === "twoPlusVideo") {
+    return (
+      <div className="mb-5 space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          {Array.from({ length: count }).map((_, i) => (
+            <div
+              key={i}
+              className="flex h-[210px] items-center justify-center rounded-[24px] text-center text-xs font-black uppercase tracking-[0.22em]"
+              style={{
+                background: themeVars.cardInner,
+                border: `1px dashed ${themeVars.accentLine}`,
+                color: themeVars.accent,
+              }}
+            >
+              Image Placeholder {i + 1}
+            </div>
+          ))}
+        </div>
+
+        {videoPlaceholder && (
+          <div
+            className="flex h-[230px] items-center justify-center rounded-[26px] text-center text-xs font-black uppercase tracking-[0.22em]"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px dashed ${themeVars.accentLine}`,
+              color: themeVars.accent,
+            }}
+          >
+            Horizontal Video Placeholder
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (count === 1) {
     return (
       <div
