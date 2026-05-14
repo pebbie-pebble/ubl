@@ -352,8 +352,7 @@ export default function Page() {
               onClick={() => setTheme("light")}
               className="rounded-full px-3 py-1 text-xs font-bold"
               style={{
-                background:
-                  theme === "light" ? themeVars.accent : themeVars.panel,
+                background: theme === "light" ? themeVars.accent : themeVars.panel,
                 color: theme === "light" ? "#fff" : themeVars.text,
                 border: `1px solid ${
                   theme === "light" ? themeVars.accent : themeVars.border
@@ -367,8 +366,7 @@ export default function Page() {
               onClick={() => setTheme("dark")}
               className="rounded-full px-3 py-1 text-xs font-bold"
               style={{
-                background:
-                  theme === "dark" ? themeVars.accent : themeVars.panel,
+                background: theme === "dark" ? themeVars.accent : themeVars.panel,
                 color: theme === "dark" ? "#fff" : themeVars.text,
                 border: `1px solid ${
                   theme === "dark" ? themeVars.accent : themeVars.border
@@ -391,7 +389,7 @@ export default function Page() {
             className={`mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:items-center ${
               slide.layout === "commercial"
                 ? "lg:grid-cols-[0.78fr_1.22fr]"
-                : "lg:grid-cols-[1.2fr_.8fr]"
+                : "lg:grid-cols-[1.1fr_.9fr]"
             }`}
           >
             <div>
@@ -428,11 +426,7 @@ export default function Page() {
               {slide.bullets && slide.layout !== "commercial" && (
                 <div className="mt-8 grid gap-3 md:grid-cols-2">
                   {slide.bullets.map((bullet) => (
-                    <InfoPill
-                      key={bullet}
-                      text={bullet}
-                      themeVars={themeVars}
-                    />
+                    <InfoPill key={bullet} text={bullet} themeVars={themeVars} />
                   ))}
                 </div>
               )}
@@ -440,11 +434,7 @@ export default function Page() {
               {slide.bullets && slide.layout === "commercial" && (
                 <div className="mt-8 space-y-3">
                   {slide.bullets.map((bullet) => (
-                    <InfoPill
-                      key={bullet}
-                      text={bullet}
-                      themeVars={themeVars}
-                    />
+                    <InfoPill key={bullet} text={bullet} themeVars={themeVars} />
                   ))}
                 </div>
               )}
@@ -528,9 +518,13 @@ function RightPanel({
   theme: ThemeMode;
   themeVars: any;
 }) {
+  const hasImages = Boolean(slide.imagePlaceholders);
+
   return (
     <div
-      className="rounded-[30px] p-6 md:p-7"
+      className={`rounded-[30px] p-6 md:p-7 ${
+        hasImages ? "min-h-[690px]" : ""
+      }`}
       style={{
         background: themeVars.panel,
         border: `1px solid ${themeVars.border}`,
@@ -543,7 +537,7 @@ function RightPanel({
     >
       {slide.stat ? (
         <div
-          className="mb-6 rounded-[24px] p-6"
+          className={hasImages ? "mb-4 rounded-[24px] p-6" : "mb-6 rounded-[24px] p-6"}
           style={{
             background: themeVars.accentSoft,
             border: `1px solid ${themeVars.accentLine}`,
@@ -595,7 +589,13 @@ function RightPanel({
         </div>
       )}
 
-      <div className="space-y-3">
+      <div
+        className={
+          hasImages && slide.rightContent?.length === 4
+            ? "grid grid-cols-2 gap-3"
+            : "space-y-3"
+        }
+      >
         {slide.rightContent?.map((item) => (
           <div
             key={item}
@@ -620,18 +620,27 @@ function ImagePlaceholderGrid({
   count: number;
   themeVars: any;
 }) {
+  if (count === 1) {
+    return (
+      <div
+        className="mb-5 flex h-[410px] items-center justify-center rounded-[26px] text-center text-xs font-black uppercase tracking-[0.22em]"
+        style={{
+          background: themeVars.cardInner,
+          border: `1px dashed ${themeVars.accentLine}`,
+          color: themeVars.accent,
+        }}
+      >
+        Image Placeholder 1
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={`mb-5 grid gap-3 ${
-        count === 1 ? "grid-cols-1" : "grid-cols-2"
-      }`}
-    >
+    <div className="mb-5 grid grid-cols-2 gap-4">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className={`flex items-center justify-center rounded-2xl text-center text-xs font-black uppercase tracking-[0.2em] ${
-            count === 1 ? "h-[360px]" : "h-[190px]"
-          }`}
+          className="flex h-[215px] items-center justify-center rounded-[24px] text-center text-xs font-black uppercase tracking-[0.22em]"
           style={{
             background: themeVars.cardInner,
             border: `1px dashed ${themeVars.accentLine}`,
