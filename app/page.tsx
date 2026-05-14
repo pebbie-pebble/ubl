@@ -4,6 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 
 type ThemeMode = "dark" | "light";
 
+type CommercialRow = {
+  location: string;
+  format: string;
+  type: string;
+  screens: string;
+  duration: string;
+  productionFee: string;
+  grossRate: string;
+  netRate: string;
+  totalFee: string;
+};
+
 type Slide = {
   eyebrow: string;
   title: string;
@@ -14,7 +26,46 @@ type Slide = {
   rightTitle?: string;
   rightContent?: string[];
   layout?: "cover" | "standard" | "split" | "commercial";
+  imagePlaceholders?: number;
 };
+
+const commercialRows: CommercialRow[] = [
+  {
+    location: "Expo Station",
+    format: "Network Screen",
+    type: "Digital LED Screens",
+    screens: "134 Screens",
+    duration: "2 weeks",
+    productionFee: "-",
+    grossRate: "$103,471.75",
+    netRate: "-",
+    totalFee: "$103,471.75",
+  },
+  {
+    location: "Expo City",
+    format: "Network Screen",
+    type: "Digital LED Screens",
+    screens: "49 Screens",
+    duration: "2 weeks",
+    productionFee: "$1,090.00",
+    grossRate: "$88,495.58",
+    netRate: "$122,532.34",
+    totalFee: "$123,622.34",
+  },
+  {
+    location: "DXB Terminal 3",
+    format: "Network Screen",
+    type: "Digital LED Screens",
+    screens: "3 Screens",
+    duration: "One month",
+    productionFee: "$4,085.00",
+    grossRate: "$68,074.00",
+    netRate: "$25,000.00",
+    totalFee: "$25,000.00",
+  },
+];
+
+const grandTotal = "$252,094.09";
 
 const slides: Slide[] = [
   {
@@ -89,6 +140,7 @@ const slides: Slide[] = [
       "Sets tone before city movement",
       "Supports premium market perception",
     ],
+    imagePlaceholders: 1,
   },
   {
     eyebrow: "Touchpoint 02",
@@ -99,7 +151,7 @@ const slides: Slide[] = [
     statLabel: "Digital Screens",
     bullets: [
       "Entrance, concourse, platform and footbridge coverage",
-      "8-second spot length",
+      "8-second creative spots",
       "Once per minute frequency",
       "2-week GITEX campaign period",
     ],
@@ -110,6 +162,7 @@ const slides: Slide[] = [
       "Strong arrival dominance",
       "Best layer for scale and frequency",
     ],
+    imagePlaceholders: 4,
   },
   {
     eyebrow: "Touchpoint 03",
@@ -131,25 +184,26 @@ const slides: Slide[] = [
       "Multi-format visual variety",
       "Excellent support for recall and booth directionality",
     ],
+    imagePlaceholders: 4,
   },
   {
     layout: "commercial",
-    eyebrow: "Recommended Commercial Package",
-    title: "Run the campaign in three layers.",
+    eyebrow: "Commercial Plan",
+    title: "Recommended media investment.",
     subtitle:
-      "The strongest commercial recommendation is a full-journey package. Airport builds prestige, metro builds scale, and Expo City outdoor builds venue recall.",
-    rightTitle: "Package recommendation",
-    rightContent: [
-      "Layer 1 · DXB T3 for premium arrival audience",
-      "Layer 2 · Metro for event-scale frequency",
-      "Layer 3 · Outdoor for venue reinforcement",
-      "Outcome · awareness + recall + warmer booth conversations",
-    ],
+      "A full-journey commercial package combining airport arrivals, Expo City Metro Station and Expo City outdoor digital media to maximise visibility across the complete GITEX visitor path.",
     bullets: [
-      "Best option: Full Journey Ownership",
-      "Alternative option: Metro + Expo City only",
-      "Premium option: DXB + Metro + Outdoor with tailored creative by format",
-      "Use sequential messaging rather than one static message everywhere",
+      "All rates are in USD",
+      "Prices exclude 5% VAT",
+      "Municipality fee: $141.59 per artwork",
+      "Recommended total media package: $252,094.09",
+    ],
+    rightTitle: "Total Package",
+    rightContent: [
+      "DXB Terminal 3 Arrivals",
+      "Expo City Metro Station",
+      "Expo City Outdoor Digital Network",
+      "Total: $252,094.09 excluding VAT",
     ],
   },
   {
@@ -172,22 +226,21 @@ const slides: Slide[] = [
     ],
   },
   {
-    eyebrow: "Commercial Outcome",
-    title: "What this plan is meant to achieve.",
+    eyebrow: "GITEX 2026",
+    title: "We’re excited to see SolarWinds there.",
     subtitle:
-      "This is a commercial visibility plan designed to improve the efficiency of the event investment, not just beautify it. The media should make SolarWinds easier to remember, easier to notice, and easier to approach.",
+      "GITEX GLOBAL 2026 moves into a major new chapter with the Scale Summit on 7 December 2026 at Dubai World Trade Centre, followed by the main Expo from 8 to 11 December 2026 at Expo City Dubai. With the event’s strongest technology audience moving through the exact locations in this plan, SolarWinds has a clear opportunity to arrive with confidence, visibility and momentum.",
     bullets: [
-      "Stronger pre-booth familiarity",
-      "Higher enterprise-brand salience",
-      "Better use of booth investment",
-      "More qualified walk-up and warmer meeting context",
+      "GITEX Scale Summit: 7 December 2026",
+      "GITEX GLOBAL Expo: 8 to 11 December 2026",
+      "Expo venue: Expo City Dubai",
+      "We would be genuinely excited to see SolarWinds take a standout presence across the GITEX journey.",
     ],
-    rightTitle: "Next steps",
+    rightTitle: "Closing thought",
     rightContent: [
-      "Confirm asset mix",
-      "Lock GITEX dates",
-      "Approve creative route",
-      "Adapt artwork to each format",
+      "This plan gives SolarWinds presence before the hall, around the venue and at the moment of arrival.",
+      "It supports the booth, the brand and the commercial conversations that matter most.",
+      "We look forward to seeing SolarWinds at GITEX 2026.",
     ],
   },
 ];
@@ -217,8 +270,7 @@ export default function Page() {
     if (theme === "light") {
       return {
         bg: "#f7f8fb",
-        panel: "rgba(255,255,255,0.75)",
-        panelSolid: "#ffffff",
+        panel: "rgba(255,255,255,0.76)",
         text: "#0f1722",
         sub: "#475569",
         accent: "#f47c20",
@@ -227,14 +279,15 @@ export default function Page() {
         grid: "rgba(15,23,34,0.06)",
         orb1: "rgba(244,124,32,0.18)",
         orb2: "rgba(19,34,61,0.10)",
-        nav: "rgba(255,255,255,0.78)",
+        nav: "rgba(255,255,255,0.82)",
+        cardInner: "rgba(15,23,34,0.035)",
+        border: "rgba(15,23,34,0.08)",
       };
     }
 
     return {
       bg: "#0d1420",
       panel: "rgba(255,255,255,0.06)",
-      panelSolid: "#111b2a",
       text: "#f8fafc",
       sub: "#cbd5e1",
       accent: "#f47c20",
@@ -244,6 +297,8 @@ export default function Page() {
       orb1: "rgba(244,124,32,0.18)",
       orb2: "rgba(75,107,161,0.18)",
       nav: "rgba(13,20,32,0.84)",
+      cardInner: "rgba(0,0,0,0.14)",
+      border: "rgba(255,255,255,0.09)",
     };
   }, [theme]);
 
@@ -298,28 +353,27 @@ export default function Page() {
               style={{
                 background: theme === "light" ? themeVars.accent : themeVars.panel,
                 color: theme === "light" ? "#fff" : themeVars.text,
-                border: `1px solid ${
-                  theme === "light" ? themeVars.accent : "rgba(255,255,255,0.08)"
-                }`,
+                border: `1px solid ${theme === "light" ? themeVars.accent : themeVars.border}`,
               }}
             >
               Light
             </button>
+
             <button
               onClick={() => setTheme("dark")}
               className="rounded-full px-3 py-1 text-xs font-bold"
               style={{
                 background: theme === "dark" ? themeVars.accent : themeVars.panel,
                 color: theme === "dark" ? "#fff" : themeVars.text,
-                border: `1px solid ${
-                  theme === "dark" ? themeVars.accent : "rgba(255,255,255,0.08)"
-                }`,
+                border: `1px solid ${theme === "dark" ? themeVars.accent : themeVars.border}`,
               }}
             >
               Dark
             </button>
+
             <div className="text-xs font-semibold uppercase tracking-[0.22em] opacity-50">
-              {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+              {String(current + 1).padStart(2, "0")} /{" "}
+              {String(slides.length).padStart(2, "0")}
             </div>
           </div>
         </header>
@@ -327,7 +381,11 @@ export default function Page() {
         <section className="relative z-10 flex h-full items-center px-8 pb-24 pt-24 md:px-14 lg:px-20">
           <div
             key={`${theme}-${current}`}
-            className="mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:grid-cols-[1.2fr_.8fr] lg:items-center"
+            className={`mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:items-center ${
+              slide.layout === "commercial"
+                ? "lg:grid-cols-[0.78fr_1.22fr]"
+                : "lg:grid-cols-[1.2fr_.8fr]"
+            }`}
           >
             <div>
               <div
@@ -360,111 +418,28 @@ export default function Page() {
                 </p>
               )}
 
-              {slide.bullets && (
+              {slide.bullets && slide.layout !== "commercial" && (
                 <div className="mt-8 grid gap-3 md:grid-cols-2">
                   {slide.bullets.map((bullet) => (
-                    <div
-                      key={bullet}
-                      className="rounded-2xl px-4 py-4 text-sm leading-6"
-                      style={{
-                        background: themeVars.panel,
-                        border: `1px solid ${
-                          theme === "light" ? "rgba(15,23,34,0.08)" : "rgba(255,255,255,0.08)"
-                        }`,
-                        backdropFilter: "blur(14px)",
-                      }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span
-                          className="mt-2 h-2.5 w-2.5 rounded-full"
-                          style={{ background: themeVars.accent }}
-                        />
-                        <span>{bullet}</span>
-                      </div>
-                    </div>
+                    <InfoPill key={bullet} text={bullet} themeVars={themeVars} />
+                  ))}
+                </div>
+              )}
+
+              {slide.bullets && slide.layout === "commercial" && (
+                <div className="mt-8 space-y-3">
+                  {slide.bullets.map((bullet) => (
+                    <InfoPill key={bullet} text={bullet} themeVars={themeVars} />
                   ))}
                 </div>
               )}
             </div>
 
-            <div
-              className="rounded-[30px] p-6 md:p-7"
-              style={{
-                background: themeVars.panel,
-                border: `1px solid ${
-                  theme === "light" ? "rgba(15,23,34,0.08)" : "rgba(255,255,255,0.09)"
-                }`,
-                backdropFilter: "blur(18px)",
-                boxShadow:
-                  theme === "light"
-                    ? "0 20px 60px rgba(15,23,34,0.08)"
-                    : "0 20px 60px rgba(0,0,0,0.28)",
-              }}
-            >
-              {slide.stat ? (
-                <div
-                  className="mb-6 rounded-[24px] p-6"
-                  style={{
-                    background: themeVars.accentSoft,
-                    border: `1px solid ${themeVars.accentLine}`,
-                  }}
-                >
-                  <div
-                    className="text-6xl font-black tracking-[-0.06em] md:text-7xl"
-                    style={{ color: themeVars.accent }}
-                  >
-                    {slide.stat}
-                  </div>
-                  <div className="mt-2 text-xs font-black uppercase tracking-[0.25em] opacity-65">
-                    {slide.statLabel}
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className="mb-6 rounded-[24px] p-6"
-                  style={{
-                    background: themeVars.accentSoft,
-                    border: `1px solid ${themeVars.accentLine}`,
-                  }}
-                >
-                  <div
-                    className="text-xs font-black uppercase tracking-[0.25em]"
-                    style={{ color: themeVars.accent }}
-                  >
-                    Commercial Focus
-                  </div>
-                  <div className="mt-3 text-3xl font-black tracking-[-0.04em]">
-                    Awareness · Recall · Booth Influence
-                  </div>
-                </div>
-              )}
-
-              {slide.rightTitle && (
-                <div
-                  className="mb-4 text-xs font-black uppercase tracking-[0.24em]"
-                  style={{ color: themeVars.accent }}
-                >
-                  {slide.rightTitle}
-                </div>
-              )}
-
-              <div className="space-y-3">
-                {slide.rightContent?.map((item) => (
-                  <div
-                    key={item}
-                    className="rounded-2xl px-4 py-4 text-sm leading-6"
-                    style={{
-                      background: theme === "light" ? "rgba(15,23,34,0.03)" : "rgba(0,0,0,0.14)",
-                      border: `1px solid ${
-                        theme === "light" ? "rgba(15,23,34,0.07)" : "rgba(255,255,255,0.07)"
-                      }`,
-                    }}
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
+            {slide.layout === "commercial" ? (
+              <CommercialTable themeVars={themeVars} />
+            ) : (
+              <RightPanel slide={slide} theme={theme} themeVars={themeVars} />
+            )}
           </div>
         </section>
 
@@ -472,9 +447,7 @@ export default function Page() {
           className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-full px-4 py-3"
           style={{
             background: themeVars.nav,
-            border: `1px solid ${
-              theme === "light" ? "rgba(15,23,34,0.08)" : "rgba(255,255,255,0.08)"
-            }`,
+            border: `1px solid ${themeVars.border}`,
             backdropFilter: "blur(18px)",
           }}
         >
@@ -494,7 +467,12 @@ export default function Page() {
                 className="h-2 rounded-full transition-all"
                 style={{
                   width: i === current ? 34 : 8,
-                  background: i === current ? themeVars.accent : theme === "light" ? "#cbd5e1" : "rgba(255,255,255,0.22)",
+                  background:
+                    i === current
+                      ? themeVars.accent
+                      : theme === "light"
+                        ? "#cbd5e1"
+                        : "rgba(255,255,255,0.22)",
                 }}
               />
             ))}
@@ -523,5 +501,260 @@ export default function Page() {
         }
       `}</style>
     </main>
+  );
+}
+
+function RightPanel({
+  slide,
+  theme,
+  themeVars,
+}: {
+  slide: Slide;
+  theme: ThemeMode;
+  themeVars: any;
+}) {
+  return (
+    <div
+      className="rounded-[30px] p-6 md:p-7"
+      style={{
+        background: themeVars.panel,
+        border: `1px solid ${themeVars.border}`,
+        backdropFilter: "blur(18px)",
+        boxShadow:
+          theme === "light"
+            ? "0 20px 60px rgba(15,23,34,0.08)"
+            : "0 20px 60px rgba(0,0,0,0.28)",
+      }}
+    >
+      {slide.stat ? (
+        <div
+          className="mb-6 rounded-[24px] p-6"
+          style={{
+            background: themeVars.accentSoft,
+            border: `1px solid ${themeVars.accentLine}`,
+          }}
+        >
+          <div
+            className="text-6xl font-black tracking-[-0.06em] md:text-7xl"
+            style={{ color: themeVars.accent }}
+          >
+            {slide.stat}
+          </div>
+          <div className="mt-2 text-xs font-black uppercase tracking-[0.25em] opacity-65">
+            {slide.statLabel}
+          </div>
+        </div>
+      ) : (
+        <div
+          className="mb-6 rounded-[24px] p-6"
+          style={{
+            background: themeVars.accentSoft,
+            border: `1px solid ${themeVars.accentLine}`,
+          }}
+        >
+          <div
+            className="text-xs font-black uppercase tracking-[0.25em]"
+            style={{ color: themeVars.accent }}
+          >
+            Commercial Focus
+          </div>
+          <div className="mt-3 text-3xl font-black tracking-[-0.04em]">
+            Awareness · Recall · Booth Influence
+          </div>
+        </div>
+      )}
+
+      {slide.imagePlaceholders ? (
+        <ImagePlaceholderGrid count={slide.imagePlaceholders} themeVars={themeVars} />
+      ) : null}
+
+      {slide.rightTitle && (
+        <div
+          className="mb-4 mt-5 text-xs font-black uppercase tracking-[0.24em]"
+          style={{ color: themeVars.accent }}
+        >
+          {slide.rightTitle}
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {slide.rightContent?.map((item) => (
+          <div
+            key={item}
+            className="rounded-2xl px-4 py-4 text-sm leading-6"
+            style={{
+              background: themeVars.cardInner,
+              border: `1px solid ${themeVars.border}`,
+            }}
+          >
+            {item}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ImagePlaceholderGrid({
+  count,
+  themeVars,
+}: {
+  count: number;
+  themeVars: any;
+}) {
+  return (
+    <div
+      className={`mb-5 grid gap-3 ${
+        count === 1 ? "grid-cols-1" : "grid-cols-2"
+      }`}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className={`flex items-center justify-center rounded-2xl text-center text-xs font-black uppercase tracking-[0.2em] ${
+            count === 1 ? "h-56" : "h-28"
+          }`}
+          style={{
+            background: themeVars.cardInner,
+            border: `1px dashed ${themeVars.accentLine}`,
+            color: themeVars.accent,
+          }}
+        >
+          Image Placeholder {i + 1}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InfoPill({ text, themeVars }: { text: string; themeVars: any }) {
+  return (
+    <div
+      className="rounded-2xl px-4 py-4 text-sm leading-6"
+      style={{
+        background: themeVars.panel,
+        border: `1px solid ${themeVars.border}`,
+        backdropFilter: "blur(14px)",
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <span
+          className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full"
+          style={{ background: themeVars.accent }}
+        />
+        <span>{text}</span>
+      </div>
+    </div>
+  );
+}
+
+function CommercialTable({ themeVars }: { themeVars: any }) {
+  return (
+    <div
+      className="rounded-[30px] p-5 md:p-6"
+      style={{
+        background: themeVars.panel,
+        border: `1px solid ${themeVars.border}`,
+        backdropFilter: "blur(18px)",
+      }}
+    >
+      <div
+        className="mb-5 rounded-[24px] p-5"
+        style={{
+          background: themeVars.accentSoft,
+          border: `1px solid ${themeVars.accentLine}`,
+        }}
+      >
+        <div
+          className="text-xs font-black uppercase tracking-[0.25em]"
+          style={{ color: themeVars.accent }}
+        >
+          Total Media Investment
+        </div>
+        <div
+          className="mt-2 text-5xl font-black tracking-[-0.06em]"
+          style={{ color: themeVars.accent }}
+        >
+          {grandTotal}
+        </div>
+        <div className="mt-2 text-xs font-bold uppercase tracking-[0.18em] opacity-60">
+          Excluding 5% VAT
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl" style={{ border: `1px solid ${themeVars.border}` }}>
+        <table className="w-full border-collapse text-left text-[12px]">
+          <thead>
+            <tr style={{ background: themeVars.cardInner }}>
+              {[
+                "Location",
+                "Screens",
+                "Duration",
+                "Production",
+                "Gross Rate",
+                "Net Rate",
+                "Total Fee",
+              ].map((head) => (
+                <th
+                  key={head}
+                  className="px-3 py-3 text-[10px] font-black uppercase tracking-[0.18em]"
+                  style={{ color: themeVars.accent, borderBottom: `1px solid ${themeVars.border}` }}
+                >
+                  {head}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {commercialRows.map((row) => (
+              <tr key={row.location}>
+                <td className="px-3 py-4 font-bold" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+                  {row.location}
+                  <div className="mt-1 text-[10px] font-medium opacity-60">
+                    {row.format}
+                  </div>
+                </td>
+                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+                  {row.screens}
+                </td>
+                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+                  {row.duration}
+                </td>
+                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+                  {row.productionFee}
+                </td>
+                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+                  {row.grossRate}
+                </td>
+                <td className="px-3 py-4" style={{ borderBottom: `1px solid ${themeVars.border}` }}>
+                  {row.netRate}
+                </td>
+                <td
+                  className="px-3 py-4 font-black"
+                  style={{
+                    color: themeVars.accent,
+                    borderBottom: `1px solid ${themeVars.border}`,
+                  }}
+                >
+                  {row.totalFee}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div
+        className="mt-4 rounded-2xl p-4 text-xs font-semibold leading-6"
+        style={{
+          background: themeVars.cardInner,
+          border: `1px solid ${themeVars.border}`,
+        }}
+      >
+        Kindly note: all rates are in USD. Prices exclude 5% VAT. Municipality fee:
+        <span style={{ color: themeVars.accent }}> $141.59 per artwork.</span>
+      </div>
+    </div>
   );
 }
