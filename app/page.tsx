@@ -25,7 +25,7 @@ type Slide = {
   bullets?: string[];
   rightTitle?: string;
   rightContent?: string[];
-  layout?: "cover" | "standard" | "split" | "commercial";
+  layout?: "cover" | "standard" | "split" | "commercial" | "mediaOnly";
   imagePlaceholders?: number;
   videoPlaceholder?: boolean;
   mediaLayout?: "standard" | "twoPlusVideo";
@@ -167,25 +167,11 @@ const slides: Slide[] = [
     imagePlaceholders: 4,
   },
   {
+    layout: "mediaOnly",
     eyebrow: "Touchpoint 02 · Visual Route",
     title: "Expo City Metro Station creative visibility.",
-    subtitle:
-      "Additional visual references for the Expo City Metro Station network, including static placement views and a horizontal video preview area for campaign creative or motion mockups.",
     stat: "134",
     statLabel: "Digital Screens",
-    bullets: [
-      "Use static visuals to show placement context",
-      "Use video area for campaign motion preview",
-      "Ideal for showcasing SolarWinds creative in situ",
-      "Supports client understanding before production",
-    ],
-    rightTitle: "Visual Assets",
-    rightContent: [
-      "Two supporting image references",
-      "One horizontal video preview",
-      "Metro station environment focus",
-      "Creative mockup ready",
-    ],
     imagePlaceholders: 2,
     videoPlaceholder: true,
     mediaLayout: "twoPlusVideo",
@@ -412,80 +398,80 @@ export default function Page() {
         </header>
 
         <section className="relative z-10 flex h-full items-center px-8 pb-24 pt-24 md:px-14 lg:px-20">
-          <div
-            key={`${theme}-${current}`}
-            className={`mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:items-center ${
-              slide.layout === "commercial"
-                ? "lg:grid-cols-[0.78fr_1.22fr]"
-                : slide.mediaLayout === "twoPlusVideo"
-                  ? "lg:grid-cols-[1fr_1fr]"
+          {slide.layout === "mediaOnly" ? (
+            <MediaOnlySlide slide={slide} theme={theme} themeVars={themeVars} />
+          ) : (
+            <div
+              key={`${theme}-${current}`}
+              className={`mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:items-center ${
+                slide.layout === "commercial"
+                  ? "lg:grid-cols-[0.78fr_1.22fr]"
                   : "lg:grid-cols-[1.1fr_.9fr]"
-            }`}
-          >
-            <div>
-              <div
-                className="mb-5 inline-flex rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.25em]"
-                style={{
-                  color: themeVars.accent,
-                  background: themeVars.accentSoft,
-                  border: `1px solid ${themeVars.accentLine}`,
-                }}
-              >
-                {slide.eyebrow}
+              }`}
+            >
+              <div>
+                <div
+                  className="mb-5 inline-flex rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.25em]"
+                  style={{
+                    color: themeVars.accent,
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                  }}
+                >
+                  {slide.eyebrow}
+                </div>
+
+                <h1
+                  className={`whitespace-pre-line font-black leading-[0.94] tracking-[-0.06em] ${
+                    slide.layout === "cover"
+                      ? "text-6xl md:text-8xl lg:text-[92px]"
+                      : "text-5xl md:text-7xl"
+                  }`}
+                >
+                  {slide.title}
+                </h1>
+
+                {slide.subtitle && (
+                  <p
+                    className="mt-7 max-w-3xl text-lg leading-8 md:text-[21px]"
+                    style={{ color: themeVars.sub }}
+                  >
+                    {slide.subtitle}
+                  </p>
+                )}
+
+                {slide.bullets && slide.layout !== "commercial" && (
+                  <div className="mt-8 grid gap-3 md:grid-cols-2">
+                    {slide.bullets.map((bullet) => (
+                      <InfoPill
+                        key={bullet}
+                        text={bullet}
+                        themeVars={themeVars}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {slide.bullets && slide.layout === "commercial" && (
+                  <div className="mt-8 space-y-3">
+                    {slide.bullets.map((bullet) => (
+                      <InfoPill
+                        key={bullet}
+                        text={bullet}
+                        themeVars={themeVars}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <h1
-                className={`whitespace-pre-line font-black leading-[0.94] tracking-[-0.06em] ${
-                  slide.layout === "cover"
-                    ? "text-6xl md:text-8xl lg:text-[92px]"
-                    : slide.mediaLayout === "twoPlusVideo"
-                      ? "text-5xl md:text-6xl lg:text-[66px]"
-                      : "text-5xl md:text-7xl"
-                }`}
-              >
-                {slide.title}
-              </h1>
-
-              {slide.subtitle && (
-                <p
-                  className="mt-7 max-w-3xl text-lg leading-8 md:text-[21px]"
-                  style={{ color: themeVars.sub }}
-                >
-                  {slide.subtitle}
-                </p>
-              )}
-
-              {slide.bullets && slide.layout !== "commercial" && (
-                <div className="mt-8 grid gap-3 md:grid-cols-2">
-                  {slide.bullets.map((bullet) => (
-                    <InfoPill
-                      key={bullet}
-                      text={bullet}
-                      themeVars={themeVars}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {slide.bullets && slide.layout === "commercial" && (
-                <div className="mt-8 space-y-3">
-                  {slide.bullets.map((bullet) => (
-                    <InfoPill
-                      key={bullet}
-                      text={bullet}
-                      themeVars={themeVars}
-                    />
-                  ))}
-                </div>
+              {slide.layout === "commercial" ? (
+                <CommercialTable themeVars={themeVars} />
+              ) : (
+                <RightPanel slide={slide} theme={theme} themeVars={themeVars} />
               )}
             </div>
-
-            {slide.layout === "commercial" ? (
-              <CommercialTable themeVars={themeVars} />
-            ) : (
-              <RightPanel slide={slide} theme={theme} themeVars={themeVars} />
-            )}
-          </div>
+          )}
         </section>
 
         <nav
@@ -551,6 +537,63 @@ export default function Page() {
   );
 }
 
+function MediaOnlySlide({
+  slide,
+  theme,
+  themeVars,
+}: {
+  slide: Slide;
+  theme: ThemeMode;
+  themeVars: any;
+}) {
+  return (
+    <div
+      key="media-only-slide"
+      className="mx-auto grid w-full max-w-7xl animate-[fadeUp_.45s_ease-out] gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-center"
+    >
+      <div className="hidden lg:block" />
+
+      <div
+        className="rounded-[30px] p-6 md:p-7"
+        style={{
+          background: themeVars.panel,
+          border: `1px solid ${themeVars.border}`,
+          backdropFilter: "blur(18px)",
+          boxShadow:
+            theme === "light"
+              ? "0 20px 60px rgba(15,23,34,0.08)"
+              : "0 20px 60px rgba(0,0,0,0.28)",
+        }}
+      >
+        <div
+          className="mb-4 rounded-[24px] p-5"
+          style={{
+            background: themeVars.accentSoft,
+            border: `1px solid ${themeVars.accentLine}`,
+          }}
+        >
+          <div
+            className="text-5xl font-black tracking-[-0.06em] md:text-6xl"
+            style={{ color: themeVars.accent }}
+          >
+            {slide.stat}
+          </div>
+          <div className="mt-2 text-xs font-black uppercase tracking-[0.25em] opacity-65">
+            {slide.statLabel}
+          </div>
+        </div>
+
+        <ImagePlaceholderGrid
+          count={slide.imagePlaceholders || 2}
+          themeVars={themeVars}
+          videoPlaceholder={slide.videoPlaceholder}
+          mediaLayout={slide.mediaLayout}
+        />
+      </div>
+    </div>
+  );
+}
+
 function RightPanel({
   slide,
   theme,
@@ -561,13 +604,12 @@ function RightPanel({
   themeVars: any;
 }) {
   const hasImages = Boolean(slide.imagePlaceholders);
-  const isTwoPlusVideo = slide.mediaLayout === "twoPlusVideo";
 
   return (
     <div
       className={`rounded-[30px] p-6 md:p-7 ${
         hasImages ? "min-h-[690px]" : ""
-      } ${isTwoPlusVideo ? "min-h-[720px]" : ""}`}
+      }`}
       style={{
         background: themeVars.panel,
         border: `1px solid ${themeVars.border}`,
@@ -591,9 +633,7 @@ function RightPanel({
           }}
         >
           <div
-            className={`font-black tracking-[-0.06em] ${
-              isTwoPlusVideo ? "text-5xl md:text-6xl" : "text-6xl md:text-7xl"
-            }`}
+            className="text-6xl font-black tracking-[-0.06em] md:text-7xl"
             style={{ color: themeVars.accent }}
           >
             {slide.stat}
@@ -633,9 +673,7 @@ function RightPanel({
 
       {slide.rightTitle && (
         <div
-          className={`mb-4 text-xs font-black uppercase tracking-[0.24em] ${
-            isTwoPlusVideo ? "mt-4" : "mt-5"
-          }`}
+          className="mb-4 mt-5 text-xs font-black uppercase tracking-[0.24em]"
           style={{ color: themeVars.accent }}
         >
           {slide.rightTitle}
@@ -679,12 +717,12 @@ function ImagePlaceholderGrid({
 }) {
   if (mediaLayout === "twoPlusVideo") {
     return (
-      <div className="mb-4 space-y-4">
+      <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: count }).map((_, i) => (
             <div
               key={i}
-              className="flex h-[180px] items-center justify-center rounded-[24px] text-center text-xs font-black uppercase tracking-[0.22em]"
+              className="flex h-[205px] items-center justify-center rounded-[24px] text-center text-xs font-black uppercase tracking-[0.22em]"
               style={{
                 background: themeVars.cardInner,
                 border: `1px dashed ${themeVars.accentLine}`,
@@ -698,7 +736,7 @@ function ImagePlaceholderGrid({
 
         {videoPlaceholder && (
           <div
-            className="flex h-[260px] items-center justify-center rounded-[26px] text-center text-xs font-black uppercase tracking-[0.22em]"
+            className="flex h-[310px] items-center justify-center rounded-[26px] text-center text-xs font-black uppercase tracking-[0.22em]"
             style={{
               background: themeVars.accentSoft,
               border: `1px dashed ${themeVars.accentLine}`,
