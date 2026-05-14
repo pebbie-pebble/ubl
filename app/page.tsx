@@ -249,10 +249,12 @@ export default function Page() {
   const [current, setCurrent] = useState(0);
   const [theme, setTheme] = useState<ThemeMode>("dark");
 
-  const next = () => setCurrent((p) => (p + 1) % slides.length);
-  const prev = () => setCurrent((p) => (p - 1 + slides.length) % slides.length);
+  const next = () => setCurrent((p) => Math.min(p + 1, slides.length - 1));
+  const prev = () => setCurrent((p) => Math.max(p - 1, 0));
 
   useEffect(() => {
+    document.title = "Solarwinds Campaign";
+
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") prev();
@@ -449,7 +451,7 @@ export default function Page() {
         </section>
 
         <nav
-          className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-full px-4 py-3"
+          className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full px-3 py-2"
           style={{
             background: themeVars.nav,
             border: `1px solid ${themeVars.border}`,
@@ -458,20 +460,21 @@ export default function Page() {
         >
           <button
             onClick={prev}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-lg"
+            disabled={current === 0}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-sm disabled:cursor-not-allowed disabled:opacity-35"
             style={{ background: themeVars.panel, color: themeVars.text }}
           >
             ‹
           </button>
 
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
-                className="h-2 rounded-full transition-all"
+                className="h-1.5 rounded-full transition-all"
                 style={{
-                  width: i === current ? 34 : 8,
+                  width: i === current ? 24 : 6,
                   background:
                     i === current
                       ? themeVars.accent
@@ -485,7 +488,8 @@ export default function Page() {
 
           <button
             onClick={next}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-lg"
+            disabled={current === slides.length - 1}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-sm disabled:cursor-not-allowed disabled:opacity-35"
             style={{ background: themeVars.panel, color: themeVars.text }}
           >
             ›
@@ -537,7 +541,9 @@ function RightPanel({
     >
       {slide.stat ? (
         <div
-          className={hasImages ? "mb-4 rounded-[24px] p-6" : "mb-6 rounded-[24px] p-6"}
+          className={
+            hasImages ? "mb-4 rounded-[24px] p-6" : "mb-6 rounded-[24px] p-6"
+          }
           style={{
             background: themeVars.accentSoft,
             border: `1px solid ${themeVars.accentLine}`,
