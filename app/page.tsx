@@ -167,7 +167,7 @@ const commercialRows: CommercialRow[] = [
     productionFee: "-",
     grossRate: "$103,471.75",
     netRate: "-",
-    totalFee: "$103,471.75",
+    totalFee: "-",
   },
   {
     location: "Expo City",
@@ -193,7 +193,28 @@ const commercialRows: CommercialRow[] = [
   },
 ];
 
-const grandTotal = "$252,094.09";
+const grandTotal = "$148,622.34";
+
+/** Deck reference photos in display order (airport → metro 1–7). */
+const DECK_REFERENCE_IMAGES = [
+  "/images/dxb-airport-1.webp",
+  "/images/dxb-terminal-3-arrivals.webp",
+  "/images/metro-1.webp",
+  "/images/metro-2.webp",
+  "/images/metro-3.webp",
+  "/images/metro-4.webp",
+  "/images/metro-5.webp",
+  "/images/metro-6.webp",
+  "/images/metro-7.webp",
+] as const;
+
+function slideNeedsViewportFit(slide: Slide): boolean {
+  return (
+    Boolean(slide.imagePlaceholders) ||
+    slide.layout === "mediaOnly" ||
+    slide.layout === "commercial"
+  );
+}
 
 function iconForAsideTitle(title: string | undefined): LucideIcon | undefined {
   if (!title) return undefined;
@@ -239,13 +260,19 @@ function asideRowIcon(slideIndex: number, rowIndex: number): LucideIcon {
 function AsideSectionHeading({
   title,
   themeVars,
+  compact = false,
 }: {
   title: string;
   themeVars: any;
+  compact?: boolean;
 }) {
   const Icon = iconForAsideTitle(title);
   return (
-    <div className="mb-4 mt-6 w-full sm:mt-7">
+    <div
+      className={
+        compact ? "mb-2 mt-3 w-full sm:mt-4" : "mb-4 mt-6 w-full sm:mt-7"
+      }
+    >
       <div className="flex items-center gap-3">
         {Icon ? (
           <div
@@ -265,7 +292,7 @@ function AsideSectionHeading({
           </div>
         ) : null}
         <span
-          className="min-w-0 flex-1 text-[11px] font-black uppercase tracking-[0.26em] sm:text-xs sm:tracking-[0.28em]"
+          className="deck-eyebrow min-w-0 flex-1 font-black uppercase"
           style={{ color: themeVars.accent }}
         >
           {title}
@@ -285,14 +312,20 @@ function AsideContentRow({
   children,
   Icon,
   themeVars,
+  compact = false,
 }: {
   children: ReactNode;
   Icon: LucideIcon;
   themeVars: any;
+  compact?: boolean;
 }) {
   return (
     <div
-      className="group flex min-h-0 items-center gap-3 rounded-lg px-3 py-3 transition-[border-color,box-shadow,transform] duration-200 sm:rounded-xl sm:px-3.5 sm:py-3.5"
+      className={`group flex min-h-0 items-center gap-2.5 rounded-lg transition-[border-color,box-shadow,transform] duration-200 sm:rounded-xl ${
+        compact
+          ? "px-2.5 py-2 sm:px-3 sm:py-2.5"
+          : "gap-3 px-3 py-3 sm:px-3.5 sm:py-3.5"
+      }`}
       style={{
         background: themeVars.cardInner,
         border: `1px solid ${themeVars.border}`,
@@ -301,20 +334,26 @@ function AsideContentRow({
       }}
     >
       <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors duration-200 sm:h-11 sm:w-11 sm:rounded-[10px]"
+        className={`flex shrink-0 items-center justify-center rounded-lg transition-colors duration-200 sm:rounded-[10px] ${
+          compact ? "h-8 w-8" : "h-10 w-10 sm:h-11 sm:w-11"
+        }`}
         style={{
           background: themeVars.accentSoft,
           border: `1px solid ${themeVars.accentLine}`,
         }}
       >
         <Icon
-          className="h-[18px] w-[18px] opacity-95 sm:h-5 sm:w-5"
+          className={`opacity-95 ${compact ? "h-4 w-4" : "h-[18px] w-[18px] sm:h-5 sm:w-5"}`}
           strokeWidth={2.2}
           style={{ color: themeVars.accent }}
           aria-hidden
         />
       </span>
-      <div className="min-w-0 flex-1 text-left text-[13px] font-semibold leading-snug sm:text-sm sm:leading-relaxed">
+      <div
+        className={`min-w-0 flex-1 text-left font-semibold leading-snug ${
+          compact ? "text-[12px] sm:text-[13px]" : "text-[13px] sm:text-sm sm:leading-relaxed"
+        }`}
+      >
         {children}
       </div>
     </div>
@@ -440,7 +479,7 @@ const slides: Slide[] = [
       "Supports premium market perception",
     ],
     imagePlaceholders: 1,
-    billboardImages: ["/images/dxb-terminal-3-arrivals.webp"],
+    billboardImages: [DECK_REFERENCE_IMAGES[0]],
   },
   {
     eyebrow: "Touchpoint 02",
@@ -465,9 +504,9 @@ const slides: Slide[] = [
     imagePlaceholders: 4,
     statInGridIndex: 1,
     billboardImages: [
-      "/images/metro-1.webp",
-      "/images/metro-3.webp",
-      "/images/metro-4.webp",
+      DECK_REFERENCE_IMAGES[1],
+      DECK_REFERENCE_IMAGES[2],
+      DECK_REFERENCE_IMAGES[3],
     ],
   },
   {
@@ -480,10 +519,10 @@ const slides: Slide[] = [
     videoPlaceholder: true,
     mediaLayout: "twoPlusVideo",
     billboardImages: [
-      "/images/metro-5.webp",
-      "/images/metro-6.webp",
+      DECK_REFERENCE_IMAGES[4],
+      DECK_REFERENCE_IMAGES[5],
     ],
-    billboardVideoPoster: "/images/metro-7.webp",
+    billboardVideoPoster: DECK_REFERENCE_IMAGES[8],
   },
   {
     eyebrow: "Touchpoint 03",
@@ -508,9 +547,9 @@ const slides: Slide[] = [
     imagePlaceholders: 4,
     statInGridIndex: 1,
     billboardImages: [
-      "/images/metro-2.webp",
-      "/images/metro-5.webp",
-      "/images/metro-6.webp",
+      DECK_REFERENCE_IMAGES[6],
+      DECK_REFERENCE_IMAGES[7],
+      DECK_REFERENCE_IMAGES[8],
     ],
   },
   {
@@ -523,14 +562,14 @@ const slides: Slide[] = [
       "All rates are in USD",
       "Prices exclude 5% VAT",
       "Municipality fee: $141.59 per artwork",
-      "Recommended total media package: $252,094.09",
+      "Recommended total media package: $148,622.34",
     ],
     rightTitle: "Total Package",
     rightContent: [
       "DXB Terminal 3 Arrivals",
       "Expo City Metro Station",
       "Expo City Outdoor Digital Network",
-      "Total: $252,094.09 excluding VAT",
+      "Total: $148,622.34 excluding VAT",
     ],
   },
   {
@@ -622,6 +661,7 @@ export default function Page() {
   }, [galleryOpen]);
 
   const slide = slides[current];
+  const viewportFit = slideNeedsViewportFit(slide);
   const galleryNav = DECK_GALLERY.navBySlide[current] ?? null;
   const gallerySlides = DECK_GALLERY.lightboxSlides;
   const hasDeckGallery = gallerySlides.length > 0;
@@ -709,7 +749,7 @@ export default function Page() {
             </div>
 
             <div
-              className="pointer-events-none absolute inset-0 flex items-center justify-center px-18 sm:px-36 md:px-44"
+              className="pointer-events-none absolute inset-0 flex items-center justify-center px-14 sm:px-28 md:px-36 lg:px-44"
             >
               <div
                 className="max-w-full truncate text-center text-[10px] font-bold uppercase tracking-[0.18em] opacity-60 sm:text-xs sm:tracking-[0.24em]"
@@ -794,7 +834,7 @@ export default function Page() {
         </header>
 
         <section
-          className={`relative z-10 flex min-h-0 flex-1 flex-col justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-[calc(5.75rem+env(safe-area-inset-top))] [-webkit-overflow-scrolling:touch] sm:px-6 sm:pb-28 sm:pt-24 md:px-14 lg:px-20 lg:pt-24 lg:items-center lg:justify-center`}
+          className="relative z-10 flex min-h-0 flex-1 flex-col justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-[calc(5.25rem+env(safe-area-inset-top))] [-webkit-overflow-scrolling:touch] sm:px-6 sm:pb-28 sm:pt-[5.75rem] md:px-10 md:pt-24 lg:px-14 lg:pt-[6.25rem] xl:px-16 xl:pt-24"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -810,15 +850,21 @@ export default function Page() {
           ) : (
             <div
               key={`${theme}-${current}`}
-              className={`mx-auto grid w-full max-w-full animate-[fadeUp_.45s_ease-out] gap-6 sm:gap-8 lg:max-w-7xl lg:items-center ${
+              className={`mx-auto grid w-full max-w-full animate-[fadeUp_.45s_ease-out] gap-5 sm:gap-6 md:gap-7 lg:max-w-6xl lg:items-start lg:gap-x-10 xl:max-w-7xl ${
+                viewportFit ? "deck-slide-fit" : ""
+              } ${
                 slide.layout === "commercial"
-                  ? "lg:grid-cols-[0.78fr_1.22fr]"
-                  : "lg:grid-cols-[1.1fr_.9fr]"
+                  ? "lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]"
+                  : "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
               }`}
             >
-              <div className="min-w-0">
+              <div
+                className={`min-w-0 lg:max-w-[34rem] xl:max-w-[36rem] ${
+                  slide.imagePlaceholders ? "deck-touchpoint-left" : ""
+                }`}
+              >
                 {slide.layout === "cover" ? (
-                  <div className="mb-4 flex flex-col items-start gap-3 sm:mb-5 sm:gap-3.5">
+                  <div className="mb-3 flex flex-col items-start gap-3 sm:mb-4 sm:gap-3.5">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
                       <img
                         src={
@@ -856,7 +902,7 @@ export default function Page() {
                       />
                     </div>
                     <div
-                      className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] sm:gap-2.5 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.25em]"
+                      className="deck-eyebrow inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-black uppercase sm:gap-2.5 sm:px-4 sm:py-2"
                       style={{
                         color: themeVars.accent,
                         background: themeVars.accentSoft,
@@ -873,7 +919,9 @@ export default function Page() {
                   </div>
                 ) : (
                 <div
-                  className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] sm:mb-5 sm:gap-2.5 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.25em]"
+                  className={`deck-eyebrow inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-black uppercase sm:gap-2.5 sm:px-4 sm:py-2 ${
+                    slide.imagePlaceholders ? "mb-3 sm:mb-4" : "mb-4 sm:mb-5"
+                  }`}
                   style={{
                     color: themeVars.accent,
                     background: themeVars.accentSoft,
@@ -895,10 +943,8 @@ export default function Page() {
                 )}
 
                 <h1
-                  className={`whitespace-pre-line font-black leading-[0.96] tracking-[-0.05em] sm:leading-[0.94] sm:tracking-[-0.06em] ${
-                    slide.layout === "cover"
-                      ? "text-[clamp(1.85rem,9.2vw,2.75rem)] sm:text-4xl md:text-5xl md:leading-[0.94] lg:text-7xl xl:text-8xl 2xl:text-[92px]"
-                      : "text-[clamp(1.65rem,7.5vw,2.4rem)] sm:text-4xl md:text-5xl lg:text-7xl"
+                  className={`whitespace-pre-line font-black ${
+                    slide.layout === "cover" ? "deck-title-cover" : "deck-title"
                   }`}
                 >
                   {slide.title}
@@ -906,7 +952,11 @@ export default function Page() {
 
                 {slide.subtitle && (
                   <p
-                    className="mt-5 max-w-3xl text-[15px] leading-[1.55] sm:mt-7 sm:text-lg sm:leading-8 md:text-[21px]"
+                    className={`deck-subtitle max-w-2xl lg:max-w-xl xl:max-w-2xl ${
+                      slide.imagePlaceholders
+                        ? "mt-3 sm:mt-4"
+                        : "mt-4 sm:mt-5"
+                    }`}
                     style={{ color: themeVars.sub }}
                   >
                     {slide.subtitle}
@@ -914,7 +964,13 @@ export default function Page() {
                 )}
 
                 {slide.bullets && slide.layout !== "commercial" && (
-                  <div className="mt-6 grid gap-2.5 sm:mt-8 sm:gap-3 md:grid-cols-2">
+                  <div
+                    className={`grid gap-2 sm:gap-2.5 ${
+                      slide.imagePlaceholders
+                        ? "mt-4 sm:mt-5 md:grid-cols-2"
+                        : "mt-6 sm:mt-8 sm:gap-3 md:grid-cols-2"
+                    }`}
+                  >
                     {slide.bullets.map((bullet) => (
                       <InfoPill
                         key={bullet}
@@ -926,7 +982,7 @@ export default function Page() {
                 )}
 
                 {slide.bullets && slide.layout === "commercial" && (
-                  <div className="mt-6 grid min-w-0 grid-cols-2 gap-x-2.5 gap-y-2.5 sm:mt-8 sm:gap-x-3 sm:gap-y-3 *:min-w-0">
+                  <div className="mt-6 grid min-w-0 grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-3 *:min-w-0">
                     {slide.bullets.map((bullet) => (
                       <InfoPill
                         key={bullet}
@@ -1072,10 +1128,10 @@ function MediaOnlySlide({
   return (
     <div
       key={`media-only-${slideIndex}`}
-      className="mx-auto w-full max-w-full animate-[fadeUp_.45s_ease-out] lg:max-w-7xl"
+      className="deck-slide-fit mx-auto w-full max-w-full animate-[fadeUp_.45s_ease-out] lg:max-w-7xl"
     >
       <div
-        className="w-full rounded-xl p-4 sm:rounded-2xl sm:p-6 md:p-7"
+        className="deck-panel-dense w-full rounded-xl p-3 sm:rounded-2xl sm:p-4 md:p-5"
         style={{
           background: themeVars.panel,
           border: `1px solid ${themeVars.border}`,
@@ -1087,7 +1143,7 @@ function MediaOnlySlide({
         }}
       >
         <div
-          className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] sm:mb-5 sm:gap-2.5 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.25em]"
+          className="deck-eyebrow mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-black uppercase sm:mb-5 sm:gap-2.5 sm:px-4 sm:py-2"
           style={{
             color: themeVars.accent,
             background: themeVars.accentSoft,
@@ -1102,23 +1158,23 @@ function MediaOnlySlide({
           {slide.eyebrow}
         </div>
 
-        <div className="mb-4 grid grid-cols-3 items-center gap-x-3 gap-y-2 sm:mb-5 sm:gap-x-5 md:gap-x-6">
+        <div className="mb-4 flex flex-col gap-4 sm:mb-5 md:grid md:grid-cols-[1fr_auto] md:items-center md:gap-x-6 lg:gap-x-8">
           <h2
-            className="col-span-2 min-w-0 self-center text-xl font-black leading-[1.08] tracking-[-0.04em] sm:text-2xl md:text-3xl lg:text-4xl"
+            className="deck-panel-heading min-w-0 font-black"
             style={{ color: themeVars.text }}
           >
             {slide.title}
           </h2>
 
           <div
-            className="col-span-1 min-w-0 justify-self-stretch rounded-lg p-3 sm:rounded-xl sm:p-4"
+            className="min-w-0 shrink-0 rounded-lg p-3 sm:rounded-xl sm:p-4 md:min-w-[9.5rem] lg:min-w-[10.5rem]"
             style={{
               background: themeVars.accentSoft,
               border: `1px solid ${themeVars.accentLine}`,
             }}
           >
             <div
-              className="text-center text-3xl font-black tracking-[-0.06em] sm:text-4xl md:text-5xl"
+              className="deck-stat text-center font-black"
               style={{ color: themeVars.accent }}
             >
               {slide.stat ? (
@@ -1129,7 +1185,7 @@ function MediaOnlySlide({
                 />
               ) : null}
             </div>
-            <div className="mt-1.5 text-center text-[10px] font-black uppercase tracking-[0.2em] opacity-65 sm:mt-2 sm:text-xs sm:tracking-[0.25em]">
+            <div className="deck-stat-label mt-1.5 text-center font-black uppercase opacity-65 sm:mt-2">
               {slide.statLabel}
             </div>
           </div>
@@ -1144,6 +1200,7 @@ function MediaOnlySlide({
           billboardVideoPoster={slide.billboardVideoPoster}
           galleryNav={galleryNav}
           onOpenGallery={onOpenGallery}
+          fitToViewport
         />
       </div>
     </div>
@@ -1174,10 +1231,17 @@ function RightPanel({
     Boolean(slide.stat) &&
     slide.statInGridIndex != null &&
     slide.imagePlaceholders === 4;
+  const panelDense = hasImages;
+  const singleImageWithStat =
+    slide.imagePlaceholders === 1 && Boolean(slide.stat) && !embedStatInGrid;
 
   return (
     <div
-      className="min-w-0 w-full rounded-xl p-4 sm:rounded-2xl sm:p-6 md:p-7"
+      className={`min-w-0 w-full rounded-xl sm:rounded-2xl ${
+        panelDense
+          ? "deck-panel-dense deck-slide-fit p-3 sm:p-4 md:p-5"
+          : "p-4 sm:p-6 md:p-7"
+      }`}
       style={{
         background: themeVars.panel,
         border: `1px solid ${themeVars.border}`,
@@ -1188,12 +1252,48 @@ function RightPanel({
             : "0 20px 60px rgba(0,0,0,0.28)",
       }}
     >
-      {slide.stat && !embedStatInGrid ? (
+      {singleImageWithStat ? (
+        <div className="mb-3 grid grid-cols-1 gap-2.5 sm:grid-cols-[minmax(0,0.44fr)_minmax(0,0.56fr)] sm:gap-3">
+          <div
+            className="flex flex-col justify-center rounded-lg p-3 text-center sm:p-4"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+            }}
+          >
+            <div
+              className="deck-stat font-black"
+              style={{ color: themeVars.accent }}
+            >
+              <AnimatedStat
+                value={slide.stat!}
+                playKey={slideIndex}
+                duration={1.35}
+              />
+            </div>
+            <div className="deck-stat-label mt-1.5 font-black uppercase opacity-65">
+              {slide.statLabel}
+            </div>
+          </div>
+          <ImagePlaceholderGrid
+            count={1}
+            themeVars={themeVars}
+            videoPlaceholder={slide.videoPlaceholder}
+            mediaLayout={slide.mediaLayout}
+            billboardImages={slide.billboardImages}
+            billboardVideoPoster={slide.billboardVideoPoster}
+            galleryNav={galleryNav}
+            onOpenGallery={onOpenGallery}
+            fitToViewport
+            embedded
+          />
+        </div>
+      ) : slide.stat && !embedStatInGrid ? (
         <div
-          className={`${
+          className={`rounded-lg ${
             hasImages
-              ? "mb-3 rounded-lg p-4 sm:mb-4 sm:rounded-xl sm:p-5"
-              : "mb-5 rounded-lg p-4 sm:mb-6 sm:rounded-xl sm:p-6"
+              ? "mb-3 p-3 sm:mb-4 sm:p-4"
+              : "mb-5 p-4 sm:mb-6 sm:p-6"
           }${centerStatInPanel ? " text-center" : ""}`}
           style={{
             background: themeVars.accentSoft,
@@ -1201,7 +1301,7 @@ function RightPanel({
           }}
         >
           <div
-            className={`text-4xl font-black tracking-[-0.06em] sm:text-5xl md:text-6xl lg:text-7xl${centerStatInPanel ? " text-center" : ""}`}
+            className={`deck-stat font-black${centerStatInPanel ? " text-center" : ""}`}
             style={{ color: themeVars.accent }}
           >
             <AnimatedStat
@@ -1210,7 +1310,7 @@ function RightPanel({
               duration={1.35}
             />
           </div>
-          <div className="mt-2 text-xs font-black uppercase tracking-[0.25em] opacity-65">
+          <div className="deck-stat-label mt-1.5 font-black uppercase opacity-65 sm:mt-2">
             {slide.statLabel}
           </div>
         </div>
@@ -1223,18 +1323,18 @@ function RightPanel({
           }}
         >
           <div
-            className="text-[10px] font-black uppercase tracking-[0.22em] sm:text-xs sm:tracking-[0.25em]"
+            className="deck-eyebrow font-black uppercase"
             style={{ color: themeVars.accent }}
           >
             Commercial Focus
           </div>
-          <div className="mt-2 text-2xl font-black tracking-[-0.04em] sm:mt-3 sm:text-3xl">
+          <div className="deck-panel-heading mt-2 font-black sm:mt-3">
             Awareness · Recall · Booth Influence
           </div>
         </div>
       ) : null}
 
-      {slide.imagePlaceholders ? (
+      {slide.imagePlaceholders && !singleImageWithStat ? (
         <ImagePlaceholderGrid
           count={slide.imagePlaceholders}
           themeVars={themeVars}
@@ -1244,6 +1344,7 @@ function RightPanel({
           billboardVideoPoster={slide.billboardVideoPoster}
           galleryNav={galleryNav}
           onOpenGallery={onOpenGallery}
+          fitToViewport={panelDense}
           statInGrid={
             embedStatInGrid
               ? {
@@ -1258,14 +1359,20 @@ function RightPanel({
       ) : null}
 
       {slide.rightTitle ? (
-        <AsideSectionHeading title={slide.rightTitle} themeVars={themeVars} />
+        <AsideSectionHeading
+          title={slide.rightTitle}
+          themeVars={themeVars}
+          compact={panelDense}
+        />
       ) : null}
 
       <div
         className={
           fourAsideItems
-            ? "grid grid-cols-2 gap-2.5 sm:gap-3"
-            : "space-y-2.5 sm:space-y-3"
+            ? `grid grid-cols-2 ${panelDense ? "gap-2" : "gap-2.5 sm:gap-3"}`
+            : panelDense
+              ? "space-y-2"
+              : "space-y-2.5 sm:space-y-3"
         }
       >
         {slide.rightContent?.map((item, i) => {
@@ -1275,7 +1382,12 @@ function RightPanel({
               {item}
             </AsideFeatureTile>
           ) : (
-            <AsideContentRow key={item} Icon={RowIcon} themeVars={themeVars}>
+            <AsideContentRow
+              key={item}
+              Icon={RowIcon}
+              themeVars={themeVars}
+              compact={panelDense}
+            >
               {item}
             </AsideContentRow>
           );
@@ -1328,6 +1440,8 @@ function ImagePlaceholderGrid({
   galleryNav,
   onOpenGallery,
   statInGrid,
+  fitToViewport = false,
+  embedded = false,
 }: {
   count: number;
   themeVars: any;
@@ -1343,17 +1457,28 @@ function ImagePlaceholderGrid({
     label?: string;
     playKey: number;
   };
+  fitToViewport?: boolean;
+  embedded?: boolean;
 }) {
   const slotSrc = (i: number) => billboardImages?.[i];
   const cellRound = "rounded-md sm:rounded-lg";
   const videoRound = "rounded-lg sm:rounded-xl";
+  const singleImageClass = fitToViewport
+    ? "h-[var(--deck-image-single)] min-h-[7.5rem]"
+    : "aspect-video";
+  const gridCellClass = fitToViewport
+    ? "h-[var(--deck-image-grid)] min-h-[5.5rem]"
+    : "aspect-video";
+  const wideMediaClass = fitToViewport
+    ? "h-[var(--deck-image-wide)] min-h-[6.5rem]"
+    : "h-[150px] sm:h-[176px] md:h-[200px]";
 
   if (mediaLayout === "twoPlusVideo") {
     return (
       <div className="space-y-3 sm:space-y-4">
         {count === 2 ? (
           <div
-            className={`relative h-[200px] w-full overflow-hidden sm:h-[220px] md:h-[240px] ${cellRound}`}
+            className={`relative w-full overflow-hidden ${fitToViewport ? "h-[var(--deck-image-grid)] min-h-[7rem] sm:min-h-[7.5rem]" : "h-[200px] sm:h-[220px] md:h-[240px]"} ${cellRound}`}
             style={{
               background: themeVars.cardInner,
               border:
@@ -1401,7 +1526,7 @@ function ImagePlaceholderGrid({
               return (
                 <div
                   key={i}
-                  className={`relative aspect-video w-full overflow-hidden ${cellRound}`}
+                  className={`relative w-full overflow-hidden ${gridCellClass} ${cellRound}`}
                   style={{
                     background: themeVars.cardInner,
                     border: src
@@ -1433,7 +1558,7 @@ function ImagePlaceholderGrid({
 
         {videoPlaceholder && (
           <div
-            className={`relative h-[150px] w-full overflow-hidden sm:h-[176px] md:h-[200px] ${videoRound}`}
+            className={`relative w-full overflow-hidden ${wideMediaClass} ${videoRound}`}
             style={{
               background: themeVars.accentSoft,
               border: billboardVideoPoster
@@ -1467,7 +1592,7 @@ function ImagePlaceholderGrid({
     const src = slotSrc(0);
     return (
       <div
-        className={`relative mb-4 aspect-video w-full max-w-full overflow-hidden sm:mb-5 ${videoRound}`}
+        className={`relative w-full max-w-full overflow-hidden ${singleImageClass} ${embedded ? "mb-0 h-full min-h-[7.5rem]" : "mb-3 sm:mb-4"} ${videoRound}`}
         style={{
           background: themeVars.cardInner,
           border: src
@@ -1502,14 +1627,14 @@ function ImagePlaceholderGrid({
           return (
             <div
               key={`stat-slot-${i}`}
-              className={`relative flex aspect-video w-full min-h-0 flex-col items-center justify-center overflow-hidden ${cellRound} px-2 py-3 text-center sm:px-3 sm:py-4`}
+              className={`relative flex w-full min-h-0 flex-col items-center justify-center overflow-hidden ${fitToViewport ? "h-[var(--deck-image-grid)] min-h-[5.5rem]" : "aspect-video"} ${cellRound} px-2 py-3 text-center sm:px-3 sm:py-4`}
               style={{
                 background: themeVars.accentSoft,
                 border: `1px solid ${themeVars.accentLine}`,
               }}
             >
               <div
-                className="text-3xl font-black tracking-[-0.06em] sm:text-4xl md:text-5xl"
+                className="deck-stat-compact font-black"
                 style={{ color: themeVars.accent }}
               >
                 <AnimatedStat
@@ -1519,7 +1644,7 @@ function ImagePlaceholderGrid({
                 />
               </div>
               {statInGrid.label ? (
-                <div className="mt-1 max-w-full px-1 text-[9px] font-black uppercase leading-tight tracking-[0.18em] opacity-65 sm:mt-1.5 sm:text-[10px] sm:tracking-[0.22em]">
+                <div className="deck-stat-label mt-1 max-w-full px-1 font-black uppercase leading-tight opacity-65 sm:mt-1.5">
                   {statInGrid.label}
                 </div>
               ) : null}
@@ -1537,7 +1662,7 @@ function ImagePlaceholderGrid({
         return (
           <div
             key={i}
-            className={`relative aspect-video w-full overflow-hidden ${cellRound}`}
+            className={`relative w-full overflow-hidden ${gridCellClass} ${cellRound}`}
             style={{
               background: themeVars.cardInner,
               border: src
@@ -1648,7 +1773,7 @@ function CommercialTable({
         </div>
 
         <div
-          className="mt-1 text-4xl font-black tracking-[-0.06em] sm:mt-2 sm:text-5xl"
+          className="deck-stat mt-1 font-black sm:mt-2"
           style={{ color: themeVars.accent }}
         >
           <AnimatedStat
