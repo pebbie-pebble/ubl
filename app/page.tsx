@@ -713,10 +713,10 @@ const slides: Slide[] = [
     stat: "2.92M",
     statLabel: "Monthly Impressions",
     imagePlaceholders: 1,
-    billboardImages: [DECK_REFERENCE_IMAGES[0]],
+    billboardImages: ["/images/dxb-terminal-3-screens.png"],
     touchpointHero: {
       badge: "Touchpoint 01 · Arrivals Layer",
-      heroImage: DECK_REFERENCE_IMAGES[0],
+      heroImage: "/images/dxb-terminal-3-screens.png",
       factSheet: [
         { label: "Location", value: "Terminal 3 · Passport Control", iconKey: "mapPinned" },
         { label: "Format", value: "Digital LED Network", iconKey: "monitorPlay" },
