@@ -790,9 +790,35 @@ const slides: Slide[] = [
       "The venue-journey reinforcement layer. Keeps SolarWinds visible as visitors move through Expo City between the metro and the halls.",
     stat: "49",
     statLabel: "Outdoor Screens",
-    imagePlaceholders: 4,
+    imagePlaceholders: 1,
+    billboardImages: [DECK_REFERENCE_IMAGES[6]],
+    outdoor: {
+      heroStat: { value: "49", label: "Outdoor Screens" },
+      zones: [
+        {
+          name: "Entrance Gate",
+          copy: "First-impression dominance as visitors enter Expo City. The arrival layer that sets the tone for everything that follows on the venue journey.",
+          formats: [
+            { count: "12", type: "MUPI Totems" },
+            { count: "2", type: "Step Screens" },
+          ],
+          iconKey: "mapPinned",
+        },
+      ],
+      insight:
+        "Multi-format variety supports recall and directional reinforcement toward the SolarWinds booth.",
+    },
+  },
+  {
+    layout: "outdoorZones",
+    eyebrow: "Touchpoint 03",
+    title: "Expo City Digital Outdoor Network",
+    subtitle:
+      "The venue-journey reinforcement layer. Keeps SolarWinds visible as visitors move through Expo City between the metro and the halls.",
+    stat: "49",
+    statLabel: "Outdoor Screens",
+    imagePlaceholders: 3,
     billboardImages: [
-      DECK_REFERENCE_IMAGES[6],
       DECK_REFERENCE_IMAGES[7],
       DECK_REFERENCE_IMAGES[8],
       DECK_REFERENCE_IMAGES[5],
@@ -800,15 +826,6 @@ const slides: Slide[] = [
     outdoor: {
       heroStat: { value: "49", label: "Outdoor Screens" },
       zones: [
-        {
-          name: "Entrance Gate",
-          copy: "First-impression dominance as visitors enter Expo City.",
-          formats: [
-            { count: "12", type: "MUPI Totems" },
-            { count: "2", type: "Step Screens" },
-          ],
-          iconKey: "mapPinned",
-        },
         {
           name: "Al Wasl Plaza",
           copy: "Central pedestrian hub between hall clusters.",
@@ -2258,14 +2275,14 @@ function OutdoorZonesSlide({
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
-        {o.zones.map((zone, i) => {
+      {o.zones.length === 1 ? (
+        (() => {
+          const zone = o.zones[0]!;
           const Icon = getIcon(zone.iconKey);
-          const photo = slide.billboardImages?.[i];
+          const photo = slide.billboardImages?.[0];
           return (
             <div
-              key={zone.name}
-              className="flex min-h-0 gap-3 overflow-hidden rounded-2xl p-3 sm:gap-4 sm:p-4"
+              className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden rounded-3xl p-4 sm:flex-row sm:gap-6 sm:p-6"
               style={{
                 background: themeVars.panel,
                 border: `1px solid ${themeVars.border}`,
@@ -2273,7 +2290,7 @@ function OutdoorZonesSlide({
               }}
             >
               <div
-                className="relative h-full min-h-[5.5rem] w-24 shrink-0 overflow-hidden rounded-xl sm:w-32"
+                className="relative h-56 w-full shrink-0 overflow-hidden rounded-2xl sm:h-auto sm:w-[44%] sm:min-h-[18rem]"
                 style={{
                   background: themeVars.cardInner,
                   border: `1px solid ${themeVars.border}`,
@@ -2283,20 +2300,20 @@ function OutdoorZonesSlide({
                   <GalleryImageTrigger
                     src={photo}
                     alt={`${zone.name} reference`}
-                    globalIndex={galleryNav?.images[i]}
+                    globalIndex={galleryNav?.images[0]}
                     onOpenGallery={onOpenGallery}
                     imgClassName="h-full w-full object-cover"
                   />
                 ) : (
                   <div
-                    className="flex h-full items-center justify-center text-center text-[9px] font-black uppercase tracking-[0.2em]"
+                    className="flex h-full items-center justify-center text-center text-xs font-black uppercase tracking-[0.22em]"
                     style={{ color: themeVars.accent }}
                   >
                     Zone Photo
                   </div>
                 )}
                 <span
-                  className="pointer-events-none absolute left-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-lg"
+                  className="pointer-events-none absolute left-3 top-3 flex h-11 w-11 items-center justify-center rounded-xl sm:h-12 sm:w-12"
                   style={{
                     background: "rgba(13,20,32,0.78)",
                     border: `1px solid ${themeVars.accentLine}`,
@@ -2304,56 +2321,179 @@ function OutdoorZonesSlide({
                   }}
                 >
                   <Icon
-                    className="h-3.5 w-3.5"
+                    className="h-5 w-5 sm:h-[22px] sm:w-[22px]"
                     strokeWidth={2.3}
                     style={{ color: themeVars.accent }}
                     aria-hidden
                   />
                 </span>
+                <span
+                  className="pointer-events-none absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.22em]"
+                  style={{
+                    background: "rgba(13,20,32,0.78)",
+                    border: `1px solid ${themeVars.accentLine}`,
+                    color: "#fff",
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  Featured Zone · 01
+                </span>
               </div>
 
-              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                <div className="flex items-center justify-between gap-2">
+              <div className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
+                <div className="flex items-center justify-between gap-3">
                   <div
-                    className="text-sm font-black leading-tight sm:text-[15px]"
-                    style={{ color: themeVars.text }}
+                    className="text-[10px] font-black uppercase tracking-[0.22em]"
+                    style={{ color: themeVars.accent }}
                   >
-                    {zone.name}
+                    Outdoor · Expo City
                   </div>
                   <span
-                    className="text-[9px] font-black uppercase tracking-[0.22em] opacity-60"
+                    className="text-[10px] font-black uppercase tracking-[0.22em] opacity-60"
                     style={{ color: themeVars.text }}
                   >
-                    {String(i + 1).padStart(2, "0")}
+                    Zone 01 of 04
                   </span>
                 </div>
+                <h2
+                  className="text-3xl font-black leading-tight sm:text-4xl"
+                  style={{ color: themeVars.text }}
+                >
+                  {zone.name}
+                </h2>
                 <p
-                  className="deck-clamp-2 text-[11px] leading-snug sm:text-xs"
+                  className="deck-clamp-4 max-w-2xl text-sm leading-relaxed sm:text-base sm:leading-relaxed"
                   style={{ color: themeVars.sub }}
                 >
                   {zone.copy}
                 </p>
-                <div className="mt-auto flex flex-wrap gap-1.5">
+                <div className="mt-auto grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   {zone.formats.map((f) => (
-                    <span
+                    <div
                       key={`${zone.name}-${f.type}`}
-                      className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 sm:py-3"
                       style={{
                         background: themeVars.cardInner,
                         border: `1px solid ${themeVars.border}`,
-                        color: themeVars.text,
                       }}
                     >
-                      <span style={{ color: themeVars.accent }}>{f.count}</span>
-                      <span className="opacity-75">{f.type}</span>
-                    </span>
+                      <span
+                        className="text-2xl font-black leading-none sm:text-3xl"
+                        style={{ color: themeVars.accent }}
+                      >
+                        {f.count}
+                      </span>
+                      <span
+                        className="text-[11px] font-black uppercase tracking-[0.18em] sm:text-xs"
+                        style={{ color: themeVars.text }}
+                      >
+                        {f.type}
+                      </span>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
           );
-        })}
-      </div>
+        })()
+      ) : (
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+          {o.zones.map((zone, i) => {
+            const Icon = getIcon(zone.iconKey);
+            const photo = slide.billboardImages?.[i];
+            return (
+              <div
+                key={zone.name}
+                className="flex min-h-0 gap-3 overflow-hidden rounded-2xl p-3 sm:gap-4 sm:p-4"
+                style={{
+                  background: themeVars.panel,
+                  border: `1px solid ${themeVars.border}`,
+                  backdropFilter: "blur(14px)",
+                }}
+              >
+                <div
+                  className="relative h-full min-h-[5.5rem] w-24 shrink-0 overflow-hidden rounded-xl sm:w-32"
+                  style={{
+                    background: themeVars.cardInner,
+                    border: `1px solid ${themeVars.border}`,
+                  }}
+                >
+                  {photo ? (
+                    <GalleryImageTrigger
+                      src={photo}
+                      alt={`${zone.name} reference`}
+                      globalIndex={galleryNav?.images[i]}
+                      onOpenGallery={onOpenGallery}
+                      imgClassName="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="flex h-full items-center justify-center text-center text-[9px] font-black uppercase tracking-[0.2em]"
+                      style={{ color: themeVars.accent }}
+                    >
+                      Zone Photo
+                    </div>
+                  )}
+                  <span
+                    className="pointer-events-none absolute left-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-lg"
+                    style={{
+                      background: "rgba(13,20,32,0.78)",
+                      border: `1px solid ${themeVars.accentLine}`,
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <Icon
+                      className="h-3.5 w-3.5"
+                      strokeWidth={2.3}
+                      style={{ color: themeVars.accent }}
+                      aria-hidden
+                    />
+                  </span>
+                </div>
+
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div
+                      className="text-sm font-black leading-tight sm:text-[15px]"
+                      style={{ color: themeVars.text }}
+                    >
+                      {zone.name}
+                    </div>
+                    <span
+                      className="text-[9px] font-black uppercase tracking-[0.22em] opacity-60"
+                      style={{ color: themeVars.text }}
+                    >
+                      {String(i + 2).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <p
+                    className="deck-clamp-2 text-[11px] leading-snug sm:text-xs"
+                    style={{ color: themeVars.sub }}
+                  >
+                    {zone.copy}
+                  </p>
+                  <div className="mt-auto flex flex-wrap gap-1.5">
+                    {zone.formats.map((f) => (
+                      <span
+                        key={`${zone.name}-${f.type}`}
+                        className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black"
+                        style={{
+                          background: themeVars.cardInner,
+                          border: `1px solid ${themeVars.border}`,
+                          color: themeVars.text,
+                        }}
+                      >
+                        <span style={{ color: themeVars.accent }}>{f.count}</span>
+                        <span className="opacity-75">{f.type}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </SlideShell>
   );
 }
