@@ -739,9 +739,9 @@ const slides: Slide[] = [
     statLabel: "Digital Screens",
     imagePlaceholders: 3,
     billboardImages: [
-      DECK_REFERENCE_IMAGES[1],
-      DECK_REFERENCE_IMAGES[2],
-      DECK_REFERENCE_IMAGES[3],
+      "/images/metro-overhead-screens.png",
+      "/images/metro-entrance-screens.png",
+      "/images/expo-station-mupi.png",
     ],
     metro: {
       statRibbon: [
