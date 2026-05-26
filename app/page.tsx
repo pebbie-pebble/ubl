@@ -2185,7 +2185,7 @@ function TouchpointMosaicSlide({
                 alt="Metro reference 2"
                 globalIndex={galleryNav?.images[1]}
                 onOpenGallery={onOpenGallery}
-                imgClassName="h-full w-full object-cover object-center"
+                imgClassName="h-full w-full object-contain"
               />
             ) : null}
           </div>
@@ -2202,7 +2202,7 @@ function TouchpointMosaicSlide({
                 alt="Metro reference 3"
                 globalIndex={galleryNav?.images[2]}
                 onOpenGallery={onOpenGallery}
-                imgClassName="h-full w-full object-contain"
+                imgClassName="h-full w-full object-cover object-center"
               />
             ) : null}
           </div>
