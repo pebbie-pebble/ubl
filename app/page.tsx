@@ -2115,9 +2115,9 @@ function TouchpointMosaicSlide({
           </div>
         </div>
 
-        <div className="grid min-h-[18rem] grid-cols-2 grid-rows-2 gap-2 sm:gap-3">
+        <div className="grid min-h-[18rem] grid-cols-2 grid-rows-[1.35fr_1fr] gap-2 sm:gap-3">
           <div
-            className="relative col-span-1 row-span-2 overflow-hidden rounded-2xl"
+            className="relative col-span-2 row-span-1 overflow-hidden rounded-2xl"
             style={{
               background: themeVars.cardInner,
               border: `1px solid ${themeVars.border}`,
@@ -2129,12 +2129,12 @@ function TouchpointMosaicSlide({
                 alt="Metro reference 1"
                 globalIndex={galleryNav?.images[0]}
                 onOpenGallery={onOpenGallery}
-                imgClassName="h-full w-full object-cover"
+                imgClassName="h-full w-full object-cover object-top"
               />
             ) : null}
             {slide.stat ? (
               <div
-                className="pointer-events-none absolute left-3 top-3 flex flex-col gap-0.5 rounded-2xl px-3 py-2"
+                className="pointer-events-none absolute bottom-3 left-3 flex flex-col gap-0.5 rounded-2xl px-3 py-2"
                 style={{
                   background: "rgba(13,20,32,0.78)",
                   border: `1px solid ${themeVars.accentLine}`,
@@ -2163,7 +2163,7 @@ function TouchpointMosaicSlide({
                 alt="Metro reference 2"
                 globalIndex={galleryNav?.images[1]}
                 onOpenGallery={onOpenGallery}
-                imgClassName="h-full w-full object-cover"
+                imgClassName="h-full w-full object-cover object-center"
               />
             ) : null}
           </div>
@@ -2180,7 +2180,7 @@ function TouchpointMosaicSlide({
                 alt="Metro reference 3"
                 globalIndex={galleryNav?.images[2]}
                 onOpenGallery={onOpenGallery}
-                imgClassName="h-full w-full object-cover"
+                imgClassName="h-full w-full object-contain"
               />
             ) : null}
           </div>
