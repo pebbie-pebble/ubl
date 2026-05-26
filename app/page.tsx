@@ -766,15 +766,14 @@ const slides: Slide[] = [
     title: "Expo City Metro Station creative visibility.",
     stat: "134",
     statLabel: "Digital Screens",
-    imagePlaceholders: 3,
-    videoPlaceholder: true,
+    imagePlaceholders: 4,
     mediaLayout: "twoPlusVideo",
     billboardImages: [
       DECK_REFERENCE_IMAGES[4],
       "/images/metro-platform-signage.png",
       "/images/metro-5g-concourse.png",
+      "/images/metro-platform-doors.png",
     ],
-    billboardVideoPoster: "/images/metro-platform-doors.png",
     mediaSceneLabels: [
       "Platform · arrival approach",
       "Concourse · brand handoff",
@@ -795,7 +794,7 @@ const slides: Slide[] = [
     stat: "49",
     statLabel: "Outdoor Screens",
     imagePlaceholders: 1,
-    billboardImages: [DECK_REFERENCE_IMAGES[6]],
+    billboardImages: ["/images/expo-entrance-gate.png"],
     outdoor: {
       heroStat: { value: "49", label: "Outdoor Screens" },
       zones: [
@@ -823,9 +822,9 @@ const slides: Slide[] = [
     statLabel: "Outdoor Screens",
     imagePlaceholders: 3,
     billboardImages: [
-      DECK_REFERENCE_IMAGES[7],
-      DECK_REFERENCE_IMAGES[8],
-      DECK_REFERENCE_IMAGES[5],
+      "/images/expo-al-wasl-naturevalley.png",
+      "/images/expo-jubilee-benefit.png",
+      "/images/expo-sustainability-haribo.png",
     ],
     outdoor: {
       heroStat: { value: "49", label: "Outdoor Screens" },
@@ -3313,10 +3312,13 @@ function ImagePlaceholderGrid({
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             {Array.from({ length: count }).map((_, i) => {
               const src = slotSrc(i);
+              const fourGridCellClass = fitToViewport
+                ? "h-[clamp(6.5rem,17dvh,12rem)] min-h-[6.5rem]"
+                : "h-[140px] sm:h-[170px] md:h-[190px]";
               return (
                 <div
                   key={i}
-                  className={`relative w-full overflow-hidden ${gridCellClass} ${cellRound}`}
+                  className={`relative w-full overflow-hidden ${count >= 4 ? fourGridCellClass : gridCellClass} ${cellRound}`}
                   style={{
                     background: themeVars.cardInner,
                     border: src
@@ -3330,7 +3332,7 @@ function ImagePlaceholderGrid({
                       alt={`Reference billboard ${i + 1}`}
                       globalIndex={galleryNav?.images[i]}
                       onOpenGallery={onOpenGallery}
-                      imgClassName="h-full w-full object-cover"
+                      imgClassName="h-full w-full object-cover object-top"
                     />
                   ) : (
                     <div
@@ -3362,7 +3364,7 @@ function ImagePlaceholderGrid({
                 alt="Wide reference for horizontal video placement"
                 globalIndex={galleryNav?.poster}
                 onOpenGallery={onOpenGallery}
-                imgClassName="h-full w-full object-cover object-[center_30%]"
+                imgClassName="h-full w-full object-cover object-[center_15%]"
               />
             ) : (
               <div
