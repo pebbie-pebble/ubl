@@ -926,7 +926,7 @@ const slides: Slide[] = [
           message: "Bold brand recognition with a clear ‘see us at GITEX’ cue.",
           copyRule: "≤ 5 words + booth",
           legibility: "Readable from 5m",
-          image: DECK_REFERENCE_IMAGES[3],
+          image: "/images/metro-solarwinds-mupi.png",
         },
         {
           env: "Outdoor",
@@ -2708,7 +2708,7 @@ function CreativeColumnsSlide({
               }}
             >
               <div
-                className="relative h-24 w-full overflow-hidden rounded-xl sm:h-28"
+                className="relative h-40 w-full overflow-hidden rounded-xl sm:h-48 md:h-52"
                 style={{
                   background: themeVars.cardInner,
                   border: `1px solid ${themeVars.border}`,
@@ -2718,7 +2718,7 @@ function CreativeColumnsSlide({
                   <img
                     src={col.image}
                     alt={`${col.env} reference creative`}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover object-[center_25%]"
                     loading="lazy"
                   />
                 ) : null}
