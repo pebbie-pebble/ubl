@@ -10,7 +10,7 @@ const outDir = resolve(__dirname, "..", ".artifacts", "deck");
 mkdirSync(outDir, { recursive: true });
 
 const url = process.env.DECK_URL ?? "http://localhost:3000";
-const slideCount = Number(process.env.SLIDES ?? 10);
+const slideCount = Number(process.env.SLIDES ?? 12);
 
 const viewports = [
   { name: "desktop", width: 1920, height: 1080 },

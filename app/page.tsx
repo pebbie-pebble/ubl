@@ -762,22 +762,41 @@ const slides: Slide[] = [
   },
   {
     layout: "mediaOnly",
-    eyebrow: "Touchpoint 02 · Visual Route",
-    title: "Expo City Metro Station creative visibility.",
+    eyebrow: "Touchpoint 02 · Visual Route · Pt. 1",
+    title: "Expo City Metro Station — concourse brand layer.",
     stat: "134",
     statLabel: "Digital Screens",
-    imagePlaceholders: 4,
+    imagePlaceholders: 2,
     mediaLayout: "twoPlusVideo",
     billboardImages: [
       DECK_REFERENCE_IMAGES[4],
-      "/images/metro-platform-signage.png",
       "/images/metro-5g-concourse.png",
+    ],
+    mediaSceneLabels: [
+      "Footbridge · brand panels",
+      "Concourse · billboard wall",
+    ],
+    mediaStatRibbon: [
+      { value: "8s", label: "Spot length" },
+      { value: "1/min", label: "Frequency" },
+      { value: "2 wk", label: "Campaign window" },
+    ],
+  },
+  {
+    layout: "mediaOnly",
+    eyebrow: "Touchpoint 02 · Visual Route · Pt. 2",
+    title: "Expo City Metro Station — platform wayfinding.",
+    stat: "134",
+    statLabel: "Digital Screens",
+    imagePlaceholders: 2,
+    mediaLayout: "twoPlusVideo",
+    billboardImages: [
+      "/images/metro-platform-signage.png",
       "/images/metro-platform-doors.png",
     ],
     mediaSceneLabels: [
-      "Platform · arrival approach",
-      "Concourse · brand handoff",
-      "Footbridge · venue reveal",
+      "Concourse · platform wayfinding",
+      "Platform · screen strip",
     ],
     mediaStatRibbon: [
       { value: "8s", label: "Spot length" },
@@ -3266,7 +3285,7 @@ function ImagePlaceholderGrid({
       <div className="space-y-3 sm:space-y-4">
         {flexRowCount ? (
           <div
-            className={`relative w-full overflow-hidden ${fitToViewport ? "h-[var(--deck-image-grid)] min-h-[7rem] sm:min-h-[7.5rem]" : "h-[200px] sm:h-[220px] md:h-[240px]"} ${cellRound}`}
+            className={`relative w-full overflow-hidden ${fitToViewport ? "h-[clamp(11rem,40dvh,26rem)] min-h-[11rem]" : "h-[260px] sm:h-[320px] md:h-[380px]"} ${cellRound}`}
             style={{
               background: themeVars.cardInner,
               border: Array.from({ length: flexRowCount }).some((_, i) =>
