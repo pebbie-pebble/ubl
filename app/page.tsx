@@ -3044,7 +3044,7 @@ function MediaOnlySlide({
       className="deck-slide-fit mx-auto w-full max-w-full animate-[fadeUp_.45s_ease-out] lg:max-w-7xl"
     >
       <div
-        className="deck-panel-dense w-full rounded-xl p-3 sm:rounded-2xl sm:p-4 md:p-5"
+        className="deck-panel-dense w-full rounded-xl p-3 sm:rounded-2xl sm:p-3.5 md:p-4"
         style={{
           background: themeVars.panel,
           border: `1px solid ${themeVars.border}`,
@@ -3056,7 +3056,7 @@ function MediaOnlySlide({
         }}
       >
         <div
-          className="deck-eyebrow mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-black uppercase sm:mb-5 sm:gap-2.5 sm:px-4 sm:py-2"
+          className="deck-eyebrow mb-2 inline-flex items-center gap-2 rounded-full px-3 py-1 font-black uppercase sm:mb-2.5 sm:gap-2.5 sm:px-3.5 sm:py-1.5"
           style={{
             color: themeVars.accent,
             background: themeVars.accentSoft,
@@ -3071,23 +3071,23 @@ function MediaOnlySlide({
           {slide.eyebrow}
         </div>
 
-        <div className="mb-4 flex flex-col gap-4 sm:mb-5 md:grid md:grid-cols-[1fr_auto] md:items-center md:gap-x-6 lg:gap-x-8">
+        <div className="mb-2.5 flex flex-col gap-3 sm:mb-3 md:grid md:grid-cols-[1fr_auto] md:items-center md:gap-x-5 lg:gap-x-6">
           <h2
-            className="deck-panel-heading min-w-0 font-black"
+            className="deck-panel-heading min-w-0 font-black leading-[1.08]"
             style={{ color: themeVars.text }}
           >
             {slide.title}
           </h2>
 
           <div
-            className="min-w-0 shrink-0 rounded-lg p-3 sm:rounded-xl sm:p-4 md:min-w-[9.5rem] lg:min-w-[10.5rem]"
+            className="min-w-0 shrink-0 rounded-lg px-3 py-2 sm:rounded-xl sm:px-3.5 sm:py-2.5 md:min-w-[8.5rem] lg:min-w-[9.5rem]"
             style={{
               background: themeVars.accentSoft,
               border: `1px solid ${themeVars.accentLine}`,
             }}
           >
             <div
-              className="deck-stat text-center font-black"
+              className="deck-stat text-center font-black leading-none"
               style={{ color: themeVars.accent }}
             >
               {slide.stat ? (
@@ -3098,7 +3098,7 @@ function MediaOnlySlide({
                 />
               ) : null}
             </div>
-            <div className="deck-stat-label mt-1.5 text-center font-black uppercase opacity-65 sm:mt-2">
+            <div className="deck-stat-label mt-1 text-center font-black uppercase opacity-65 sm:mt-1.5">
               {slide.statLabel}
             </div>
           </div>
@@ -3313,8 +3313,8 @@ function ImagePlaceholderGrid({
             {Array.from({ length: count }).map((_, i) => {
               const src = slotSrc(i);
               const fourGridCellClass = fitToViewport
-                ? "h-[clamp(6.5rem,17dvh,12rem)] min-h-[6.5rem]"
-                : "h-[140px] sm:h-[170px] md:h-[190px]";
+                ? "h-[clamp(6.5rem,19dvh,13rem)] min-h-[6.5rem]"
+                : "h-[150px] sm:h-[180px] md:h-[210px]";
               return (
                 <div
                   key={i}
