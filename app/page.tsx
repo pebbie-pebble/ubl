@@ -799,8 +799,8 @@ const slides: Slide[] = [
       heroStat: { value: "49", label: "Outdoor Screens" },
       zones: [
         {
-          name: "Entrance Gate",
-          copy: "First-impression dominance as visitors enter Expo City. The arrival layer that sets the tone for everything that follows on the venue journey.",
+          name: "Al Wasl Plaza",
+          copy: "Central pedestrian hub between hall clusters.",
           formats: [
             { count: "12", type: "MUPI Totems" },
             { count: "2", type: "Step Screens" },
@@ -830,8 +830,8 @@ const slides: Slide[] = [
       heroStat: { value: "49", label: "Outdoor Screens" },
       zones: [
         {
-          name: "Al Wasl Plaza",
-          copy: "Central pedestrian hub between hall clusters.",
+          name: "Entrance Gate",
+          copy: "First-impression dominance as visitors enter Expo City. The arrival layer that sets the tone for everything that follows on the venue journey.",
           formats: [
             { count: "14", type: "MUPI Totems" },
             { count: "2", type: "Step Screens" },
