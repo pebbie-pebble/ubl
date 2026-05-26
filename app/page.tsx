@@ -67,6 +67,92 @@ type CommercialRow = {
   totalFee: string;
 };
 
+type SlideLayout =
+  | "cover"
+  | "objective"
+  | "audience"
+  | "touchpointHero"
+  | "touchpointMosaic"
+  | "mediaOnly"
+  | "outdoorZones"
+  | "commercial"
+  | "creativeColumns"
+  | "closingTimeline";
+
+type ObjectiveStep = {
+  phase: string;
+  title: string;
+  body: string;
+  metric: string;
+  iconKey: string;
+};
+
+type AudienceKpi = {
+  value: string;
+  label: string;
+  sublabel: string;
+  iconKey: string;
+};
+
+type Persona = {
+  role: string;
+  focus: string;
+  iconKey: string;
+};
+
+type FactSheetRow = {
+  label: string;
+  value: string;
+  iconKey: string;
+};
+
+type StatBlock = {
+  value: string;
+  label: string;
+};
+
+type MetroZone = {
+  name: string;
+  iconKey: string;
+};
+
+type OutdoorZone = {
+  name: string;
+  copy: string;
+  formats: { count: string; type: string }[];
+  iconKey: string;
+};
+
+type CreativeColumn = {
+  env: string;
+  iconKey: string;
+  headline: string;
+  message: string;
+  copyRule: string;
+  legibility: string;
+  image?: string;
+};
+
+type ClosingDate = {
+  badge: string;
+  title: string;
+  detail: string;
+  iconKey: string;
+};
+
+type ClosingSummaryItem = {
+  phase: string;
+  copy: string;
+  iconKey: string;
+};
+
+type CommercialContributionRow = {
+  name: string;
+  value: number;
+  note?: string;
+  excluded?: boolean;
+};
+
 type Slide = {
   eyebrow: string;
   title: string;
@@ -76,7 +162,7 @@ type Slide = {
   bullets?: string[];
   rightTitle?: string;
   rightContent?: string[];
-  layout?: "cover" | "standard" | "split" | "commercial" | "mediaOnly";
+  layout?: SlideLayout;
   imagePlaceholders?: number;
   videoPlaceholder?: boolean;
   mediaLayout?: "standard" | "twoPlusVideo";
@@ -90,6 +176,51 @@ type Slide = {
   statInGridIndex?: number;
   /** Wide still for the horizontal “video” block on `twoPlusVideo` layouts. */
   billboardVideoPoster?: string;
+
+  // Layout-specific richer content slots
+  coverMarquee?: string[];
+  objective?: {
+    intro: string;
+    steps: ObjectiveStep[];
+    outcome: { stat: string; statLabel: string; copy: string };
+  };
+  audience?: {
+    kpis: AudienceKpi[];
+    personas: Persona[];
+    insight: string;
+  };
+  touchpointHero?: {
+    badge: string;
+    factSheet: FactSheetRow[];
+    insight: string;
+    heroImage?: string;
+  };
+  metro?: {
+    statRibbon: StatBlock[];
+    zones: MetroZone[];
+    insight: string;
+  };
+  outdoor?: {
+    heroStat: StatBlock;
+    zones: OutdoorZone[];
+    insight: string;
+  };
+  mediaSceneLabels?: string[];
+  mediaStatRibbon?: StatBlock[];
+  commercialExtras?: {
+    breakdown: CommercialContributionRow[];
+    total: number;
+    checklist: { iconKey: string; label: string }[];
+  };
+  creative?: {
+    columns: CreativeColumn[];
+    hierarchy: string[];
+  };
+  closing?: {
+    dates: ClosingDate[];
+    summary: ClosingSummaryItem[];
+    farewell: string;
+  };
 };
 
 /** Maps each slide’s image slots to indices in the global deck lightbox strip (billboards only). */
@@ -208,12 +339,47 @@ const DECK_REFERENCE_IMAGES = [
   "/images/metro-7.webp",
 ] as const;
 
-function slideNeedsViewportFit(slide: Slide): boolean {
-  return (
-    Boolean(slide.imagePlaceholders) ||
-    slide.layout === "mediaOnly" ||
-    slide.layout === "commercial"
-  );
+const ICON_REGISTRY: Record<string, LucideIcon> = {
+  arrowUpRight: ArrowUpRight,
+  award: Award,
+  badgeCheck: BadgeCheck,
+  briefcase: Briefcase,
+  building2: Building2,
+  calendarRange: CalendarRange,
+  chevronRight: ChevronRight,
+  compass: Compass,
+  fileText: FileText,
+  globe2: Globe2,
+  handshake: Handshake,
+  heartHandshake: HeartHandshake,
+  layers: Layers,
+  layoutGrid: LayoutGrid,
+  lineChart: LineChart,
+  mapPinned: MapPinned,
+  megaphone: Megaphone,
+  monitorPlay: MonitorPlay,
+  package: Package,
+  palette: Palette,
+  plane: Plane,
+  receipt: Receipt,
+  sparkles: Sparkles,
+  table2: Table2,
+  target: Target,
+  timer: Timer,
+  trainFront: TrainFront,
+  tv: Tv,
+  users: Users,
+  wallet: Wallet,
+  workflow: Workflow,
+  zap: Zap,
+};
+
+function getIcon(
+  key: string | undefined,
+  fallback: LucideIcon = ArrowUpRight,
+): LucideIcon {
+  if (!key) return fallback;
+  return ICON_REGISTRY[key] ?? fallback;
 }
 
 function iconForAsideTitle(title: string | undefined): LucideIcon | undefined {
@@ -419,18 +585,54 @@ const slides: Slide[] = [
       "Expo City Digital Outdoor Network",
       "2-week GITEX campaign window",
     ],
+    coverMarquee: [
+      "DXB Terminal 3 Arrivals",
+      "Expo City Metro Station",
+      "Expo City Outdoor Network",
+      "GITEX Scale Summit · 07 Dec 2026",
+      "GITEX Global · 08–11 Dec 2026",
+      "186 Digital Screens",
+      "Total Package · $148,622.34",
+    ],
   },
   {
+    layout: "objective",
     eyebrow: "Brand Objective",
     title: "Make SolarWinds visible before competitor noise begins.",
     subtitle:
-      "The commercial goal is not just event presence. It is to warm the audience before booth interaction, lift brand familiarity across the full visitor journey, and improve the quality of conversations at GITEX.",
-    bullets: [
-      "Pre-booth awareness",
-      "Higher recall at point of conversation",
-      "Premium enterprise presence",
-      "Repeated exposure across key journey touchpoints",
-    ],
+      "The commercial goal is not just event presence. It is to warm the audience before booth interaction, lift recall, and improve the quality of conversations at GITEX.",
+    objective: {
+      intro:
+        "Build SolarWinds familiarity across the visitor journey so booth conversations start with recognition, not introduction.",
+      steps: [
+        {
+          phase: "Pre-booth",
+          title: "Arrive ahead of the noise",
+          body: "Capture senior travellers and visitors before competitor messaging dominates the hall floor.",
+          metric: "Days 1–2",
+          iconKey: "plane",
+        },
+        {
+          phase: "On-venue",
+          title: "Dominate the gateway",
+          body: "Mass impressions at the metro and outdoor network create unmissable arrival presence.",
+          metric: "Daily",
+          iconKey: "trainFront",
+        },
+        {
+          phase: "Booth handoff",
+          title: "Walk in already warm",
+          body: "Repeated exposure across journey touchpoints lifts recall when sales conversations begin.",
+          metric: "Booth",
+          iconKey: "handshake",
+        },
+      ],
+      outcome: {
+        stat: "186",
+        statLabel: "Touchpoint Screens",
+        copy: "A single connected layer that supports the booth investment with upstream visibility.",
+      },
+    },
     rightTitle: "Why this fits SolarWinds",
     rightContent: [
       "Observability",
@@ -440,74 +642,123 @@ const slides: Slide[] = [
     ],
   },
   {
+    layout: "audience",
     eyebrow: "Audience Strategy",
     title: "Target the enterprise technology audience in motion.",
     subtitle:
-      "GITEX gathers CIOs, CTOs, infrastructure heads, IT procurement managers, transformation teams, partners and enterprise decision-makers from across the region and beyond.",
-    bullets: [
-      "180,000+ registered visitors",
-      "170+ countries represented",
-      "Enterprise tech buyer concentration",
-      "High receptivity before booth overload",
-    ],
-    rightTitle: "Commercial logic",
-    rightContent: [
-      "Reach them before they enter the hall",
-      "Build recognition before direct sales meetings",
-      "Use contextually relevant premium digital environments",
-      "Support booth investment with upstream visibility",
-    ],
+      "GITEX concentrates the buyers SolarWinds sells to. The journey-based plan reaches them with intent, before booth overload sets in.",
+    audience: {
+      kpis: [
+        {
+          value: "180,000+",
+          label: "Registered visitors",
+          sublabel: "Across the GITEX 2026 audience",
+          iconKey: "users",
+        },
+        {
+          value: "170+",
+          label: "Countries represented",
+          sublabel: "Global enterprise decision-makers",
+          iconKey: "globe2",
+        },
+        {
+          value: "5.84x",
+          label: "Average frequency",
+          sublabel: "Across the journey touchpoints",
+          iconKey: "lineChart",
+        },
+      ],
+      personas: [
+        {
+          role: "CIOs",
+          focus: "Enterprise strategy and platform direction",
+          iconKey: "briefcase",
+        },
+        {
+          role: "CTOs",
+          focus: "Architecture, build vs buy, product roadmap",
+          iconKey: "workflow",
+        },
+        {
+          role: "Infrastructure Heads",
+          focus: "Observability, resilience, performance",
+          iconKey: "layers",
+        },
+        {
+          role: "IT Procurement",
+          focus: "Vendor evaluation and contract owners",
+          iconKey: "fileText",
+        },
+        {
+          role: "Transformation Leads",
+          focus: "Modernisation programmes and budgets",
+          iconKey: "sparkles",
+        },
+        {
+          role: "Channel Partners",
+          focus: "Regional resellers and integrators",
+          iconKey: "handshake",
+        },
+      ],
+      insight:
+        "Reach them upstream, before they enter the hall, so SolarWinds is already familiar at the point of conversation.",
+    },
   },
   {
+    layout: "touchpointHero",
     eyebrow: "Touchpoint 01",
     title: "DXB Terminal 3 Arrivals",
     subtitle:
-      "Capture international arrivals at the first business-touchpoint in Dubai. This layer is about premium first impression and senior traveller visibility.",
+      "Capture international arrivals at the first business-touchpoint in Dubai. A premium first impression on senior travellers entering the city.",
     stat: "2.92M",
     statLabel: "Monthly Impressions",
-    bullets: [
-      "3 screens at passport control",
-      "Captive arrivals audience",
-      "Average frequency: 5.84x",
-      "Best for premium senior-business visibility",
-    ],
-    rightTitle: "Commercial role",
-    rightContent: [
-      "Top-of-funnel prestige",
-      "International executive exposure",
-      "Sets tone before city movement",
-      "Supports premium market perception",
-    ],
     imagePlaceholders: 1,
     billboardImages: [DECK_REFERENCE_IMAGES[0]],
+    touchpointHero: {
+      badge: "Touchpoint 01 · Arrivals Layer",
+      heroImage: DECK_REFERENCE_IMAGES[0],
+      factSheet: [
+        { label: "Location", value: "Terminal 3 · Passport Control", iconKey: "mapPinned" },
+        { label: "Format", value: "Digital LED Network", iconKey: "monitorPlay" },
+        { label: "Screens", value: "3 Premium Screens", iconKey: "tv" },
+        { label: "Duration", value: "One Month", iconKey: "calendarRange" },
+        { label: "Reach", value: "2.92M monthly impressions", iconKey: "lineChart" },
+        { label: "Frequency", value: "5.84x average", iconKey: "timer" },
+      ],
+      insight:
+        "Top-of-funnel prestige. Builds international executive exposure and sets the tone before city movement begins.",
+    },
   },
   {
+    layout: "touchpointMosaic",
     eyebrow: "Touchpoint 02",
     title: "Expo City Metro Station",
     subtitle:
-      "This is the mass-arrival layer. SolarWinds becomes visible to GITEX visitors as they enter the venue ecosystem through the metro route.",
+      "The mass-arrival layer. SolarWinds becomes visible to GITEX visitors as they enter the venue ecosystem through the metro route.",
     stat: "134",
     statLabel: "Digital Screens",
-    bullets: [
-      "Entrance, concourse, platform and footbridge coverage",
-      "8-second creative spots",
-      "Once per minute frequency",
-      "2-week GITEX campaign period",
-    ],
-    rightTitle: "Commercial role",
-    rightContent: [
-      "Mass awareness at event gateway",
-      "High repetition",
-      "Strong arrival dominance",
-      "Best layer for scale and frequency",
-    ],
-    imagePlaceholders: 4,
-    statInGridIndex: 1,
+    imagePlaceholders: 3,
     billboardImages: [
       DECK_REFERENCE_IMAGES[1],
       DECK_REFERENCE_IMAGES[2],
       DECK_REFERENCE_IMAGES[3],
     ],
+    metro: {
+      statRibbon: [
+        { value: "134", label: "Digital Screens" },
+        { value: "8s", label: "Creative Spots" },
+        { value: "1/min", label: "Frequency" },
+        { value: "2 wk", label: "Campaign" },
+      ],
+      zones: [
+        { name: "Entrance", iconKey: "mapPinned" },
+        { name: "Concourse", iconKey: "compass" },
+        { name: "Platform", iconKey: "trainFront" },
+        { name: "Footbridge", iconKey: "layers" },
+      ],
+      insight:
+        "Best layer for scale and frequency. Strong arrival dominance with high repetition across the metro journey.",
+    },
   },
   {
     layout: "mediaOnly",
@@ -518,39 +769,79 @@ const slides: Slide[] = [
     imagePlaceholders: 2,
     videoPlaceholder: true,
     mediaLayout: "twoPlusVideo",
-    billboardImages: [
-      DECK_REFERENCE_IMAGES[4],
-      DECK_REFERENCE_IMAGES[5],
-    ],
+    billboardImages: [DECK_REFERENCE_IMAGES[4], DECK_REFERENCE_IMAGES[5]],
     billboardVideoPoster: DECK_REFERENCE_IMAGES[8],
+    mediaSceneLabels: [
+      "Platform · arrival approach",
+      "Concourse · brand handoff",
+      "Footbridge · venue reveal",
+    ],
+    mediaStatRibbon: [
+      { value: "8s", label: "Spot length" },
+      { value: "1/min", label: "Frequency" },
+      { value: "2 wk", label: "Campaign window" },
+    ],
   },
   {
+    layout: "outdoorZones",
     eyebrow: "Touchpoint 03",
     title: "Expo City Digital Outdoor Network",
     subtitle:
-      "This is the venue-journey reinforcement layer. It keeps SolarWinds visible as people move through Expo City between the metro and the halls.",
+      "The venue-journey reinforcement layer. Keeps SolarWinds visible as visitors move through Expo City between the metro and the halls.",
     stat: "49",
     statLabel: "Outdoor Screens",
-    bullets: [
-      "41 MUPI Totems",
-      "6 Step Screens",
-      "2 Horizontal LED screens",
-      "Zones include Entrance Gate, Al Wasl Plaza, Jubilee Park and Sustainability",
-    ],
-    rightTitle: "Commercial role",
-    rightContent: [
-      "Venue presence near pedestrian flow",
-      "Last-mile reinforcement before hall entry",
-      "Multi-format visual variety",
-      "Excellent support for recall and booth directionality",
-    ],
     imagePlaceholders: 4,
-    statInGridIndex: 1,
     billboardImages: [
       DECK_REFERENCE_IMAGES[6],
       DECK_REFERENCE_IMAGES[7],
       DECK_REFERENCE_IMAGES[8],
+      DECK_REFERENCE_IMAGES[5],
     ],
+    outdoor: {
+      heroStat: { value: "49", label: "Outdoor Screens" },
+      zones: [
+        {
+          name: "Entrance Gate",
+          copy: "First-impression dominance as visitors enter Expo City.",
+          formats: [
+            { count: "12", type: "MUPI Totems" },
+            { count: "2", type: "Step Screens" },
+          ],
+          iconKey: "mapPinned",
+        },
+        {
+          name: "Al Wasl Plaza",
+          copy: "Central pedestrian hub between hall clusters.",
+          formats: [
+            { count: "14", type: "MUPI Totems" },
+            { count: "2", type: "Step Screens" },
+            { count: "1", type: "Horizontal LED" },
+          ],
+          iconKey: "compass",
+        },
+        {
+          name: "Jubilee Park",
+          copy: "High-footfall green corridor for repeat exposure.",
+          formats: [
+            { count: "10", type: "MUPI Totems" },
+            { count: "1", type: "Step Screen" },
+          ],
+          iconKey: "palette",
+        },
+        {
+          name: "Sustainability",
+          copy: "Last-mile reinforcement before key hall entries.",
+          formats: [
+            { count: "5", type: "MUPI Totems" },
+            { count: "1", type: "Step Screen" },
+            { count: "1", type: "Horizontal LED" },
+          ],
+          iconKey: "building2",
+        },
+      ],
+      insight:
+        "Multi-format variety supports recall and directional reinforcement toward the SolarWinds booth.",
+    },
   },
   {
     layout: "commercial",
@@ -571,43 +862,111 @@ const slides: Slide[] = [
       "Expo City Outdoor Digital Network",
       "Total: $148,622.34 excluding VAT",
     ],
+    commercialExtras: {
+      total: 148622.34,
+      breakdown: [
+        { name: "Expo City Metro Station", value: 123622.34, note: "134 screens · 2 weeks" },
+        { name: "DXB Terminal 3 Arrivals", value: 25000, note: "3 screens · 1 month" },
+        {
+          name: "Expo Station (quoted)",
+          value: 103471.75,
+          note: "Quoted separately · not in final package",
+          excluded: true,
+        },
+      ],
+      checklist: [
+        { iconKey: "plane", label: "Airport arrivals media" },
+        { iconKey: "trainFront", label: "Metro mass-awareness layer" },
+        { iconKey: "mapPinned", label: "Outdoor venue reinforcement" },
+        { iconKey: "fileText", label: "Production & artwork delivery" },
+      ],
+    },
   },
   {
+    layout: "creativeColumns",
     eyebrow: "Creative Strategy",
     title: "Adapt the message to each environment.",
     subtitle:
-      "Do not run one generic event message everywhere. Use the environment to shape the creative and move the audience toward the booth with clearer intent.",
-    bullets: [
-      "Airport: category authority and enterprise confidence",
-      "Metro: bold GITEX presence and quick brand recognition",
-      "Outdoor: booth reminder, product themes, directional reinforcement",
-      "Keep copy minimal and highly legible from distance",
-    ],
-    rightTitle: "Suggested message hierarchy",
-    rightContent: [
-      "Unified observability",
-      "Operational resilience",
-      "Database performance",
-      "Meet SolarWinds at GITEX",
-    ],
+      "One generic event message will not move enterprise buyers. The environment should shape the creative and move the audience toward the booth with clearer intent.",
+    creative: {
+      columns: [
+        {
+          env: "Airport",
+          iconKey: "plane",
+          headline: "Category authority",
+          message: "Lead with enterprise confidence — observability you can trust.",
+          copyRule: "≤ 6 words",
+          legibility: "Readable from 8m+",
+          image: DECK_REFERENCE_IMAGES[0],
+        },
+        {
+          env: "Metro",
+          iconKey: "trainFront",
+          headline: "GITEX presence",
+          message: "Bold brand recognition with a clear ‘see us at GITEX’ cue.",
+          copyRule: "≤ 5 words + booth",
+          legibility: "Readable from 5m",
+          image: DECK_REFERENCE_IMAGES[3],
+        },
+        {
+          env: "Outdoor",
+          iconKey: "megaphone",
+          headline: "Booth reminder",
+          message: "Directional reinforcement — product themes + booth handoff.",
+          copyRule: "≤ 8 words",
+          legibility: "Readable from 3m",
+          image: DECK_REFERENCE_IMAGES[7],
+        },
+      ],
+      hierarchy: [
+        "Unified observability",
+        "Operational resilience",
+        "Database performance",
+        "Meet SolarWinds at GITEX",
+      ],
+    },
   },
   {
+    layout: "closingTimeline",
     eyebrow: "GITEX 2026",
     title: "We’re excited to see SolarWinds there.",
     subtitle:
-      "GITEX GLOBAL 2026 moves into a major new chapter with the Scale Summit on 7 December 2026 at Dubai World Trade Centre, followed by the main Expo from 8 to 11 December 2026 at Expo City Dubai. With the event’s strongest technology audience moving through the exact locations in this plan, SolarWinds has a clear opportunity to arrive with confidence, visibility and momentum.",
-    bullets: [
-      "GITEX Scale Summit: 7 December 2026",
-      "GITEX GLOBAL Expo: 8 to 11 December 2026",
-      "Expo venue: Expo City Dubai",
-      "We would be genuinely excited to see SolarWinds take a standout presence across the GITEX journey.",
-    ],
-    rightTitle: "Closing thought",
-    rightContent: [
-      "This plan gives SolarWinds presence before the hall, around the venue and at the moment of arrival.",
-      "It supports the booth, the brand and the commercial conversations that matter most.",
-      "We look forward to seeing SolarWinds at GITEX 2026.",
-    ],
+      "GITEX GLOBAL 2026 moves into a major new chapter — the Scale Summit on 07 December, followed by the main Expo from 08–11 December. SolarWinds has a clear opportunity to arrive with confidence, visibility and momentum.",
+    closing: {
+      dates: [
+        {
+          badge: "07 DEC",
+          title: "GITEX Scale Summit",
+          detail: "Dubai World Trade Centre",
+          iconKey: "sparkles",
+        },
+        {
+          badge: "08–11 DEC",
+          title: "GITEX Global Expo",
+          detail: "Expo City Dubai",
+          iconKey: "calendarRange",
+        },
+      ],
+      summary: [
+        {
+          phase: "Before the hall",
+          copy: "Airport arrivals warm senior travellers ahead of the booth conversation.",
+          iconKey: "plane",
+        },
+        {
+          phase: "Around the venue",
+          copy: "Metro and outdoor media keep SolarWinds visible across the journey.",
+          iconKey: "compass",
+        },
+        {
+          phase: "At the moment",
+          copy: "A premium presence that supports the booth and the brand at GITEX.",
+          iconKey: "heartHandshake",
+        },
+      ],
+      farewell:
+        "We look forward to seeing SolarWinds take a standout presence across GITEX 2026.",
+    },
   },
 ];
 
@@ -661,7 +1020,6 @@ export default function Page() {
   }, [galleryOpen]);
 
   const slide = slides[current];
-  const viewportFit = slideNeedsViewportFit(slide);
   const galleryNav = DECK_GALLERY.navBySlide[current] ?? null;
   const gallerySlides = DECK_GALLERY.lightboxSlides;
   const hasDeckGallery = gallerySlides.length > 0;
@@ -838,176 +1196,14 @@ export default function Page() {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {slide.layout === "mediaOnly" ? (
-            <MediaOnlySlide
-              slide={slide}
-              theme={theme}
-              themeVars={themeVars}
-              slideIndex={current}
-              galleryNav={galleryNav}
-              onOpenGallery={hasDeckGallery ? openGalleryAt : undefined}
-            />
-          ) : (
-            <div
-              key={`${theme}-${current}`}
-              className={`mx-auto grid w-full max-w-full animate-[fadeUp_.45s_ease-out] gap-5 sm:gap-6 md:gap-7 lg:max-w-6xl lg:items-start lg:gap-x-10 xl:max-w-7xl ${
-                viewportFit ? "deck-slide-fit" : ""
-              } ${
-                slide.layout === "commercial"
-                  ? "lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]"
-                  : "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
-              }`}
-            >
-              <div
-                className={`min-w-0 lg:max-w-[34rem] xl:max-w-[36rem] ${
-                  slide.imagePlaceholders ? "deck-touchpoint-left" : ""
-                }`}
-              >
-                {slide.layout === "cover" ? (
-                  <div className="mb-3 flex flex-col items-start gap-3 sm:mb-4 sm:gap-3.5">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
-                      <img
-                        src={
-                          theme === "light"
-                            ? "/ooh-ae-black.webp"
-                            : "/ooh-ae-white.webp"
-                        }
-                        alt="OOH.ae"
-                        width={200}
-                        height={48}
-                        loading="eager"
-                        fetchPriority="high"
-                        className="block h-[26px] w-auto max-w-[min(188px,52vw)] shrink-0 object-contain object-left sm:h-[30px] md:h-8"
-                      />
-                      <span
-                        className="select-none text-base font-light leading-none sm:text-lg"
-                        style={{ color: themeVars.sub }}
-                        aria-hidden
-                      >
-                        ×
-                      </span>
-                      <img
-                        src="/brands/solarwinds-logo.svg"
-                        alt="SolarWinds"
-                        width={220}
-                        height={44}
-                        loading="eager"
-                        fetchPriority="high"
-                        className="block h-[22px] w-auto max-w-[min(200px,46vw)] shrink-0 object-contain object-left sm:h-[26px] md:h-7"
-                        style={
-                          theme === "dark"
-                            ? { filter: "brightness(0) invert(1)" }
-                            : undefined
-                        }
-                      />
-                    </div>
-                    <div
-                      className="deck-eyebrow inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-black uppercase sm:gap-2.5 sm:px-4 sm:py-2"
-                      style={{
-                        color: themeVars.accent,
-                        background: themeVars.accentSoft,
-                        border: `1px solid ${themeVars.accentLine}`,
-                      }}
-                    >
-                      <Handshake
-                        className="h-3 w-3 shrink-0 opacity-90 sm:h-3.5 sm:w-3.5"
-                        strokeWidth={2.25}
-                        aria-hidden
-                      />
-                      {slide.eyebrow}
-                    </div>
-                  </div>
-                ) : (
-                <div
-                  className={`deck-eyebrow inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-black uppercase sm:gap-2.5 sm:px-4 sm:py-2 ${
-                    slide.imagePlaceholders ? "mb-3 sm:mb-4" : "mb-4 sm:mb-5"
-                  }`}
-                  style={{
-                    color: themeVars.accent,
-                    background: themeVars.accentSoft,
-                    border: `1px solid ${themeVars.accentLine}`,
-                  }}
-                >
-                  {(() => {
-                    const Icon = eyebrowLeadIcon(slide.eyebrow);
-                    return Icon ? (
-                      <Icon
-                        className="h-3 w-3 shrink-0 opacity-90 sm:h-3.5 sm:w-3.5"
-                        strokeWidth={2.25}
-                        aria-hidden
-                      />
-                    ) : null;
-                  })()}
-                  {slide.eyebrow}
-                </div>
-                )}
-
-                <h1
-                  className={`whitespace-pre-line font-black ${
-                    slide.layout === "cover" ? "deck-title-cover" : "deck-title"
-                  }`}
-                >
-                  {slide.title}
-                </h1>
-
-                {slide.subtitle && (
-                  <p
-                    className={`deck-subtitle max-w-2xl lg:max-w-xl xl:max-w-2xl ${
-                      slide.imagePlaceholders
-                        ? "mt-3 sm:mt-4"
-                        : "mt-4 sm:mt-5"
-                    }`}
-                    style={{ color: themeVars.sub }}
-                  >
-                    {slide.subtitle}
-                  </p>
-                )}
-
-                {slide.bullets && slide.layout !== "commercial" && (
-                  <div
-                    className={`grid gap-2 sm:gap-2.5 ${
-                      slide.imagePlaceholders
-                        ? "mt-4 sm:mt-5 md:grid-cols-2"
-                        : "mt-6 sm:mt-8 sm:gap-3 md:grid-cols-2"
-                    }`}
-                  >
-                    {slide.bullets.map((bullet) => (
-                      <InfoPill
-                        key={bullet}
-                        text={bullet}
-                        themeVars={themeVars}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {slide.bullets && slide.layout === "commercial" && (
-                  <div className="mt-6 grid min-w-0 grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-3 *:min-w-0">
-                    {slide.bullets.map((bullet) => (
-                      <InfoPill
-                        key={bullet}
-                        text={bullet}
-                        themeVars={themeVars}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {slide.layout === "commercial" ? (
-                <CommercialTable themeVars={themeVars} slideIndex={current} />
-              ) : (
-                <RightPanel
-                  slide={slide}
-                  theme={theme}
-                  themeVars={themeVars}
-                  slideIndex={current}
-                  galleryNav={galleryNav}
-                  onOpenGallery={hasDeckGallery ? openGalleryAt : undefined}
-                />
-              )}
-            </div>
-          )}
+          <SlideRenderer
+            slide={slide}
+            slideIndex={current}
+            theme={theme}
+            themeVars={themeVars}
+            galleryNav={galleryNav}
+            onOpenGallery={hasDeckGallery ? openGalleryAt : undefined}
+          />
         </section>
 
         <nav
@@ -1110,6 +1306,1580 @@ export default function Page() {
   );
 }
 
+type SlideRendererProps = {
+  slide: Slide;
+  slideIndex: number;
+  theme: ThemeMode;
+  themeVars: any;
+  galleryNav: SlideGalleryNav | null;
+  onOpenGallery?: (index: number) => void;
+};
+
+function SlideRenderer(props: SlideRendererProps) {
+  switch (props.slide.layout) {
+    case "cover":
+      return <CoverSlide {...props} />;
+    case "objective":
+      return <ObjectiveSlide {...props} />;
+    case "audience":
+      return <AudienceSlide {...props} />;
+    case "touchpointHero":
+      return <TouchpointHeroSlide {...props} />;
+    case "touchpointMosaic":
+      return <TouchpointMosaicSlide {...props} />;
+    case "mediaOnly":
+      return <MediaOnlySlide {...props} />;
+    case "outdoorZones":
+      return <OutdoorZonesSlide {...props} />;
+    case "commercial":
+      return <CommercialSlide {...props} />;
+    case "creativeColumns":
+      return <CreativeColumnsSlide {...props} />;
+    case "closingTimeline":
+      return <ClosingTimelineSlide {...props} />;
+    default:
+      return null;
+  }
+}
+
+function SlideShell({
+  themeVars: _themeVars,
+  theme,
+  slideIndex,
+  className = "",
+  children,
+}: {
+  themeVars: any;
+  theme: ThemeMode;
+  slideIndex: number;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      key={`slide-${slideIndex}-${theme}`}
+      className={`deck-slide-fit mx-auto flex w-full max-w-full animate-[fadeUp_.45s_ease-out] flex-col gap-4 sm:gap-5 lg:max-w-6xl xl:max-w-7xl ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function EyebrowChip({
+  slide,
+  themeVars,
+  className = "",
+}: {
+  slide: Slide;
+  themeVars: any;
+  className?: string;
+}) {
+  const Icon = eyebrowLeadIcon(slide.eyebrow);
+  return (
+    <div
+      className={`deck-eyebrow inline-flex items-center gap-2 self-start rounded-full px-3 py-1.5 font-black uppercase sm:gap-2.5 sm:px-4 sm:py-2 ${className}`}
+      style={{
+        color: themeVars.accent,
+        background: themeVars.accentSoft,
+        border: `1px solid ${themeVars.accentLine}`,
+      }}
+    >
+      {Icon ? (
+        <Icon
+          className="h-3 w-3 shrink-0 opacity-90 sm:h-3.5 sm:w-3.5"
+          strokeWidth={2.25}
+          aria-hidden
+        />
+      ) : null}
+      {slide.eyebrow}
+    </div>
+  );
+}
+
+function CoverSlide({ slide, slideIndex, theme, themeVars }: SlideRendererProps) {
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="grid min-h-0 flex-1 gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:gap-10">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
+            <img
+              src={theme === "light" ? "/ooh-ae-black.webp" : "/ooh-ae-white.webp"}
+              alt="OOH.ae"
+              width={200}
+              height={48}
+              loading="eager"
+              fetchPriority="high"
+              className="block h-[26px] w-auto max-w-[min(188px,52vw)] shrink-0 object-contain object-left sm:h-[30px] md:h-8"
+            />
+            <span
+              className="select-none text-base font-light leading-none sm:text-lg"
+              style={{ color: themeVars.sub }}
+              aria-hidden
+            >
+              ×
+            </span>
+            <img
+              src="/brands/solarwinds-logo.svg"
+              alt="SolarWinds"
+              width={220}
+              height={44}
+              loading="eager"
+              fetchPriority="high"
+              className="block h-[22px] w-auto max-w-[min(200px,46vw)] shrink-0 object-contain object-left sm:h-[26px] md:h-7"
+              style={theme === "dark" ? { filter: "brightness(0) invert(1)" } : undefined}
+            />
+          </div>
+
+          <EyebrowChip slide={slide} themeVars={themeVars} className="mt-4" />
+
+          <h1 className="deck-title-cover mt-4 whitespace-pre-line font-black sm:mt-5">
+            {slide.title}
+          </h1>
+
+          {slide.subtitle ? (
+            <p
+              className="deck-subtitle mt-4 max-w-2xl deck-clamp-4 sm:mt-5"
+              style={{ color: themeVars.sub }}
+            >
+              {slide.subtitle}
+            </p>
+          ) : null}
+        </div>
+
+        <div
+          className="flex h-full min-h-0 flex-col rounded-2xl p-4 sm:p-5 md:p-6"
+          style={{
+            background: themeVars.panel,
+            border: `1px solid ${themeVars.border}`,
+            backdropFilter: "blur(18px)",
+            boxShadow:
+              theme === "light"
+                ? "0 20px 60px rgba(15,23,34,0.08)"
+                : "0 20px 60px rgba(0,0,0,0.28)",
+          }}
+        >
+          {slide.rightTitle ? (
+            <AsideSectionHeading title={slide.rightTitle} themeVars={themeVars} compact />
+          ) : null}
+          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+            {slide.rightContent?.map((item, i) => (
+              <AsideFeatureTile
+                key={item}
+                Icon={asideRowIcon(0, i)}
+                themeVars={themeVars}
+              >
+                {item}
+              </AsideFeatureTile>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {slide.coverMarquee && slide.coverMarquee.length > 0 ? (
+        <CoverMarquee items={slide.coverMarquee} themeVars={themeVars} />
+      ) : null}
+    </SlideShell>
+  );
+}
+
+function CoverMarquee({ items, themeVars }: { items: string[]; themeVars: any }) {
+  const doubled = [...items, ...items];
+  return (
+    <div
+      className="relative overflow-hidden rounded-full"
+      style={{
+        background: themeVars.cardInner,
+        border: `1px solid ${themeVars.border}`,
+      }}
+    >
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 sm:w-20"
+        style={{
+          background: `linear-gradient(90deg, ${themeVars.bg} 0%, transparent 100%)`,
+        }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 sm:w-20"
+        style={{
+          background: `linear-gradient(270deg, ${themeVars.bg} 0%, transparent 100%)`,
+        }}
+        aria-hidden
+      />
+      <div className="deck-marquee-track flex w-max items-center gap-8 whitespace-nowrap px-4 py-3 sm:gap-12 sm:px-8 sm:py-4">
+        {doubled.map((item, i) => (
+          <span
+            key={`${item}-${i}`}
+            className="flex shrink-0 items-center gap-3 text-xs font-black uppercase tracking-[0.22em] sm:text-sm"
+            style={{ color: themeVars.text }}
+          >
+            <span
+              className="inline-block h-1.5 w-1.5 rounded-full"
+              style={{ background: themeVars.accent }}
+              aria-hidden
+            />
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ObjectiveSlide({ slide, slideIndex, theme, themeVars }: SlideRendererProps) {
+  const obj = slide.objective;
+  if (!obj) return null;
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:gap-8">
+        <div className="min-w-0">
+          <EyebrowChip slide={slide} themeVars={themeVars} />
+          <h1 className="deck-title mt-3 font-black">{slide.title}</h1>
+          {slide.subtitle ? (
+            <p
+              className="deck-subtitle deck-clamp-3 mt-3 max-w-2xl"
+              style={{ color: themeVars.sub }}
+            >
+              {slide.subtitle}
+            </p>
+          ) : null}
+          <p
+            className="deck-clamp-3 mt-3 max-w-2xl text-sm leading-relaxed sm:text-base"
+            style={{ color: themeVars.text }}
+          >
+            {obj.intro}
+          </p>
+        </div>
+
+        <div
+          className="flex flex-col gap-2 rounded-2xl p-4 sm:p-5"
+          style={{
+            background: themeVars.accentSoft,
+            border: `1px solid ${themeVars.accentLine}`,
+          }}
+        >
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] opacity-80"
+               style={{ color: themeVars.accent }}>
+            <Target className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden />
+            Outcome
+          </div>
+          <div className="deck-stat font-black" style={{ color: themeVars.accent }}>
+            <AnimatedStat value={obj.outcome.stat} playKey={slideIndex} duration={1.45} />
+          </div>
+          <div className="deck-stat-label font-black uppercase opacity-70">
+            {obj.outcome.statLabel}
+          </div>
+          <p
+            className="deck-clamp-3 text-xs leading-relaxed opacity-85 sm:text-[13px]"
+            style={{ color: themeVars.text }}
+          >
+            {obj.outcome.copy}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
+        {obj.steps.map((step, i) => {
+          const Icon = getIcon(step.iconKey);
+          return (
+            <div
+              key={step.title}
+              className="relative flex min-h-0 flex-col gap-2 overflow-hidden rounded-2xl p-4 sm:p-5"
+              style={{
+                background: themeVars.panel,
+                border: `1px solid ${themeVars.border}`,
+                backdropFilter: "blur(14px)",
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11"
+                  style={{
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                  }}
+                >
+                  <Icon
+                    className="h-5 w-5"
+                    strokeWidth={2.2}
+                    style={{ color: themeVars.accent }}
+                    aria-hidden
+                  />
+                </span>
+                <span
+                  className="text-[10px] font-black uppercase tracking-[0.22em] opacity-60"
+                  style={{ color: themeVars.text }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </div>
+              <div
+                className="text-[10px] font-black uppercase tracking-[0.22em]"
+                style={{ color: themeVars.accent }}
+              >
+                {step.phase}
+              </div>
+              <div
+                className="text-base font-black leading-tight sm:text-lg"
+                style={{ color: themeVars.text }}
+              >
+                {step.title}
+              </div>
+              <p
+                className="deck-clamp-3 text-xs leading-relaxed sm:text-[13px] sm:leading-relaxed"
+                style={{ color: themeVars.sub }}
+              >
+                {step.body}
+              </p>
+              <div
+                className="mt-auto inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em]"
+                style={{
+                  background: themeVars.cardInner,
+                  border: `1px solid ${themeVars.border}`,
+                  color: themeVars.accent,
+                }}
+              >
+                {step.metric}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {slide.rightContent && slide.rightContent.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <span
+            className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70"
+            style={{ color: themeVars.text }}
+          >
+            {slide.rightTitle ?? "Why this fits"}
+          </span>
+          {slide.rightContent.map((item) => (
+            <span
+              key={item}
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold sm:text-[13px]"
+              style={{
+                background: themeVars.cardInner,
+                border: `1px solid ${themeVars.border}`,
+                color: themeVars.text,
+              }}
+            >
+              <span
+                className="inline-block h-1.5 w-1.5 rounded-full"
+                style={{ background: themeVars.accent }}
+                aria-hidden
+              />
+              {item}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </SlideShell>
+  );
+}
+
+function AudienceSlide({ slide, slideIndex, theme, themeVars }: SlideRendererProps) {
+  const a = slide.audience;
+  if (!a) return null;
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-8">
+        <div className="min-w-0">
+          <EyebrowChip slide={slide} themeVars={themeVars} />
+          <h1 className="deck-title mt-3 font-black">{slide.title}</h1>
+          {slide.subtitle ? (
+            <p
+              className="deck-subtitle deck-clamp-4 mt-3 max-w-2xl"
+              style={{ color: themeVars.sub }}
+            >
+              {slide.subtitle}
+            </p>
+          ) : null}
+          <div
+            className="mt-4 inline-flex items-start gap-2 rounded-xl p-3 sm:p-4"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+            }}
+          >
+            <Sparkles
+              className="mt-0.5 h-4 w-4 shrink-0"
+              strokeWidth={2.3}
+              style={{ color: themeVars.accent }}
+              aria-hidden
+            />
+            <p
+              className="deck-clamp-3 text-xs font-semibold leading-relaxed sm:text-[13px]"
+              style={{ color: themeVars.text }}
+            >
+              {a.insight}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3">
+          {a.kpis.map((kpi) => {
+            const Icon = getIcon(kpi.iconKey);
+            return (
+              <div
+                key={kpi.label}
+                className="flex flex-col gap-2 rounded-2xl p-3 sm:p-4"
+                style={{
+                  background: themeVars.panel,
+                  border: `1px solid ${themeVars.border}`,
+                  backdropFilter: "blur(14px)",
+                }}
+              >
+                <span
+                  className="flex h-9 w-9 items-center justify-center rounded-xl"
+                  style={{
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                  }}
+                >
+                  <Icon
+                    className="h-4 w-4"
+                    strokeWidth={2.2}
+                    style={{ color: themeVars.accent }}
+                    aria-hidden
+                  />
+                </span>
+                <div className="deck-stat-compact font-black" style={{ color: themeVars.accent }}>
+                  <AnimatedStat value={kpi.value} playKey={slideIndex} duration={1.35} />
+                </div>
+                <div
+                  className="text-[11px] font-black uppercase tracking-[0.18em] opacity-75"
+                  style={{ color: themeVars.text }}
+                >
+                  {kpi.label}
+                </div>
+                <p
+                  className="deck-clamp-2 text-[11px] leading-snug sm:text-xs"
+                  style={{ color: themeVars.sub }}
+                >
+                  {kpi.sublabel}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1">
+        <div
+          className="mb-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]"
+          style={{ color: themeVars.accent }}
+        >
+          <Users className="h-3.5 w-3.5" strokeWidth={2.3} aria-hidden />
+          Personas in the room
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+          {a.personas.map((p) => {
+            const Icon = getIcon(p.iconKey);
+            return (
+              <div
+                key={p.role}
+                className="flex items-start gap-3 rounded-xl p-3"
+                style={{
+                  background: themeVars.cardInner,
+                  border: `1px solid ${themeVars.border}`,
+                }}
+              >
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                  style={{
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                  }}
+                >
+                  <Icon
+                    className="h-4 w-4"
+                    strokeWidth={2.2}
+                    style={{ color: themeVars.accent }}
+                    aria-hidden
+                  />
+                </span>
+                <div className="min-w-0">
+                  <div
+                    className="text-sm font-black leading-tight sm:text-[15px]"
+                    style={{ color: themeVars.text }}
+                  >
+                    {p.role}
+                  </div>
+                  <p
+                    className="deck-clamp-2 mt-1 text-[11px] leading-snug sm:text-xs"
+                    style={{ color: themeVars.sub }}
+                  >
+                    {p.focus}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SlideShell>
+  );
+}
+
+function TouchpointHeroSlide({
+  slide,
+  slideIndex,
+  theme,
+  themeVars,
+  galleryNav,
+  onOpenGallery,
+}: SlideRendererProps) {
+  const t = slide.touchpointHero;
+  if (!t) return null;
+  const heroSrc = t.heroImage ?? slide.billboardImages?.[0];
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="grid min-h-0 flex-1 gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-stretch lg:gap-6">
+        <div className="relative min-h-0 w-full overflow-hidden rounded-2xl"
+             style={{
+               background: themeVars.cardInner,
+               border: `1px solid ${themeVars.border}`,
+             }}>
+          {heroSrc ? (
+            <GalleryImageTrigger
+              src={heroSrc}
+              alt="DXB Terminal 3 Arrivals reference"
+              globalIndex={galleryNav?.images[0]}
+              onOpenGallery={onOpenGallery}
+              imgClassName="h-full min-h-[18rem] w-full object-cover sm:min-h-[22rem]"
+            />
+          ) : (
+            <div className="flex h-full min-h-[18rem] items-center justify-center text-xs font-black uppercase tracking-[0.22em]"
+                 style={{ color: themeVars.accent }}>
+              Touchpoint Reference
+            </div>
+          )}
+
+          <div
+            className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] sm:left-4 sm:top-4 sm:text-[11px]"
+            style={{
+              background: "rgba(13,20,32,0.72)",
+              border: `1px solid ${themeVars.accentLine}`,
+              color: "#fff",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <MapPinned className="h-3 w-3" strokeWidth={2.4} aria-hidden />
+            {t.badge}
+          </div>
+
+          {slide.stat ? (
+            <div
+              className="pointer-events-none absolute bottom-3 right-3 flex flex-col items-end gap-0.5 rounded-2xl px-3 py-2 text-right sm:bottom-4 sm:right-4 sm:px-4 sm:py-3"
+              style={{
+                background: "rgba(13,20,32,0.78)",
+                border: `1px solid ${themeVars.accentLine}`,
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <div className="deck-stat-compact font-black" style={{ color: themeVars.accent }}>
+                <AnimatedStat value={slide.stat} playKey={slideIndex} duration={1.45} />
+              </div>
+              <div className="text-[9px] font-black uppercase tracking-[0.22em] text-white/85 sm:text-[10px]">
+                {slide.statLabel}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="flex min-h-0 flex-col gap-3">
+          <EyebrowChip slide={slide} themeVars={themeVars} />
+          <h1 className="deck-title font-black">{slide.title}</h1>
+          {slide.subtitle ? (
+            <p
+              className="deck-subtitle deck-clamp-3 max-w-xl"
+              style={{ color: themeVars.sub }}
+            >
+              {slide.subtitle}
+            </p>
+          ) : null}
+
+          <div
+            className="grid grid-cols-1 gap-2 rounded-2xl p-3 sm:grid-cols-2 sm:gap-2 sm:p-4"
+            style={{
+              background: themeVars.panel,
+              border: `1px solid ${themeVars.border}`,
+              backdropFilter: "blur(14px)",
+            }}
+          >
+            {t.factSheet.map((row) => {
+              const Icon = getIcon(row.iconKey);
+              return (
+                <div
+                  key={row.label}
+                  className="flex items-start gap-2.5 rounded-lg px-2.5 py-2"
+                  style={{
+                    background: themeVars.cardInner,
+                    border: `1px solid ${themeVars.border}`,
+                  }}
+                >
+                  <span
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                    style={{
+                      background: themeVars.accentSoft,
+                      border: `1px solid ${themeVars.accentLine}`,
+                    }}
+                  >
+                    <Icon
+                      className="h-4 w-4"
+                      strokeWidth={2.2}
+                      style={{ color: themeVars.accent }}
+                      aria-hidden
+                    />
+                  </span>
+                  <div className="min-w-0">
+                    <div
+                      className="text-[9px] font-black uppercase tracking-[0.22em] opacity-70"
+                      style={{ color: themeVars.text }}
+                    >
+                      {row.label}
+                    </div>
+                    <div
+                      className="deck-clamp-1 text-[12px] font-bold leading-snug sm:text-[13px]"
+                      style={{ color: themeVars.text }}
+                    >
+                      {row.value}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div
+            className="mt-auto flex items-start gap-2 rounded-xl p-3"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+            }}
+          >
+            <BadgeCheck
+              className="mt-0.5 h-4 w-4 shrink-0"
+              strokeWidth={2.3}
+              style={{ color: themeVars.accent }}
+              aria-hidden
+            />
+            <p
+              className="deck-clamp-3 text-xs font-semibold leading-relaxed sm:text-[13px]"
+              style={{ color: themeVars.text }}
+            >
+              {t.insight}
+            </p>
+          </div>
+        </div>
+      </div>
+    </SlideShell>
+  );
+}
+
+function TouchpointMosaicSlide({
+  slide,
+  slideIndex,
+  theme,
+  themeVars,
+  galleryNav,
+  onOpenGallery,
+}: SlideRendererProps) {
+  const m = slide.metro;
+  if (!m) return null;
+  const src = (i: number) => slide.billboardImages?.[i];
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="grid min-h-0 flex-1 gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-stretch lg:gap-6">
+        <div className="flex min-h-0 flex-col gap-3">
+          <EyebrowChip slide={slide} themeVars={themeVars} />
+          <h1 className="deck-title font-black">{slide.title}</h1>
+          {slide.subtitle ? (
+            <p
+              className="deck-subtitle deck-clamp-3 max-w-xl"
+              style={{ color: themeVars.sub }}
+            >
+              {slide.subtitle}
+            </p>
+          ) : null}
+
+          <div
+            className="grid grid-cols-4 gap-0 overflow-hidden rounded-2xl"
+            style={{
+              background: themeVars.panel,
+              border: `1px solid ${themeVars.border}`,
+              backdropFilter: "blur(14px)",
+            }}
+          >
+            {m.statRibbon.map((stat, i) => (
+              <div
+                key={stat.label}
+                className="flex flex-col items-center justify-center gap-1 px-2 py-3 text-center sm:py-4"
+                style={{
+                  borderRight:
+                    i < m.statRibbon.length - 1
+                      ? `1px solid ${themeVars.border}`
+                      : undefined,
+                }}
+              >
+                <div
+                  className="text-base font-black leading-none sm:text-xl"
+                  style={{ color: themeVars.accent }}
+                >
+                  {stat.value}
+                </div>
+                <div
+                  className="text-[9px] font-black uppercase tracking-[0.18em] opacity-70"
+                  style={{ color: themeVars.text }}
+                >
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {m.zones.map((z) => {
+              const Icon = getIcon(z.iconKey);
+              return (
+                <div
+                  key={z.name}
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-2 sm:gap-2.5 sm:px-3"
+                  style={{
+                    background: themeVars.cardInner,
+                    border: `1px solid ${themeVars.border}`,
+                  }}
+                >
+                  <span
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                    style={{
+                      background: themeVars.accentSoft,
+                      border: `1px solid ${themeVars.accentLine}`,
+                    }}
+                  >
+                    <Icon
+                      className="h-3.5 w-3.5"
+                      strokeWidth={2.3}
+                      style={{ color: themeVars.accent }}
+                      aria-hidden
+                    />
+                  </span>
+                  <span
+                    className="text-[11px] font-black uppercase tracking-[0.14em] sm:text-xs"
+                    style={{ color: themeVars.text }}
+                  >
+                    {z.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div
+            className="mt-auto flex items-start gap-2 rounded-xl p-3"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+            }}
+          >
+            <Zap
+              className="mt-0.5 h-4 w-4 shrink-0"
+              strokeWidth={2.3}
+              style={{ color: themeVars.accent }}
+              aria-hidden
+            />
+            <p
+              className="deck-clamp-3 text-xs font-semibold leading-relaxed sm:text-[13px]"
+              style={{ color: themeVars.text }}
+            >
+              {m.insight}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid min-h-[18rem] grid-cols-2 grid-rows-2 gap-2 sm:gap-3">
+          <div
+            className="relative col-span-1 row-span-2 overflow-hidden rounded-2xl"
+            style={{
+              background: themeVars.cardInner,
+              border: `1px solid ${themeVars.border}`,
+            }}
+          >
+            {src(0) ? (
+              <GalleryImageTrigger
+                src={src(0)!}
+                alt="Metro reference 1"
+                globalIndex={galleryNav?.images[0]}
+                onOpenGallery={onOpenGallery}
+                imgClassName="h-full w-full object-cover"
+              />
+            ) : null}
+            {slide.stat ? (
+              <div
+                className="pointer-events-none absolute left-3 top-3 flex flex-col gap-0.5 rounded-2xl px-3 py-2"
+                style={{
+                  background: "rgba(13,20,32,0.78)",
+                  border: `1px solid ${themeVars.accentLine}`,
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <div className="deck-stat-compact font-black" style={{ color: themeVars.accent }}>
+                  <AnimatedStat value={slide.stat} playKey={slideIndex} duration={1.45} />
+                </div>
+                <div className="text-[9px] font-black uppercase tracking-[0.22em] text-white/85 sm:text-[10px]">
+                  {slide.statLabel}
+                </div>
+              </div>
+            ) : null}
+          </div>
+          <div
+            className="relative overflow-hidden rounded-2xl"
+            style={{
+              background: themeVars.cardInner,
+              border: `1px solid ${themeVars.border}`,
+            }}
+          >
+            {src(1) ? (
+              <GalleryImageTrigger
+                src={src(1)!}
+                alt="Metro reference 2"
+                globalIndex={galleryNav?.images[1]}
+                onOpenGallery={onOpenGallery}
+                imgClassName="h-full w-full object-cover"
+              />
+            ) : null}
+          </div>
+          <div
+            className="relative overflow-hidden rounded-2xl"
+            style={{
+              background: themeVars.cardInner,
+              border: `1px solid ${themeVars.border}`,
+            }}
+          >
+            {src(2) ? (
+              <GalleryImageTrigger
+                src={src(2)!}
+                alt="Metro reference 3"
+                globalIndex={galleryNav?.images[2]}
+                onOpenGallery={onOpenGallery}
+                imgClassName="h-full w-full object-cover"
+              />
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </SlideShell>
+  );
+}
+
+function OutdoorZonesSlide({
+  slide,
+  slideIndex,
+  theme,
+  themeVars,
+  galleryNav,
+  onOpenGallery,
+}: SlideRendererProps) {
+  const o = slide.outdoor;
+  if (!o) return null;
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-8">
+        <div className="min-w-0">
+          <EyebrowChip slide={slide} themeVars={themeVars} />
+          <h1 className="deck-title mt-3 font-black">{slide.title}</h1>
+          {slide.subtitle ? (
+            <p
+              className="deck-subtitle deck-clamp-3 mt-3 max-w-2xl"
+              style={{ color: themeVars.sub }}
+            >
+              {slide.subtitle}
+            </p>
+          ) : null}
+          <div
+            className="mt-3 flex items-start gap-2 rounded-xl p-3"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+            }}
+          >
+            <Palette
+              className="mt-0.5 h-4 w-4 shrink-0"
+              strokeWidth={2.3}
+              style={{ color: themeVars.accent }}
+              aria-hidden
+            />
+            <p
+              className="deck-clamp-2 text-xs font-semibold leading-relaxed sm:text-[13px]"
+              style={{ color: themeVars.text }}
+            >
+              {o.insight}
+            </p>
+          </div>
+        </div>
+
+        <div
+          className="flex items-center gap-4 rounded-2xl p-4 sm:gap-5 sm:p-5"
+          style={{
+            background: themeVars.panel,
+            border: `1px solid ${themeVars.border}`,
+            backdropFilter: "blur(14px)",
+          }}
+        >
+          <span
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl sm:h-16 sm:w-16"
+            style={{
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+            }}
+          >
+            <LayoutGrid
+              className="h-7 w-7 sm:h-8 sm:w-8"
+              strokeWidth={2.05}
+              style={{ color: themeVars.accent }}
+              aria-hidden
+            />
+          </span>
+          <div className="min-w-0">
+            <div
+              className="deck-stat-hero font-black leading-none"
+              style={{ color: themeVars.accent }}
+            >
+              <AnimatedStat value={o.heroStat.value} playKey={slideIndex} duration={1.45} />
+            </div>
+            <div
+              className="mt-1 text-[10px] font-black uppercase tracking-[0.22em] opacity-75"
+              style={{ color: themeVars.text }}
+            >
+              {o.heroStat.label}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+        {o.zones.map((zone, i) => {
+          const Icon = getIcon(zone.iconKey);
+          const photo = slide.billboardImages?.[i];
+          return (
+            <div
+              key={zone.name}
+              className="flex min-h-0 gap-3 overflow-hidden rounded-2xl p-3 sm:gap-4 sm:p-4"
+              style={{
+                background: themeVars.panel,
+                border: `1px solid ${themeVars.border}`,
+                backdropFilter: "blur(14px)",
+              }}
+            >
+              <div
+                className="relative h-full min-h-[5.5rem] w-24 shrink-0 overflow-hidden rounded-xl sm:w-32"
+                style={{
+                  background: themeVars.cardInner,
+                  border: `1px solid ${themeVars.border}`,
+                }}
+              >
+                {photo ? (
+                  <GalleryImageTrigger
+                    src={photo}
+                    alt={`${zone.name} reference`}
+                    globalIndex={galleryNav?.images[i]}
+                    onOpenGallery={onOpenGallery}
+                    imgClassName="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className="flex h-full items-center justify-center text-center text-[9px] font-black uppercase tracking-[0.2em]"
+                    style={{ color: themeVars.accent }}
+                  >
+                    Zone Photo
+                  </div>
+                )}
+                <span
+                  className="pointer-events-none absolute left-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-lg"
+                  style={{
+                    background: "rgba(13,20,32,0.78)",
+                    border: `1px solid ${themeVars.accentLine}`,
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  <Icon
+                    className="h-3.5 w-3.5"
+                    strokeWidth={2.3}
+                    style={{ color: themeVars.accent }}
+                    aria-hidden
+                  />
+                </span>
+              </div>
+
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div
+                    className="text-sm font-black leading-tight sm:text-[15px]"
+                    style={{ color: themeVars.text }}
+                  >
+                    {zone.name}
+                  </div>
+                  <span
+                    className="text-[9px] font-black uppercase tracking-[0.22em] opacity-60"
+                    style={{ color: themeVars.text }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <p
+                  className="deck-clamp-2 text-[11px] leading-snug sm:text-xs"
+                  style={{ color: themeVars.sub }}
+                >
+                  {zone.copy}
+                </p>
+                <div className="mt-auto flex flex-wrap gap-1.5">
+                  {zone.formats.map((f) => (
+                    <span
+                      key={`${zone.name}-${f.type}`}
+                      className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black"
+                      style={{
+                        background: themeVars.cardInner,
+                        border: `1px solid ${themeVars.border}`,
+                        color: themeVars.text,
+                      }}
+                    >
+                      <span style={{ color: themeVars.accent }}>{f.count}</span>
+                      <span className="opacity-75">{f.type}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </SlideShell>
+  );
+}
+
+function CommercialSlide({
+  slide,
+  slideIndex,
+  theme,
+  themeVars,
+}: SlideRendererProps) {
+  const extras = slide.commercialExtras;
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:items-start lg:gap-6">
+        <div className="min-w-0">
+          <EyebrowChip slide={slide} themeVars={themeVars} />
+          <h1 className="deck-title mt-3 font-black">{slide.title}</h1>
+          {slide.subtitle ? (
+            <p
+              className="deck-subtitle deck-clamp-4 mt-3 max-w-xl"
+              style={{ color: themeVars.sub }}
+            >
+              {slide.subtitle}
+            </p>
+          ) : null}
+
+          {extras ? (
+            <>
+              <div
+                className="mt-4 rounded-2xl p-3 sm:p-4"
+                style={{
+                  background: themeVars.panel,
+                  border: `1px solid ${themeVars.border}`,
+                  backdropFilter: "blur(14px)",
+                }}
+              >
+                <div
+                  className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]"
+                  style={{ color: themeVars.accent }}
+                >
+                  <Wallet className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden />
+                  Contribution Breakdown
+                </div>
+                <ContributionBars rows={extras.breakdown} total={extras.total} themeVars={themeVars} />
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {extras.checklist.map((item) => {
+                  const Icon = getIcon(item.iconKey);
+                  return (
+                    <div
+                      key={item.label}
+                      className="flex items-center gap-2 rounded-lg px-2.5 py-2"
+                      style={{
+                        background: themeVars.cardInner,
+                        border: `1px solid ${themeVars.border}`,
+                      }}
+                    >
+                      <span
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                        style={{
+                          background: themeVars.accentSoft,
+                          border: `1px solid ${themeVars.accentLine}`,
+                        }}
+                      >
+                        <Icon
+                          className="h-3.5 w-3.5"
+                          strokeWidth={2.3}
+                          style={{ color: themeVars.accent }}
+                          aria-hidden
+                        />
+                      </span>
+                      <span
+                        className="text-[11px] font-bold leading-snug sm:text-xs"
+                        style={{ color: themeVars.text }}
+                      >
+                        {item.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : null}
+        </div>
+
+        <CommercialTable themeVars={themeVars} slideIndex={slideIndex} />
+      </div>
+    </SlideShell>
+  );
+}
+
+function ContributionBars({
+  rows,
+  total,
+  themeVars,
+}: {
+  rows: CommercialContributionRow[];
+  total: number;
+  themeVars: any;
+}) {
+  const max = Math.max(...rows.map((r) => r.value));
+  const fmt = (n: number) =>
+    `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return (
+    <div className="space-y-2.5">
+      {rows.map((row) => {
+        const pct = Math.max(8, (row.value / max) * 100);
+        return (
+          <div key={row.name} className="space-y-1">
+            <div className="flex items-baseline justify-between gap-2">
+              <span
+                className={`deck-clamp-1 text-[11px] font-black sm:text-xs ${row.excluded ? "opacity-65" : ""}`}
+                style={{ color: themeVars.text }}
+              >
+                {row.name}
+              </span>
+              <span
+                className={`text-[11px] font-black sm:text-xs ${row.excluded ? "opacity-65" : ""}`}
+                style={{ color: row.excluded ? themeVars.text : themeVars.accent }}
+              >
+                {fmt(row.value)}
+              </span>
+            </div>
+            <div
+              className="relative h-2 w-full overflow-hidden rounded-full"
+              style={{
+                background: themeVars.cardInner,
+                border: `1px solid ${themeVars.border}`,
+              }}
+            >
+              <div
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{
+                  width: `${pct}%`,
+                  background: row.excluded
+                    ? `repeating-linear-gradient(45deg, ${themeVars.border}, ${themeVars.border} 4px, transparent 4px, transparent 8px)`
+                    : themeVars.accent,
+                  opacity: row.excluded ? 0.55 : 1,
+                }}
+              />
+            </div>
+            {row.note ? (
+              <div
+                className="text-[10px] font-medium opacity-65"
+                style={{ color: themeVars.text }}
+              >
+                {row.note}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+      <div
+        className="mt-3 flex items-baseline justify-between rounded-xl px-3 py-2"
+        style={{
+          background: themeVars.accentSoft,
+          border: `1px solid ${themeVars.accentLine}`,
+        }}
+      >
+        <span
+          className="text-[10px] font-black uppercase tracking-[0.22em]"
+          style={{ color: themeVars.accent }}
+        >
+          Package Total
+        </span>
+        <span className="text-base font-black sm:text-lg" style={{ color: themeVars.accent }}>
+          {fmt(total)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function CreativeColumnsSlide({
+  slide,
+  slideIndex,
+  theme,
+  themeVars,
+}: SlideRendererProps) {
+  const c = slide.creative;
+  if (!c) return null;
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="min-w-0">
+        <EyebrowChip slide={slide} themeVars={themeVars} />
+        <h1 className="deck-title mt-3 font-black">{slide.title}</h1>
+        {slide.subtitle ? (
+          <p
+            className="deck-subtitle deck-clamp-2 mt-3 max-w-3xl"
+            style={{ color: themeVars.sub }}
+          >
+            {slide.subtitle}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
+        {c.columns.map((col, i) => {
+          const Icon = getIcon(col.iconKey);
+          return (
+            <div
+              key={col.env}
+              className="flex min-h-0 flex-col gap-3 overflow-hidden rounded-2xl p-3 sm:p-4"
+              style={{
+                background: themeVars.panel,
+                border: `1px solid ${themeVars.border}`,
+                backdropFilter: "blur(14px)",
+              }}
+            >
+              <div
+                className="relative h-24 w-full overflow-hidden rounded-xl sm:h-28"
+                style={{
+                  background: themeVars.cardInner,
+                  border: `1px solid ${themeVars.border}`,
+                }}
+              >
+                {col.image ? (
+                  <img
+                    src={col.image}
+                    alt={`${col.env} reference creative`}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : null}
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(13,20,32,0) 30%, rgba(13,20,32,0.78) 100%)",
+                  }}
+                  aria-hidden
+                />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between px-2.5 py-2 sm:px-3">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="flex h-7 w-7 items-center justify-center rounded-lg"
+                      style={{
+                        background: themeVars.accentSoft,
+                        border: `1px solid ${themeVars.accentLine}`,
+                      }}
+                    >
+                      <Icon
+                        className="h-3.5 w-3.5"
+                        strokeWidth={2.3}
+                        style={{ color: themeVars.accent }}
+                        aria-hidden
+                      />
+                    </span>
+                    <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white sm:text-xs">
+                      {col.env}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/80">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+              </div>
+
+              <div
+                className="text-[10px] font-black uppercase tracking-[0.22em]"
+                style={{ color: themeVars.accent }}
+              >
+                {col.headline}
+              </div>
+              <p
+                className="deck-clamp-3 text-[13px] font-semibold leading-snug sm:text-sm sm:leading-relaxed"
+                style={{ color: themeVars.text }}
+              >
+                {col.message}
+              </p>
+
+              <div className="mt-auto grid grid-cols-2 gap-2">
+                <div
+                  className="flex flex-col rounded-lg px-2.5 py-2"
+                  style={{
+                    background: themeVars.cardInner,
+                    border: `1px solid ${themeVars.border}`,
+                  }}
+                >
+                  <span
+                    className="text-[9px] font-black uppercase tracking-[0.18em] opacity-65"
+                    style={{ color: themeVars.text }}
+                  >
+                    Copy Rule
+                  </span>
+                  <span
+                    className="text-[11px] font-black leading-snug sm:text-xs"
+                    style={{ color: themeVars.text }}
+                  >
+                    {col.copyRule}
+                  </span>
+                </div>
+                <div
+                  className="flex flex-col rounded-lg px-2.5 py-2"
+                  style={{
+                    background: themeVars.cardInner,
+                    border: `1px solid ${themeVars.border}`,
+                  }}
+                >
+                  <span
+                    className="text-[9px] font-black uppercase tracking-[0.18em] opacity-65"
+                    style={{ color: themeVars.text }}
+                  >
+                    Legibility
+                  </span>
+                  <span
+                    className="text-[11px] font-black leading-snug sm:text-xs"
+                    style={{ color: themeVars.text }}
+                  >
+                    {col.legibility}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        className="flex flex-wrap items-center gap-2 rounded-2xl p-3 sm:gap-3 sm:p-4"
+        style={{
+          background: themeVars.accentSoft,
+          border: `1px solid ${themeVars.accentLine}`,
+        }}
+      >
+        <span
+          className="text-[10px] font-black uppercase tracking-[0.22em]"
+          style={{ color: themeVars.accent }}
+        >
+          Message Hierarchy
+        </span>
+        {c.hierarchy.map((h, i) => (
+          <span
+            key={h}
+            className="inline-flex items-center gap-1.5 text-[11px] font-black sm:text-xs"
+            style={{ color: themeVars.text }}
+          >
+            <span
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-black"
+              style={{
+                background: themeVars.panel,
+                border: `1px solid ${themeVars.border}`,
+                color: themeVars.accent,
+              }}
+            >
+              {i + 1}
+            </span>
+            {h}
+          </span>
+        ))}
+      </div>
+    </SlideShell>
+  );
+}
+
+function ClosingTimelineSlide({
+  slide,
+  slideIndex,
+  theme,
+  themeVars,
+}: SlideRendererProps) {
+  const c = slide.closing;
+  if (!c) return null;
+  return (
+    <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
+      <div className="min-w-0">
+        <EyebrowChip slide={slide} themeVars={themeVars} />
+        <h1 className="deck-title mt-3 font-black">{slide.title}</h1>
+        {slide.subtitle ? (
+          <p
+            className="deck-subtitle deck-clamp-3 mt-3 max-w-3xl"
+            style={{ color: themeVars.sub }}
+          >
+            {slide.subtitle}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="relative grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+        <div
+          className="pointer-events-none absolute left-4 right-4 top-1/2 hidden h-px -translate-y-1/2 md:block"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${themeVars.accent}, transparent)`,
+            opacity: 0.55,
+          }}
+          aria-hidden
+        />
+        {c.dates.map((d, i) => {
+          const Icon = getIcon(d.iconKey);
+          return (
+            <div
+              key={d.badge}
+              className="relative flex items-center gap-3 rounded-2xl p-4 sm:gap-4 sm:p-5"
+              style={{
+                background: themeVars.panel,
+                border: `1px solid ${themeVars.border}`,
+                backdropFilter: "blur(14px)",
+              }}
+            >
+              <div
+                className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl sm:h-20 sm:w-20"
+                style={{
+                  background: themeVars.accentSoft,
+                  border: `1px solid ${themeVars.accentLine}`,
+                }}
+              >
+                <span
+                  className="text-[10px] font-black uppercase tracking-[0.18em] opacity-75"
+                  style={{ color: themeVars.accent }}
+                >
+                  GITEX
+                </span>
+                <span
+                  className="text-sm font-black leading-tight sm:text-base"
+                  style={{ color: themeVars.accent }}
+                >
+                  {d.badge}
+                </span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <div
+                  className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70"
+                  style={{ color: themeVars.text }}
+                >
+                  Stage {String(i + 1).padStart(2, "0")}
+                </div>
+                <div
+                  className="text-base font-black leading-tight sm:text-lg"
+                  style={{ color: themeVars.text }}
+                >
+                  {d.title}
+                </div>
+                <div
+                  className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold sm:text-[13px]"
+                  style={{ color: themeVars.sub }}
+                >
+                  <Icon
+                    className="h-3.5 w-3.5"
+                    strokeWidth={2.3}
+                    style={{ color: themeVars.accent }}
+                    aria-hidden
+                  />
+                  {d.detail}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
+        {c.summary.map((s, i) => {
+          const Icon = getIcon(s.iconKey);
+          return (
+            <div
+              key={s.phase}
+              className="flex min-h-0 flex-col gap-2 rounded-2xl p-4 sm:p-5"
+              style={{
+                background: themeVars.cardInner,
+                border: `1px solid ${themeVars.border}`,
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className="flex h-10 w-10 items-center justify-center rounded-xl sm:h-11 sm:w-11"
+                  style={{
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                  }}
+                >
+                  <Icon
+                    className="h-5 w-5"
+                    strokeWidth={2.2}
+                    style={{ color: themeVars.accent }}
+                    aria-hidden
+                  />
+                </span>
+                <span
+                  className="text-[10px] font-black uppercase tracking-[0.22em] opacity-60"
+                  style={{ color: themeVars.text }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </div>
+              <div
+                className="text-sm font-black uppercase tracking-[0.18em]"
+                style={{ color: themeVars.accent }}
+              >
+                {s.phase}
+              </div>
+              <p
+                className="deck-clamp-3 text-xs leading-relaxed sm:text-[13px] sm:leading-relaxed"
+                style={{ color: themeVars.text }}
+              >
+                {s.copy}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        className="flex items-start gap-2.5 rounded-2xl p-3 sm:p-4"
+        style={{
+          background: themeVars.accentSoft,
+          border: `1px solid ${themeVars.accentLine}`,
+        }}
+      >
+        <HeartHandshake
+          className="mt-0.5 h-4 w-4 shrink-0"
+          strokeWidth={2.3}
+          style={{ color: themeVars.accent }}
+          aria-hidden
+        />
+        <p
+          className="deck-clamp-2 text-xs font-semibold leading-relaxed sm:text-[13px]"
+          style={{ color: themeVars.text }}
+        >
+          {c.farewell}
+        </p>
+      </div>
+    </SlideShell>
+  );
+}
+
 function MediaOnlySlide({
   slide,
   theme,
@@ -1202,196 +2972,70 @@ function MediaOnlySlide({
           onOpenGallery={onOpenGallery}
           fitToViewport
         />
-      </div>
-    </div>
-  );
-}
 
-function RightPanel({
-  slide,
-  theme,
-  themeVars,
-  slideIndex,
-  galleryNav,
-  onOpenGallery,
-}: {
-  slide: Slide;
-  theme: ThemeMode;
-  themeVars: any;
-  slideIndex: number;
-  galleryNav: SlideGalleryNav | null;
-  onOpenGallery?: (index: number) => void;
-}) {
-  const hasImages = Boolean(slide.imagePlaceholders);
-  const fourAsideItems = slide.rightContent?.length === 4;
-  const useFeatureTiles = fourAsideItems && !hasImages;
-  /** Slides 4, 5, 7 (1-based): DXB T3, Expo Metro, Expo outdoor — center stat copy */
-  const centerStatInPanel = [3, 4, 6].includes(slideIndex);
-  const embedStatInGrid =
-    Boolean(slide.stat) &&
-    slide.statInGridIndex != null &&
-    slide.imagePlaceholders === 4;
-  const panelDense = hasImages;
-  const singleImageWithStat =
-    slide.imagePlaceholders === 1 && Boolean(slide.stat) && !embedStatInGrid;
+        {slide.mediaSceneLabels && slide.mediaSceneLabels.length > 0 ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-2.5">
+            {slide.mediaSceneLabels.map((label, i) => (
+              <span
+                key={label}
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] sm:text-[11px]"
+                style={{
+                  background: themeVars.cardInner,
+                  border: `1px solid ${themeVars.border}`,
+                  color: themeVars.text,
+                }}
+              >
+                <span
+                  className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-black"
+                  style={{
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                    color: themeVars.accent,
+                  }}
+                >
+                  {i + 1}
+                </span>
+                {label}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
-  return (
-    <div
-      className={`min-w-0 w-full rounded-xl sm:rounded-2xl ${
-        panelDense
-          ? "deck-panel-dense deck-slide-fit p-3 sm:p-4 md:p-5"
-          : "p-4 sm:p-6 md:p-7"
-      }`}
-      style={{
-        background: themeVars.panel,
-        border: `1px solid ${themeVars.border}`,
-        backdropFilter: "blur(18px)",
-        boxShadow:
-          theme === "light"
-            ? "0 20px 60px rgba(15,23,34,0.08)"
-            : "0 20px 60px rgba(0,0,0,0.28)",
-      }}
-    >
-      {singleImageWithStat ? (
-        <div className="mb-3 grid grid-cols-1 gap-2.5 sm:grid-cols-[minmax(0,0.44fr)_minmax(0,0.56fr)] sm:gap-3">
+        {slide.mediaStatRibbon && slide.mediaStatRibbon.length > 0 ? (
           <div
-            className="flex flex-col justify-center rounded-lg p-3 text-center sm:p-4"
+            className="mt-3 grid grid-cols-3 overflow-hidden rounded-xl"
             style={{
-              background: themeVars.accentSoft,
-              border: `1px solid ${themeVars.accentLine}`,
+              background: themeVars.cardInner,
+              border: `1px solid ${themeVars.border}`,
             }}
           >
-            <div
-              className="deck-stat font-black"
-              style={{ color: themeVars.accent }}
-            >
-              <AnimatedStat
-                value={slide.stat!}
-                playKey={slideIndex}
-                duration={1.35}
-              />
-            </div>
-            <div className="deck-stat-label mt-1.5 font-black uppercase opacity-65">
-              {slide.statLabel}
-            </div>
+            {slide.mediaStatRibbon.map((s, i) => (
+              <div
+                key={s.label}
+                className="flex flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-center sm:py-3"
+                style={{
+                  borderRight:
+                    i < slide.mediaStatRibbon!.length - 1
+                      ? `1px solid ${themeVars.border}`
+                      : undefined,
+                }}
+              >
+                <div
+                  className="text-sm font-black leading-none sm:text-base"
+                  style={{ color: themeVars.accent }}
+                >
+                  {s.value}
+                </div>
+                <div
+                  className="text-[9px] font-black uppercase tracking-[0.18em] opacity-70"
+                  style={{ color: themeVars.text }}
+                >
+                  {s.label}
+                </div>
+              </div>
+            ))}
           </div>
-          <ImagePlaceholderGrid
-            count={1}
-            themeVars={themeVars}
-            videoPlaceholder={slide.videoPlaceholder}
-            mediaLayout={slide.mediaLayout}
-            billboardImages={slide.billboardImages}
-            billboardVideoPoster={slide.billboardVideoPoster}
-            galleryNav={galleryNav}
-            onOpenGallery={onOpenGallery}
-            fitToViewport
-            embedded
-          />
-        </div>
-      ) : slide.stat && !embedStatInGrid ? (
-        <div
-          className={`rounded-lg ${
-            hasImages
-              ? "mb-3 p-3 sm:mb-4 sm:p-4"
-              : "mb-5 p-4 sm:mb-6 sm:p-6"
-          }${centerStatInPanel ? " text-center" : ""}`}
-          style={{
-            background: themeVars.accentSoft,
-            border: `1px solid ${themeVars.accentLine}`,
-          }}
-        >
-          <div
-            className={`deck-stat font-black${centerStatInPanel ? " text-center" : ""}`}
-            style={{ color: themeVars.accent }}
-          >
-            <AnimatedStat
-              value={slide.stat}
-              playKey={slideIndex}
-              duration={1.35}
-            />
-          </div>
-          <div className="deck-stat-label mt-1.5 font-black uppercase opacity-65 sm:mt-2">
-            {slide.statLabel}
-          </div>
-        </div>
-      ) : !slide.stat ? (
-        <div
-          className="mb-5 rounded-lg p-4 sm:rounded-xl sm:p-6"
-          style={{
-            background: themeVars.accentSoft,
-            border: `1px solid ${themeVars.accentLine}`,
-          }}
-        >
-          <div
-            className="deck-eyebrow font-black uppercase"
-            style={{ color: themeVars.accent }}
-          >
-            Commercial Focus
-          </div>
-          <div className="deck-panel-heading mt-2 font-black sm:mt-3">
-            Awareness · Recall · Booth Influence
-          </div>
-        </div>
-      ) : null}
-
-      {slide.imagePlaceholders && !singleImageWithStat ? (
-        <ImagePlaceholderGrid
-          count={slide.imagePlaceholders}
-          themeVars={themeVars}
-          videoPlaceholder={slide.videoPlaceholder}
-          mediaLayout={slide.mediaLayout}
-          billboardImages={slide.billboardImages}
-          billboardVideoPoster={slide.billboardVideoPoster}
-          galleryNav={galleryNav}
-          onOpenGallery={onOpenGallery}
-          fitToViewport={panelDense}
-          statInGrid={
-            embedStatInGrid
-              ? {
-                  index: slide.statInGridIndex!,
-                  value: slide.stat!,
-                  label: slide.statLabel,
-                  playKey: slideIndex,
-                }
-              : undefined
-          }
-        />
-      ) : null}
-
-      {slide.rightTitle ? (
-        <AsideSectionHeading
-          title={slide.rightTitle}
-          themeVars={themeVars}
-          compact={panelDense}
-        />
-      ) : null}
-
-      <div
-        className={
-          fourAsideItems
-            ? `grid grid-cols-2 ${panelDense ? "gap-2" : "gap-2.5 sm:gap-3"}`
-            : panelDense
-              ? "space-y-2"
-              : "space-y-2.5 sm:space-y-3"
-        }
-      >
-        {slide.rightContent?.map((item, i) => {
-          const RowIcon = asideRowIcon(slideIndex, i);
-          return useFeatureTiles ? (
-            <AsideFeatureTile key={item} Icon={RowIcon} themeVars={themeVars}>
-              {item}
-            </AsideFeatureTile>
-          ) : (
-            <AsideContentRow
-              key={item}
-              Icon={RowIcon}
-              themeVars={themeVars}
-              compact={panelDense}
-            >
-              {item}
-            </AsideContentRow>
-          );
-        })}
+        ) : null}
       </div>
     </div>
   );
@@ -1737,7 +3381,7 @@ function CommercialTable({
 }) {
   return (
     <div
-      className="min-w-0 w-full rounded-xl p-4 sm:rounded-2xl sm:p-5 md:p-6"
+      className="min-w-0 w-full rounded-xl p-3 sm:rounded-2xl sm:p-4 md:p-5"
       style={{
         background: themeVars.panel,
         border: `1px solid ${themeVars.border}`,
@@ -1745,7 +3389,7 @@ function CommercialTable({
       }}
     >
       <div
-        className="mb-4 rounded-lg p-4 sm:mb-5 sm:rounded-xl sm:p-5"
+        className="mb-3 rounded-lg p-3 sm:mb-4 sm:rounded-xl sm:p-4"
         style={{
           background: themeVars.accentSoft,
           border: `1px solid ${themeVars.accentLine}`,
@@ -1793,7 +3437,7 @@ function CommercialTable({
         className="-mx-1 overflow-x-auto rounded-lg [scrollbar-width:thin] sm:mx-0 sm:rounded-xl"
         style={{ border: `1px solid ${themeVars.border}` }}
       >
-        <table className="w-full min-w-[620px] border-collapse text-left text-[10px] sm:text-[12px]">
+        <table className="w-full min-w-0 border-collapse text-left text-[10px] sm:text-[11px]">
           <thead>
             <tr style={{ background: themeVars.cardInner }}>
               {[
@@ -1801,13 +3445,13 @@ function CommercialTable({
                 "Screens",
                 "Duration",
                 "Production",
-                "Gross Rate",
-                "Net Rate",
-                "Total Fee",
+                "Gross",
+                "Net",
+                "Total",
               ].map((head) => (
                 <th
                   key={head}
-                  className="whitespace-nowrap px-2 py-2.5 text-[9px] font-black uppercase tracking-[0.12em] sm:px-3 sm:py-3 sm:text-[10px] sm:tracking-[0.18em]"
+                  className="whitespace-nowrap px-1.5 py-2 text-[9px] font-black uppercase tracking-[0.1em] sm:px-2 sm:py-2.5 sm:text-[10px] sm:tracking-[0.14em]"
                   style={{
                     color: themeVars.accent,
                     borderBottom: `1px solid ${themeVars.border}`,
@@ -1823,52 +3467,52 @@ function CommercialTable({
             {commercialRows.map((row) => (
               <tr key={row.location}>
                 <td
-                  className="max-w-[140px] px-2 py-3 font-bold sm:max-w-none sm:px-3 sm:py-4"
+                  className="max-w-[120px] px-1.5 py-2.5 font-bold sm:max-w-none sm:px-2 sm:py-3"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.location}
-                  <div className="mt-1 text-[9px] font-medium opacity-60 sm:text-[10px]">
+                  <div className="mt-0.5 text-[9px] font-medium opacity-60">
                     {row.format}
                   </div>
                 </td>
 
                 <td
-                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
+                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.screens}
                 </td>
 
                 <td
-                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
+                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.duration}
                 </td>
 
                 <td
-                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
+                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.productionFee}
                 </td>
 
                 <td
-                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
+                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.grossRate}
                 </td>
 
                 <td
-                  className="whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4"
+                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.netRate}
                 </td>
 
                 <td
-                  className="whitespace-nowrap px-2 py-3 font-black sm:px-3 sm:py-4"
+                  className="whitespace-nowrap px-1.5 py-2.5 font-black sm:px-2 sm:py-3"
                   style={{
                     color: themeVars.accent,
                     borderBottom: `1px solid ${themeVars.border}`,
@@ -1883,7 +3527,7 @@ function CommercialTable({
       </div>
 
       <div
-        className="mt-4 rounded-lg p-4 text-xs font-semibold leading-6 sm:rounded-xl"
+        className="mt-3 rounded-lg p-3 text-[11px] font-semibold leading-5 sm:rounded-xl sm:text-xs"
         style={{
           background: themeVars.cardInner,
           border: `1px solid ${themeVars.border}`,
