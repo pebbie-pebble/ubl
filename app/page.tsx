@@ -766,11 +766,15 @@ const slides: Slide[] = [
     title: "Expo City Metro Station creative visibility.",
     stat: "134",
     statLabel: "Digital Screens",
-    imagePlaceholders: 2,
+    imagePlaceholders: 3,
     videoPlaceholder: true,
     mediaLayout: "twoPlusVideo",
-    billboardImages: [DECK_REFERENCE_IMAGES[4], DECK_REFERENCE_IMAGES[5]],
-    billboardVideoPoster: DECK_REFERENCE_IMAGES[8],
+    billboardImages: [
+      DECK_REFERENCE_IMAGES[4],
+      "/images/metro-platform-signage.png",
+      "/images/metro-5g-concourse.png",
+    ],
+    billboardVideoPoster: "/images/metro-platform-doors.png",
     mediaSceneLabels: [
       "Platform · arrival approach",
       "Concourse · brand handoff",
@@ -3258,21 +3262,23 @@ function ImagePlaceholderGrid({
     : "h-[150px] sm:h-[176px] md:h-[200px]";
 
   if (mediaLayout === "twoPlusVideo") {
+    const flexRowCount = count >= 2 && count <= 3 ? count : 0;
     return (
       <div className="space-y-3 sm:space-y-4">
-        {count === 2 ? (
+        {flexRowCount ? (
           <div
             className={`relative w-full overflow-hidden ${fitToViewport ? "h-[var(--deck-image-grid)] min-h-[7rem] sm:min-h-[7.5rem]" : "h-[200px] sm:h-[220px] md:h-[240px]"} ${cellRound}`}
             style={{
               background: themeVars.cardInner,
-              border:
-                slotSrc(0) || slotSrc(1)
-                  ? `1px solid ${themeVars.border}`
-                  : `1px dashed ${themeVars.accentLine}`,
+              border: Array.from({ length: flexRowCount }).some((_, i) =>
+                slotSrc(i),
+              )
+                ? `1px solid ${themeVars.border}`
+                : `1px dashed ${themeVars.accentLine}`,
             }}
           >
             <div className="flex h-full min-h-0 w-full gap-2.5 sm:gap-3">
-              {[0, 1].map((i) => {
+              {Array.from({ length: flexRowCount }, (_, i) => {
                 const src = slotSrc(i);
                 return (
                   <div
@@ -3288,7 +3294,7 @@ function ImagePlaceholderGrid({
                         alt={`Reference billboard ${i + 1}`}
                         globalIndex={galleryNav?.images[i]}
                         onOpenGallery={onOpenGallery}
-                        imgClassName="h-full w-full object-cover object-center"
+                        imgClassName="h-full w-full object-cover object-top"
                       />
                     ) : (
                       <div
@@ -3356,7 +3362,7 @@ function ImagePlaceholderGrid({
                 alt="Wide reference for horizontal video placement"
                 globalIndex={galleryNav?.poster}
                 onOpenGallery={onOpenGallery}
-                imgClassName="h-full w-full object-cover"
+                imgClassName="h-full w-full object-cover object-[center_30%]"
               />
             ) : (
               <div
