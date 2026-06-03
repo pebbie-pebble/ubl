@@ -290,54 +290,52 @@ function buildDeckGallery(slides: Slide[]): {
 
 const commercialRows: CommercialRow[] = [
   {
-    location: "Expo Station",
-    format: "Network Screen",
-    type: "Digital LED Screens",
-    screens: "134 Screens",
-    duration: "2 weeks",
-    productionFee: "-",
-    grossRate: "$103,471.75",
-    netRate: "-",
-    totalFee: "-",
+    location: "Deira / Old Dubai Corridor",
+    format: "Bridge Banners (Pedestrian)",
+    type: "Static Bridge Banners",
+    screens: "7 Faces",
+    duration: "1 month",
+    productionFee: "Included",
+    grossRate: "AED 540,000",
+    netRate: "AED 540,000",
+    totalFee: "AED 540,000",
   },
   {
-    location: "Expo City",
-    format: "Network Screen",
-    type: "Digital LED Screens",
-    screens: "49 Screens",
-    duration: "2 weeks",
-    productionFee: "$1,090.00",
-    grossRate: "$88,495.58",
-    netRate: "$122,532.34",
-    totalFee: "$123,622.34",
+    location: "JAFZA / Jebel Ali",
+    format: "SZR Hoarding",
+    type: "Static Roadside Hoarding",
+    screens: "1 Face",
+    duration: "1 month",
+    productionFee: "Included",
+    grossRate: "AED 100,000",
+    netRate: "AED 100,000",
+    totalFee: "AED 100,000",
   },
   {
-    location: "DXB Terminal 3",
-    format: "Network Screen",
+    location: "DIFC · One Central",
+    format: "DIFC Screens",
     type: "Digital LED Screens",
-    screens: "3 Screens",
-    duration: "One month",
-    productionFee: "$4,085.00",
-    grossRate: "$68,074.00",
-    netRate: "$25,000.00",
-    totalFee: "$25,000.00",
+    screens: "62 Screens",
+    duration: "10s spot · every 2 min · 1 month",
+    productionFee: "Included",
+    grossRate: "AED 100,000",
+    netRate: "AED 100,000",
+    totalFee: "AED 100,000",
+  },
+  {
+    location: "Business Bay",
+    format: "Elevator Screens",
+    type: "Digital LCD Network",
+    screens: "84 Screens",
+    duration: "12s spot · 4 min loop · 1 month",
+    productionFee: "Included",
+    grossRate: "AED 37,500",
+    netRate: "AED 37,500",
+    totalFee: "AED 37,500",
   },
 ];
 
-const grandTotal = "$148,622.34";
-
-/** Deck reference photos in display order (airport → metro 1–7). */
-const DECK_REFERENCE_IMAGES = [
-  "/images/dxb-airport-1.webp",
-  "/images/dxb-terminal-3-arrivals.webp",
-  "/images/metro-1.webp",
-  "/images/metro-2.webp",
-  "/images/metro-3.webp",
-  "/images/metro-4.webp",
-  "/images/metro-5.webp",
-  "/images/metro-6.webp",
-  "/images/metro-7.webp",
-] as const;
+const grandTotal = "AED 777,500";
 
 const ICON_REGISTRY: Record<string, LucideIcon> = {
   arrowUpRight: ArrowUpRight,
@@ -386,7 +384,7 @@ function iconForAsideTitle(title: string | undefined): LucideIcon | undefined {
   if (!title) return undefined;
   const t = title.trim();
   if (t === "Core Plan") return LayoutGrid;
-  if (t === "Why this fits SolarWinds") return BadgeCheck;
+  if (t === "Why this fits UBL") return BadgeCheck;
   if (t === "Commercial logic") return Workflow;
   if (t === "Commercial role") return Briefcase;
   if (t === "Total Package") return Package;
@@ -402,6 +400,7 @@ function eyebrowLeadIcon(eyebrow: string): LucideIcon | undefined {
   if (l.includes("audience")) return Users;
   if (l.includes("commercial plan")) return Receipt;
   if (l.includes("creative")) return Palette;
+  if (l.includes("q4")) return CalendarRange;
   if (l.includes("gitex")) return Sparkles;
   return undefined;
 }
@@ -446,7 +445,7 @@ function AsideSectionHeading({
             style={{
               background: themeVars.accentSoft,
               border: `1px solid ${themeVars.accentLine}`,
-              boxShadow: "0 4px 28px rgba(244,124,32,0.14)",
+              boxShadow: "0 4px 28px rgba(0,131,202,0.14)",
             }}
           >
             <Icon
@@ -551,7 +550,7 @@ function AsideFeatureTile({
         style={{
           background: themeVars.accentSoft,
           border: `1px solid ${themeVars.accentLine}`,
-          boxShadow: "0 6px 20px rgba(244,124,32,0.12)",
+          boxShadow: "0 6px 20px rgba(0,131,202,0.12)",
         }}
       >
         <Icon
@@ -574,350 +573,318 @@ function AsideFeatureTile({
 const slides: Slide[] = [
   {
     layout: "cover",
-    eyebrow: "SolarWinds × OOH.ae",
-    title: "GITEX 2026\nCommercial Plan & Strategy",
+    eyebrow: "MAG × UBL",
+    title: "Q4 2026\nOOH Media Plan",
     subtitle:
-      "A premium journey-based OOH plan built to place SolarWinds in front of enterprise technology buyers before they ever reach the exhibition hall.",
+      "A high-impact, month-by-month Out-of-Home plan placing UBL across Dubai's busiest commuter, business and pedestrian corridors throughout the fourth quarter.",
     rightTitle: "Core Plan",
     rightContent: [
-      "DXB Terminal 3 Arrivals",
-      "Expo City Metro Station",
-      "Expo City Digital Outdoor Network",
-      "2-week GITEX campaign window",
+      "Deira / Old Dubai Bridge Banners",
+      "JAFZA · Sheikh Zayed Road Hoarding",
+      "DIFC Digital Screens · One Central",
+      "Business Bay Elevator Network",
     ],
     coverMarquee: [
-      "DXB Terminal 3 Arrivals",
-      "Expo City Metro Station",
-      "Expo City Outdoor Network",
-      "GITEX Scale Summit · 07 Dec 2026",
-      "GITEX Global · 08–11 Dec 2026",
-      "186 Digital Screens",
-      "Total Package · $148,622.34",
+      "7 Pedestrian Bridge Banners · Deira",
+      "1 SZR Hoarding · JAFZA / Jebel Ali",
+      "62 Digital Screens · DIFC One Central",
+      "84 Elevator Screens · Business Bay",
+      "Q4 2026 · Oct – Dec",
+      "Monthly Investment · AED 777,500",
     ],
   },
   {
     layout: "objective",
     eyebrow: "Brand Objective",
-    title: "Make SolarWinds visible before competitor noise begins.",
+    title: "Keep UBL visible across Dubai's high-density Q4 corridors.",
     subtitle:
-      "The commercial goal is not just event presence. It is to warm the audience before booth interaction, lift recall, and improve the quality of conversations at GITEX.",
+      "Q4 concentrates seasonal salary cycles, year-end financial decisions and remittance peaks. The plan builds frequency on the routes UBL's target customers travel every day.",
     objective: {
       intro:
-        "Build SolarWinds familiarity across the visitor journey so booth conversations start with recognition, not introduction.",
+        "Combine pedestrian, roadside and premium digital touchpoints so UBL stays present across the full Dubai workday — commute, office and footfall zones — for the full quarter.",
       steps: [
         {
-          phase: "Pre-booth",
-          title: "Arrive ahead of the noise",
-          body: "Capture senior travellers and visitors before competitor messaging dominates the hall floor.",
-          metric: "Days 1–2",
-          iconKey: "plane",
-        },
-        {
-          phase: "On-venue",
-          title: "Dominate the gateway",
-          body: "Mass impressions at the metro and outdoor network create unmissable arrival presence.",
+          phase: "Commute layer",
+          title: "Own the daily route",
+          body: "Bridge banners in Deira and the SZR hoarding capture residents and commuters on repeat journeys into the city.",
           metric: "Daily",
           iconKey: "trainFront",
         },
         {
-          phase: "Booth handoff",
-          title: "Walk in already warm",
-          body: "Repeated exposure across journey touchpoints lifts recall when sales conversations begin.",
-          metric: "Booth",
-          iconKey: "handshake",
+          phase: "Office layer",
+          title: "Reach the business district",
+          body: "DIFC and Business Bay deliver UBL to executives and corporate clients in the highest-value financial corridor in the UAE.",
+          metric: "Workdays",
+          iconKey: "building2",
+        },
+        {
+          phase: "Reinforcement",
+          title: "Hold presence across the quarter",
+          body: "A continuous monthly investment keeps UBL top of mind through October, November and December.",
+          metric: "Q4",
+          iconKey: "calendarRange",
         },
       ],
       outcome: {
-        stat: "186",
-        statLabel: "Touchpoint Screens",
-        copy: "A single connected layer that supports the booth investment with upstream visibility.",
+        stat: "154",
+        statLabel: "Faces & Screens Live",
+        copy: "A single connected media layer working across commute, business district and high-footfall premium environments — every day of Q4.",
       },
     },
-    rightTitle: "Why this fits SolarWinds",
+    rightTitle: "Why this fits UBL",
     rightContent: [
-      "Observability",
-      "Database performance",
-      "Incident response",
-      "ITSM and enterprise operations",
+      "Retail & priority banking",
+      "Digital banking adoption",
+      "Corporate & SME relationships",
+      "Remittance & expat services",
     ],
   },
   {
     layout: "audience",
     eyebrow: "Audience Strategy",
-    title: "Target the enterprise technology audience in motion.",
+    title: "Reach UBL's customers where Dubai actually moves.",
     subtitle:
-      "GITEX concentrates the buyers SolarWinds sells to. The journey-based plan reaches them with intent, before booth overload sets in.",
+      "Dubai's working population concentrates on a small number of high-traffic corridors. The Q4 plan layers UBL across the daily flow of residents, executives and high-footfall venues.",
     audience: {
       kpis: [
         {
-          value: "180,000+",
-          label: "Registered visitors",
-          sublabel: "Across the GITEX 2026 audience",
+          value: "3.7M+",
+          label: "Dubai residents",
+          sublabel: "Across the active Q4 footfall radius",
           iconKey: "users",
         },
         {
-          value: "170+",
-          label: "Countries represented",
-          sublabel: "Global enterprise decision-makers",
+          value: "200+",
+          label: "Nationalities reached",
+          sublabel: "Strong overlap with UBL's expat & remittance base",
           iconKey: "globe2",
         },
         {
-          value: "5.84x",
-          label: "Average frequency",
-          sublabel: "Across the journey touchpoints",
+          value: "12x+",
+          label: "Avg weekly frequency",
+          sublabel: "Across the four-channel monthly layer",
           iconKey: "lineChart",
         },
       ],
       personas: [
         {
-          role: "CIOs",
-          focus: "Enterprise strategy and platform direction",
+          role: "Salaried Professionals",
+          focus: "Priority banking, payroll & lifestyle products",
           iconKey: "briefcase",
         },
         {
-          role: "CTOs",
-          focus: "Architecture, build vs buy, product roadmap",
+          role: "Expatriate Workforce",
+          focus: "Remittance, savings & multi-currency accounts",
+          iconKey: "globe2",
+        },
+        {
+          role: "Business Owners & SMEs",
+          focus: "Corporate banking, trade finance, lending",
           iconKey: "workflow",
         },
         {
-          role: "Infrastructure Heads",
-          focus: "Observability, resilience, performance",
-          iconKey: "layers",
+          role: "Executives & C-suite",
+          focus: "Private banking, wealth, advisory services",
+          iconKey: "award",
         },
         {
-          role: "IT Procurement",
-          focus: "Vendor evaluation and contract owners",
-          iconKey: "fileText",
-        },
-        {
-          role: "Transformation Leads",
-          focus: "Modernisation programmes and budgets",
+          role: "Digital-First Customers",
+          focus: "UBL Digital app, cards and online onboarding",
           iconKey: "sparkles",
         },
         {
-          role: "Channel Partners",
-          focus: "Regional resellers and integrators",
-          iconKey: "handshake",
+          role: "Daily Commuters",
+          focus: "Bridge, road and metro-adjacent corridors",
+          iconKey: "trainFront",
         },
       ],
       insight:
-        "Reach them upstream, before they enter the hall, so SolarWinds is already familiar at the point of conversation.",
+        "The four channels intersect UBL's audience at the moments that matter — commute, workday and lifestyle footfall — every single day of Q4.",
     },
   },
   {
     layout: "touchpointHero",
     eyebrow: "Touchpoint 01",
-    title: "DXB Terminal 3 Arrivals",
+    title: "Deira / Old Dubai Bridge Banners",
     subtitle:
-      "Capture international arrivals at the first business-touchpoint in Dubai. A premium first impression on senior travellers entering the city.",
-    stat: "2.92M",
-    statLabel: "Monthly Impressions",
+      "Seven pedestrian bridge banners across the busiest commuter corridor in Old Dubai — Al Garhoud, Deira, Al Qusais and Airport Road.",
+    stat: "7",
+    statLabel: "Bridge Faces",
     imagePlaceholders: 1,
-    billboardImages: ["/images/dxb-terminal-3-screens.png"],
+    billboardImages: ["/images/ubl/bridge-nad-al-hamar-face-a.png"],
     touchpointHero: {
-      badge: "Touchpoint 01 · Arrivals Layer",
-      heroImage: "/images/dxb-terminal-3-screens.png",
+      badge: "Touchpoint 01 · Commute Layer",
+      heroImage: "/images/ubl/bridge-nad-al-hamar-face-a.png",
       factSheet: [
-        { label: "Location", value: "Terminal 3 · Passport Control", iconKey: "mapPinned" },
-        { label: "Format", value: "Digital LED Network", iconKey: "monitorPlay" },
-        { label: "Screens", value: "3 Premium Screens", iconKey: "tv" },
-        { label: "Duration", value: "One Month", iconKey: "calendarRange" },
-        { label: "Reach", value: "2.92M monthly impressions", iconKey: "lineChart" },
-        { label: "Frequency", value: "5.84x average", iconKey: "timer" },
+        { label: "Location", value: "Deira / Old Dubai corridor", iconKey: "mapPinned" },
+        { label: "Format", value: "Pedestrian Bridge Banners", iconKey: "monitorPlay" },
+        { label: "Faces", value: "7 Bridge Faces", iconKey: "layers" },
+        { label: "Duration", value: "1 Month · Repeatable Monthly", iconKey: "calendarRange" },
+        { label: "Audience", value: "Commuters, residents, expats", iconKey: "users" },
+        { label: "Visibility", value: "All-day · daylight + night", iconKey: "timer" },
       ],
       insight:
-        "Top-of-funnel prestige. Builds international executive exposure and sets the tone before city movement begins.",
+        "The frequency layer. Deira's bridge network delivers UBL to the same audience on the same routes, day after day, for the full month.",
+    },
+  },
+  {
+    layout: "mediaOnly",
+    eyebrow: "Touchpoint 01 · Bridge Route · Pt. 1",
+    title: "Nad Al Hamar & Al Nahda — eastern approach corridor.",
+    stat: "3",
+    statLabel: "Bridge Faces",
+    imagePlaceholders: 3,
+    mediaLayout: "twoPlusVideo",
+    billboardImages: [
+      "/images/ubl/bridge-nad-al-hamar-face-a.png",
+      "/images/ubl/bridge-nad-al-hamar-face-b.png",
+      "/images/ubl/bridge-al-nahda.png",
+    ],
+    mediaSceneLabels: [
+      "1st Nad Al Hamar Bridge · Face A · Towards Airport Road",
+      "1st Nad Al Hamar Bridge · Face B · Towards DFC Road",
+      "Al Nahda Bridge · Towards Emirates Road",
+    ],
+    mediaStatRibbon: [
+      { value: "3", label: "Bridge faces" },
+      { value: "Daily", label: "Repeat exposure" },
+      { value: "1 mo", label: "Campaign window" },
+    ],
+  },
+  {
+    layout: "mediaOnly",
+    eyebrow: "Touchpoint 01 · Bridge Route · Pt. 2",
+    title: "Gold Souk, Omar Bin Khattab & Sheikh Rashid — central Deira loop.",
+    stat: "4",
+    statLabel: "Bridge Faces",
+    imagePlaceholders: 4,
+    mediaLayout: "twoPlusVideo",
+    billboardImages: [
+      "/images/ubl/bridge-gold-souk-face-a.png",
+      "/images/ubl/bridge-gold-souk-face-b.png",
+      "/images/ubl/bridge-omar-bin-khattab-face-a.png",
+      "/images/ubl/bridge-sheikh-rashid-face-b.png",
+    ],
+    mediaSceneLabels: [
+      "Gold Souk Bridge · Face A · Al Shandagha → Naif",
+      "Gold Souk Bridge · Face B · Naif → Al Shandagha",
+      "Omar Bin Khattab St. Bridge · Face A · Al Gurrair → Etisalat",
+      "Sheikh Rashid Road Bridge · Face B · Towards Al Garhoud",
+    ],
+    mediaStatRibbon: [
+      { value: "4", label: "Bridge faces" },
+      { value: "Daily", label: "Repeat exposure" },
+      { value: "1 mo", label: "Campaign window" },
+    ],
+  },
+  {
+    layout: "touchpointHero",
+    eyebrow: "Touchpoint 02",
+    title: "JAFZA · Sheikh Zayed Road Hoarding",
+    subtitle:
+      "A single large-format hoarding on Sheikh Zayed Road within the Jebel Ali / JAFZA corridor — the highest-traffic logistics and business artery in the UAE.",
+    stat: "SZR",
+    statLabel: "Prime Hoarding",
+    imagePlaceholders: 1,
+    billboardImages: ["/images/ubl/jafza-hoarding.png"],
+    touchpointHero: {
+      badge: "Touchpoint 02 · Roadside Layer",
+      heroImage: "/images/ubl/jafza-hoarding.png",
+      factSheet: [
+        { label: "Location", value: "Sheikh Zayed Rd · JAFZA / Jebel Ali", iconKey: "mapPinned" },
+        { label: "Format", value: "Static Roadside Hoarding", iconKey: "monitorPlay" },
+        { label: "Faces", value: "1 Face · Large Format", iconKey: "layers" },
+        { label: "Duration", value: "1 Month · Repeatable Monthly", iconKey: "calendarRange" },
+        { label: "Audience", value: "SZR commuters · JAFZA workforce", iconKey: "users" },
+        { label: "Visibility", value: "All-day · arterial road", iconKey: "timer" },
+      ],
+      insight:
+        "Anchors UBL on the UAE's most strategic commercial road, reaching commuters travelling between Abu Dhabi and Dubai every day.",
     },
   },
   {
     layout: "touchpointMosaic",
-    eyebrow: "Touchpoint 02",
-    title: "Expo City Metro Station",
+    eyebrow: "Touchpoint 03",
+    title: "DIFC Digital Screens · One Central",
     subtitle:
-      "The mass-arrival layer. SolarWinds becomes visible to GITEX visitors as they enter the venue ecosystem through the metro route.",
-    stat: "134",
+      "62 digital screens across One Central in DIFC — UBL's natural environment of bankers, finance professionals and corporate decision-makers.",
+    stat: "62",
     statLabel: "Digital Screens",
     imagePlaceholders: 3,
     billboardImages: [
-      "/images/metro-overhead-screens.png",
-      "/images/metro-entrance-screens.png",
-      "/images/expo-station-mupi.png",
+      "/images/ubl/difc-columns.png",
+      "/images/ubl/difc-one-central.png",
+      "/images/ubl/difc-columns-corridor.png",
     ],
     metro: {
       statRibbon: [
-        { value: "134", label: "Digital Screens" },
-        { value: "8s", label: "Creative Spots" },
-        { value: "1/min", label: "Frequency" },
-        { value: "2 wk", label: "Campaign" },
+        { value: "62", label: "Digital Screens" },
+        { value: "10s", label: "Ad spot" },
+        { value: "1/2 min", label: "Frequency" },
+        { value: "1 mo", label: "Campaign" },
       ],
       zones: [
-        { name: "Entrance", iconKey: "mapPinned" },
-        { name: "Concourse", iconKey: "compass" },
-        { name: "Platform", iconKey: "trainFront" },
-        { name: "Footbridge", iconKey: "layers" },
+        { name: "DIFC Lobbies", iconKey: "building2" },
+        { name: "One Central", iconKey: "compass" },
+        { name: "Columns", iconKey: "layers" },
+        { name: "Premium Halls", iconKey: "sparkles" },
       ],
       insight:
-        "Best layer for scale and frequency. Strong arrival dominance with high repetition across the metro journey.",
+        "High-frequency, high-relevance. Every spot lands in front of the exact decision-makers UBL's corporate and priority banking teams pursue.",
     },
   },
   {
-    layout: "mediaOnly",
-    eyebrow: "Touchpoint 02 · Visual Route · Pt. 1",
-    title: "Expo City Metro Station — concourse brand layer.",
-    stat: "134",
-    statLabel: "Digital Screens",
-    imagePlaceholders: 2,
-    mediaLayout: "twoPlusVideo",
-    billboardImages: [
-      DECK_REFERENCE_IMAGES[4],
-      "/images/metro-5g-concourse.png",
-    ],
-    mediaSceneLabels: [
-      "Footbridge · brand panels",
-      "Concourse · billboard wall",
-    ],
-    mediaStatRibbon: [
-      { value: "8s", label: "Spot length" },
-      { value: "1/min", label: "Frequency" },
-      { value: "2 wk", label: "Campaign window" },
-    ],
-  },
-  {
-    layout: "mediaOnly",
-    eyebrow: "Touchpoint 02 · Visual Route · Pt. 2",
-    title: "Expo City Metro Station — platform wayfinding.",
-    stat: "134",
-    statLabel: "Digital Screens",
-    imagePlaceholders: 2,
-    mediaLayout: "twoPlusVideo",
-    billboardImages: [
-      "/images/metro-platform-signage.png",
-      "/images/metro-platform-doors.png",
-    ],
-    mediaSceneLabels: [
-      "Concourse · platform wayfinding",
-      "Platform · screen strip",
-    ],
-    mediaStatRibbon: [
-      { value: "8s", label: "Spot length" },
-      { value: "1/min", label: "Frequency" },
-      { value: "2 wk", label: "Campaign window" },
-    ],
-  },
-  {
-    layout: "outdoorZones",
-    eyebrow: "Touchpoint 03",
-    title: "Expo City Digital Outdoor Network",
+    layout: "touchpointHero",
+    eyebrow: "Touchpoint 04",
+    title: "Business Bay Elevator Network",
     subtitle:
-      "The venue-journey reinforcement layer. Keeps SolarWinds visible as visitors move through Expo City between the metro and the halls.",
-    stat: "49",
-    statLabel: "Outdoor Screens",
+      "84 elevator screens across Business Bay's residential and commercial towers — UBL in front of residents, professionals and visitors during the captive elevator ride.",
+    stat: "84",
+    statLabel: "Elevator Screens",
     imagePlaceholders: 1,
-    billboardImages: ["/images/expo-entrance-gate.png"],
-    outdoor: {
-      heroStat: { value: "49", label: "Outdoor Screens" },
-      zones: [
-        {
-          name: "Al Wasl Plaza",
-          copy: "Central pedestrian hub between hall clusters.",
-          formats: [
-            { count: "12", type: "MUPI Totems" },
-            { count: "2", type: "Step Screens" },
-          ],
-          iconKey: "mapPinned",
-        },
+    billboardImages: ["/images/ubl/business-bay-elevators.png"],
+    touchpointHero: {
+      badge: "Touchpoint 04 · Lifestyle Layer",
+      heroImage: "/images/ubl/business-bay-elevators.png",
+      factSheet: [
+        { label: "Location", value: "Business Bay · Residential & Office Towers", iconKey: "mapPinned" },
+        { label: "Format", value: "Digital LCD Elevator Screens", iconKey: "monitorPlay" },
+        { label: "Network", value: "84 Screens", iconKey: "tv" },
+        { label: "Loop Cycle", value: "4 minutes", iconKey: "timer" },
+        { label: "Ad Duration", value: "12 seconds per spot", iconKey: "zap" },
+        { label: "Monthly Rate", value: "AED 37,500", iconKey: "wallet" },
       ],
       insight:
-        "Multi-format variety supports recall and directional reinforcement toward the SolarWinds booth.",
-    },
-  },
-  {
-    layout: "outdoorZones",
-    eyebrow: "Touchpoint 03",
-    title: "Expo City Digital Outdoor Network",
-    subtitle:
-      "The venue-journey reinforcement layer. Keeps SolarWinds visible as visitors move through Expo City between the metro and the halls.",
-    stat: "49",
-    statLabel: "Outdoor Screens",
-    imagePlaceholders: 3,
-    billboardImages: [
-      "/images/expo-al-wasl-naturevalley.png",
-      "/images/expo-jubilee-benefit.png",
-      "/images/expo-sustainability-haribo.png",
-    ],
-    outdoor: {
-      heroStat: { value: "49", label: "Outdoor Screens" },
-      zones: [
-        {
-          name: "Entrance Gate",
-          copy: "First-impression dominance as visitors enter Expo City. The arrival layer that sets the tone for everything that follows on the venue journey.",
-          formats: [
-            { count: "14", type: "MUPI Totems" },
-            { count: "2", type: "Step Screens" },
-            { count: "1", type: "Horizontal LED" },
-          ],
-          iconKey: "compass",
-        },
-        {
-          name: "Jubilee Park",
-          copy: "High-footfall green corridor for repeat exposure.",
-          formats: [
-            { count: "10", type: "MUPI Totems" },
-            { count: "1", type: "Step Screen" },
-          ],
-          iconKey: "palette",
-        },
-        {
-          name: "Sustainability",
-          copy: "Last-mile reinforcement before key hall entries.",
-          formats: [
-            { count: "5", type: "MUPI Totems" },
-            { count: "1", type: "Step Screen" },
-            { count: "1", type: "Horizontal LED" },
-          ],
-          iconKey: "building2",
-        },
-      ],
-      insight:
-        "Multi-format variety supports recall and directional reinforcement toward the SolarWinds booth.",
+        "Captive attention environment. Daily repeat exposure to residents and office workers — high-value frequency at a low monthly cost.",
     },
   },
   {
     layout: "commercial",
     eyebrow: "Commercial Plan",
-    title: "Recommended media investment.",
+    title: "Q4 2026 monthly media investment.",
     subtitle:
-      "A full-journey commercial package combining airport arrivals, Expo City Metro Station and Expo City outdoor digital media to maximise visibility across the complete GITEX visitor path.",
+      "A four-channel monthly package combining bridge banners, an SZR hoarding, DIFC digital screens and Business Bay elevators. Repeatable each month of Q4 — October, November, December.",
     bullets: [
-      "All rates are in USD",
+      "All rates are in AED",
       "Prices exclude 5% VAT",
-      "Municipality fee: $141.59 per artwork",
-      "Recommended total media package: $148,622.34",
+      "Production & artwork: included",
+      "Monthly package total: AED 777,500",
     ],
     rightTitle: "Total Package",
     rightContent: [
-      "DXB Terminal 3 Arrivals",
-      "Expo City Metro Station",
-      "Expo City Outdoor Digital Network",
-      "Total: $148,622.34 excluding VAT",
+      "Deira Bridge Banners · 7 faces",
+      "JAFZA SZR Hoarding · 1 face",
+      "DIFC Screens · 62 screens",
+      "Business Bay · 84 elevator screens",
     ],
     commercialExtras: {
-      total: 148622.34,
-      breakdown: [
-        { name: "Expo City Metro Station", value: 123622.34, note: "134 screens · 2 weeks" },
-        { name: "DXB Terminal 3 Arrivals", value: 25000, note: "3 screens · 1 month" },
-        {
-          name: "Expo Station (quoted)",
-          value: 103471.75,
-          note: "Quoted separately · not in final package",
-          excluded: true,
-        },
-      ],
+      total: 777500,
+      breakdown: [],
       checklist: [
-        { iconKey: "plane", label: "Airport arrivals media" },
-        { iconKey: "trainFront", label: "Metro mass-awareness layer" },
-        { iconKey: "mapPinned", label: "Outdoor venue reinforcement" },
-        { iconKey: "fileText", label: "Production & artwork delivery" },
+        { iconKey: "trainFront", label: "Commuter bridge layer" },
+        { iconKey: "mapPinned", label: "SZR arterial hoarding" },
+        { iconKey: "building2", label: "DIFC premium digital" },
+        { iconKey: "tv", label: "Business Bay lifestyle network" },
       ],
     },
   },
@@ -926,85 +893,82 @@ const slides: Slide[] = [
     eyebrow: "Creative Strategy",
     title: "Adapt the message to each environment.",
     subtitle:
-      "One generic event message will not move enterprise buyers. The environment should shape the creative and move the audience toward the booth with clearer intent.",
+      "Each channel reaches a different mindset. The creative should change in tone and call-to-action — but stay consistent in the brand cue — so UBL builds a single, layered impression across Q4.",
     creative: {
       columns: [
         {
-          env: "Airport",
-          iconKey: "plane",
-          headline: "Category authority",
-          message: "Lead with enterprise confidence — observability you can trust.",
-          copyRule: "≤ 6 words",
-          legibility: "Readable from 8m+",
-          image: DECK_REFERENCE_IMAGES[0],
-        },
-        {
-          env: "Metro",
+          env: "Bridges & Hoarding",
           iconKey: "trainFront",
-          headline: "GITEX presence",
-          message: "Bold brand recognition with a clear ‘see us at GITEX’ cue.",
-          copyRule: "≤ 5 words + booth",
-          legibility: "Readable from 5m",
-          image: "/images/metro-solarwinds-mupi.png",
+          headline: "Mass reach · daily commute",
+          message: "Big logo, single benefit. Build the habit of seeing UBL on the daily route.",
+          copyRule: "≤ 5 words + CTA",
+          legibility: "Readable from 10m+",
         },
         {
-          env: "Outdoor",
-          iconKey: "megaphone",
-          headline: "Booth reminder",
-          message: "Directional reinforcement — product themes + booth handoff.",
+          env: "DIFC Screens",
+          iconKey: "building2",
+          headline: "Corporate & premium banking",
+          message: "Lead with trust and service. Speak to finance professionals on their turf.",
+          copyRule: "≤ 7 words",
+          legibility: "Readable from 4m",
+        },
+        {
+          env: "Business Bay Elevators",
+          iconKey: "tv",
+          headline: "Captive · lifestyle frequency",
+          message: "Use the dwell time. Spotlight digital banking, cards or lifestyle offers.",
           copyRule: "≤ 8 words",
-          legibility: "Readable from 3m",
-          image: DECK_REFERENCE_IMAGES[7],
+          legibility: "Readable from 1.5m",
         },
       ],
       hierarchy: [
-        "Unified observability",
-        "Operational resilience",
-        "Database performance",
-        "Meet SolarWinds at GITEX",
+        "Trusted everyday banking",
+        "Digital-first experience",
+        "Wealth & corporate",
+        "Call to action · UBL Digital",
       ],
     },
   },
   {
     layout: "closingTimeline",
-    eyebrow: "GITEX 2026",
-    title: "We’re excited to see SolarWinds there.",
+    eyebrow: "Q4 2026 · Campaign Calendar",
+    title: "Three months. One connected presence for UBL.",
     subtitle:
-      "GITEX GLOBAL 2026 moves into a major new chapter — the Scale Summit on 07 December, followed by the main Expo from 08–11 December. SolarWinds has a clear opportunity to arrive with confidence, visibility and momentum.",
+      "Q4 covers the final salary cycle, year-end financial decisions and the seasonal remittance peak. Holding all four channels through October, November and December keeps UBL present at every moment that matters.",
     closing: {
       dates: [
         {
-          badge: "07 DEC",
-          title: "GITEX Scale Summit",
-          detail: "Dubai World Trade Centre",
-          iconKey: "sparkles",
+          badge: "01 OCT",
+          title: "Q4 Wave 1 Launch",
+          detail: "All four channels live · Month 1",
+          iconKey: "calendarRange",
         },
         {
-          badge: "08–11 DEC",
-          title: "GITEX Global Expo",
-          detail: "Expo City Dubai",
-          iconKey: "calendarRange",
+          badge: "31 DEC",
+          title: "Q4 Campaign Close",
+          detail: "Month 3 wrap · post-campaign report",
+          iconKey: "sparkles",
         },
       ],
       summary: [
         {
-          phase: "Before the hall",
-          copy: "Airport arrivals warm senior travellers ahead of the booth conversation.",
-          iconKey: "plane",
+          phase: "Commute layer",
+          copy: "Deira bridge banners and the JAFZA SZR hoarding keep UBL on the daily route, all quarter.",
+          iconKey: "trainFront",
         },
         {
-          phase: "Around the venue",
-          copy: "Metro and outdoor media keep SolarWinds visible across the journey.",
-          iconKey: "compass",
+          phase: "Workday layer",
+          copy: "DIFC One Central screens reach finance professionals and corporate decision-makers on every workday.",
+          iconKey: "building2",
         },
         {
-          phase: "At the moment",
-          copy: "A premium presence that supports the booth and the brand at GITEX.",
-          iconKey: "heartHandshake",
+          phase: "Lifestyle layer",
+          copy: "Business Bay elevator screens deliver high-frequency, captive exposure in the residential and office network.",
+          iconKey: "tv",
         },
       ],
       farewell:
-        "We look forward to seeing SolarWinds take a standout presence across GITEX 2026.",
+        "MAG International is ready to launch UBL's Q4 plan across Dubai's most valuable corridors — an extension of your team for the full quarter.",
     },
   },
 ];
@@ -1070,11 +1034,14 @@ export default function Page() {
         panel: "rgba(255,255,255,0.76)",
         text: "#0f1722",
         sub: "#475569",
-        accent: "#f47c20",
-        accentSoft: "rgba(244,124,32,0.12)",
-        accentLine: "rgba(244,124,32,0.35)",
+        accent: "#0083CA",
+        accentSoft: "rgba(0,131,202,0.12)",
+        accentLine: "rgba(0,131,202,0.35)",
+        ublAccent: "#0083CA",
+        ublAccentSoft: "rgba(0,131,202,0.12)",
+        ublAccentLine: "rgba(0,131,202,0.35)",
         grid: "rgba(15,23,34,0.06)",
-        orb1: "rgba(244,124,32,0.18)",
+        orb1: "rgba(0,131,202,0.18)",
         orb2: "rgba(19,34,61,0.10)",
         nav: "rgba(255,255,255,0.82)",
         cardInner: "rgba(15,23,34,0.035)",
@@ -1087,11 +1054,14 @@ export default function Page() {
       panel: "rgba(255,255,255,0.06)",
       text: "#f8fafc",
       sub: "#cbd5e1",
-      accent: "#f47c20",
-      accentSoft: "rgba(244,124,32,0.12)",
-      accentLine: "rgba(244,124,32,0.35)",
+      accent: "#2199E8",
+      accentSoft: "rgba(33,153,232,0.14)",
+      accentLine: "rgba(33,153,232,0.40)",
+      ublAccent: "#2199E8",
+      ublAccentSoft: "rgba(33,153,232,0.14)",
+      ublAccentLine: "rgba(33,153,232,0.40)",
       grid: "rgba(255,255,255,0.05)",
-      orb1: "rgba(244,124,32,0.18)",
+      orb1: "rgba(33,153,232,0.18)",
       orb2: "rgba(75,107,161,0.18)",
       nav: "rgba(13,20,32,0.84)",
       cardInner: "rgba(0,0,0,0.14)",
@@ -1135,13 +1105,13 @@ export default function Page() {
           <div className="relative flex w-full min-w-0 items-center justify-between gap-2 sm:gap-3">
             <div className="relative z-10 shrink-0">
               <img
-                src="/brands/solarwinds-logo.svg"
-                alt="SolarWinds"
-                width={220}
-                height={44}
+                src="/brands/ubl-logo-mark.png"
+                alt="UBL · United Bank Limited"
+                width={738}
+                height={322}
                 loading="eager"
                 fetchPriority="high"
-                className="block h-[18px] w-auto max-w-[min(148px,38vw)] object-contain object-left sm:h-5 md:h-[22px]"
+                className="block h-[26px] w-auto max-w-[min(150px,38vw)] object-contain object-left sm:h-7 md:h-[30px]"
               />
             </div>
 
@@ -1152,8 +1122,8 @@ export default function Page() {
                 className="max-w-full truncate text-center text-[10px] font-bold uppercase tracking-[0.18em] opacity-60 sm:text-xs sm:tracking-[0.24em]"
                 style={{ color: themeVars.text }}
               >
-                <span className="sm:hidden">GITEX ’26</span>
-                <span className="hidden sm:inline">GITEX 2026 Deck</span>
+                <span className="sm:hidden">Q4 ’26</span>
+                <span className="hidden sm:inline">Q4 2026 · MAG × UBL</span>
               </div>
             </div>
 
@@ -1184,7 +1154,7 @@ export default function Page() {
                     color: theme === "light" ? "#fff" : themeVars.sub,
                     boxShadow:
                       theme === "light"
-                        ? "0 2px 8px rgba(244,124,32,0.35)"
+                        ? "0 2px 8px rgba(0,131,202,0.35)"
                         : "none",
                   }}
                 >
@@ -1207,7 +1177,7 @@ export default function Page() {
                     color: theme === "dark" ? "#fff" : themeVars.sub,
                     boxShadow:
                       theme === "dark"
-                        ? "0 2px 8px rgba(244,124,32,0.35)"
+                        ? "0 2px 8px rgba(0,131,202,0.35)"
                         : "none",
                   }}
                 >
@@ -1442,13 +1412,14 @@ function CoverSlide({ slide, slideIndex, theme, themeVars }: SlideRendererProps)
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
             <img
-              src={theme === "light" ? "/ooh-ae-black.webp" : "/ooh-ae-white.webp"}
-              alt="OOH.ae"
-              width={200}
-              height={48}
+              src="/brands/mag-logo.png"
+              alt="MAG · Media Agency Group"
+              width={500}
+              height={127}
               loading="eager"
               fetchPriority="high"
-              className="block h-[26px] w-auto max-w-[min(188px,52vw)] shrink-0 object-contain object-left sm:h-[30px] md:h-8"
+              className="block h-[34px] w-auto max-w-[min(188px,52vw)] shrink-0 object-contain object-left sm:h-[40px] md:h-[44px]"
+              style={theme === "light" ? { filter: "brightness(0)" } : undefined}
             />
             <span
               className="select-none text-base font-light leading-none sm:text-lg"
@@ -1458,14 +1429,13 @@ function CoverSlide({ slide, slideIndex, theme, themeVars }: SlideRendererProps)
               ×
             </span>
             <img
-              src="/brands/solarwinds-logo.svg"
-              alt="SolarWinds"
-              width={220}
-              height={44}
+              src="/brands/ubl-logo.png"
+              alt="UBL · United Bank Limited · where you come first"
+              width={738}
+              height={441}
               loading="eager"
               fetchPriority="high"
-              className="block h-[22px] w-auto max-w-[min(200px,46vw)] shrink-0 object-contain object-left sm:h-[26px] md:h-7"
-              style={theme === "dark" ? { filter: "brightness(0) invert(1)" } : undefined}
+              className="block h-[48px] w-auto max-w-[min(220px,50vw)] shrink-0 object-contain object-left sm:h-[56px] md:h-[64px]"
             />
           </div>
 
@@ -1685,34 +1655,41 @@ function ObjectiveSlide({ slide, slideIndex, theme, themeVars }: SlideRendererPr
         })}
       </div>
 
-      {slide.rightContent && slide.rightContent.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <span
-            className="text-[10px] font-black uppercase tracking-[0.22em] opacity-70"
-            style={{ color: themeVars.text }}
-          >
-            {slide.rightTitle ?? "Why this fits"}
-          </span>
-          {slide.rightContent.map((item) => (
+      {slide.rightContent && slide.rightContent.length > 0 ? (() => {
+        const isUbl = (slide.rightTitle ?? "").toLowerCase().includes("ubl");
+        const chipDot = isUbl ? themeVars.ublAccent : themeVars.accent;
+        const chipLine = isUbl ? themeVars.ublAccentLine : themeVars.border;
+        const chipBg = isUbl ? themeVars.ublAccentSoft : themeVars.cardInner;
+        const labelColor = isUbl ? themeVars.ublAccent : themeVars.text;
+        return (
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <span
-              key={item}
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold sm:text-[13px]"
-              style={{
-                background: themeVars.cardInner,
-                border: `1px solid ${themeVars.border}`,
-                color: themeVars.text,
-              }}
+              className="text-[10px] font-black uppercase tracking-[0.22em] opacity-80"
+              style={{ color: labelColor }}
             >
-              <span
-                className="inline-block h-1.5 w-1.5 rounded-full"
-                style={{ background: themeVars.accent }}
-                aria-hidden
-              />
-              {item}
+              {slide.rightTitle ?? "Why this fits"}
             </span>
-          ))}
-        </div>
-      ) : null}
+            {slide.rightContent.map((item) => (
+              <span
+                key={item}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold sm:text-[13px]"
+                style={{
+                  background: chipBg,
+                  border: `1px solid ${chipLine}`,
+                  color: themeVars.text,
+                }}
+              >
+                <span
+                  className="inline-block h-1.5 w-1.5 rounded-full"
+                  style={{ background: chipDot }}
+                  aria-hidden
+                />
+                {item}
+              </span>
+            ))}
+          </div>
+        );
+      })() : null}
     </SlideShell>
   );
 }
@@ -1737,14 +1714,14 @@ function AudienceSlide({ slide, slideIndex, theme, themeVars }: SlideRendererPro
           <div
             className="mt-4 inline-flex items-start gap-2 rounded-xl p-3 sm:p-4"
             style={{
-              background: themeVars.accentSoft,
-              border: `1px solid ${themeVars.accentLine}`,
+              background: themeVars.ublAccentSoft,
+              border: `1px solid ${themeVars.ublAccentLine}`,
             }}
           >
             <Sparkles
               className="mt-0.5 h-4 w-4 shrink-0"
               strokeWidth={2.3}
-              style={{ color: themeVars.accent }}
+              style={{ color: themeVars.ublAccent }}
               aria-hidden
             />
             <p
@@ -2368,13 +2345,13 @@ function OutdoorZonesSlide({
                     className="text-[10px] font-black uppercase tracking-[0.22em]"
                     style={{ color: themeVars.accent }}
                   >
-                    Outdoor · Expo City
+                    Outdoor · Featured Zone
                   </div>
                   <span
                     className="text-[10px] font-black uppercase tracking-[0.22em] opacity-60"
                     style={{ color: themeVars.text }}
                   >
-                    Zone 01 of 04
+                    Zone 01
                   </span>
                 </div>
                 <h2
@@ -2544,23 +2521,53 @@ function CommercialSlide({
 
           {extras ? (
             <>
-              <div
-                className="mt-4 rounded-2xl p-3 sm:p-4"
-                style={{
-                  background: themeVars.panel,
-                  border: `1px solid ${themeVars.border}`,
-                  backdropFilter: "blur(14px)",
-                }}
-              >
+              {extras.breakdown.length > 0 ? (
                 <div
-                  className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]"
-                  style={{ color: themeVars.accent }}
+                  className="mt-4 rounded-2xl p-3 sm:p-4"
+                  style={{
+                    background: themeVars.panel,
+                    border: `1px solid ${themeVars.border}`,
+                    backdropFilter: "blur(14px)",
+                  }}
                 >
-                  <Wallet className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden />
-                  Contribution Breakdown
+                  <div
+                    className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]"
+                    style={{ color: themeVars.accent }}
+                  >
+                    <Wallet className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden />
+                    Contribution Breakdown
+                  </div>
+                  <ContributionBars rows={extras.breakdown} total={extras.total} themeVars={themeVars} />
                 </div>
-                <ContributionBars rows={extras.breakdown} total={extras.total} themeVars={themeVars} />
-              </div>
+              ) : (
+                <div
+                  className="mt-4 rounded-2xl p-4 sm:p-5"
+                  style={{
+                    background: themeVars.accentSoft,
+                    border: `1px solid ${themeVars.accentLine}`,
+                  }}
+                >
+                  <div
+                    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]"
+                    style={{ color: themeVars.accent }}
+                  >
+                    <Wallet className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden />
+                    Monthly Investment
+                  </div>
+                  <div
+                    className="mt-1.5 text-3xl font-black leading-none sm:text-4xl"
+                    style={{ color: themeVars.accent }}
+                  >
+                    AED {extras.total.toLocaleString("en-US")}
+                  </div>
+                  <div
+                    className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.18em] opacity-65"
+                    style={{ color: themeVars.text }}
+                  >
+                    Per month · Excluding 5% VAT
+                  </div>
+                </div>
+              )}
 
               <div className="mt-3 grid grid-cols-2 gap-2">
                 {extras.checklist.map((item) => {
@@ -2619,7 +2626,7 @@ function ContributionBars({
 }) {
   const max = Math.max(...rows.map((r) => r.value));
   const fmt = (n: number) =>
-    `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    `AED ${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
   return (
     <div className="space-y-2.5">
       {rows.map((row) => {
@@ -2680,7 +2687,7 @@ function ContributionBars({
           className="text-[10px] font-black uppercase tracking-[0.22em]"
           style={{ color: themeVars.accent }}
         >
-          Package Total
+          Monthly Total
         </span>
         <span className="text-base font-black sm:text-lg" style={{ color: themeVars.accent }}>
           {fmt(total)}
@@ -2726,53 +2733,35 @@ function CreativeColumnsSlide({
                 backdropFilter: "blur(14px)",
               }}
             >
-              <div
-                className="relative h-40 w-full overflow-hidden rounded-xl sm:h-48 md:h-52"
-                style={{
-                  background: themeVars.cardInner,
-                  border: `1px solid ${themeVars.border}`,
-                }}
-              >
-                {col.image ? (
-                  <img
-                    src={col.image}
-                    alt={`${col.env} reference creative`}
-                    className="h-full w-full object-cover object-[center_25%]"
-                    loading="lazy"
-                  />
-                ) : null}
-                <div
-                  className="pointer-events-none absolute inset-0"
-                  style={{
-                    background:
-                      "linear-gradient(180deg, rgba(13,20,32,0) 30%, rgba(13,20,32,0.78) 100%)",
-                  }}
-                  aria-hidden
-                />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between px-2.5 py-2 sm:px-3">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="flex h-7 w-7 items-center justify-center rounded-lg"
-                      style={{
-                        background: themeVars.accentSoft,
-                        border: `1px solid ${themeVars.accentLine}`,
-                      }}
-                    >
-                      <Icon
-                        className="h-3.5 w-3.5"
-                        strokeWidth={2.3}
-                        style={{ color: themeVars.accent }}
-                        aria-hidden
-                      />
-                    </span>
-                    <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white sm:text-xs">
-                      {col.env}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/80">
-                    {String(i + 1).padStart(2, "0")}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-lg sm:h-9 sm:w-9"
+                    style={{
+                      background: themeVars.accentSoft,
+                      border: `1px solid ${themeVars.accentLine}`,
+                    }}
+                  >
+                    <Icon
+                      className="h-4 w-4"
+                      strokeWidth={2.3}
+                      style={{ color: themeVars.accent }}
+                      aria-hidden
+                    />
+                  </span>
+                  <span
+                    className="text-[11px] font-black uppercase tracking-[0.18em] sm:text-xs"
+                    style={{ color: themeVars.text }}
+                  >
+                    {col.env}
                   </span>
                 </div>
+                <span
+                  className="text-[10px] font-black uppercase tracking-[0.18em] opacity-60"
+                  style={{ color: themeVars.text }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
               </div>
 
               <div
@@ -2927,7 +2916,7 @@ function ClosingTimelineSlide({
                   className="text-[10px] font-black uppercase tracking-[0.18em] opacity-75"
                   style={{ color: themeVars.accent }}
                 >
-                  GITEX
+                  Q4 ’26
                 </span>
                 <span
                   className="text-sm font-black leading-tight sm:text-base"
@@ -3223,7 +3212,7 @@ function GalleryImageTrigger({
         type="button"
         onClick={() => onOpenGallery(globalIndex)}
         aria-label={`Open image viewer: ${alt}`}
-        className="group relative block h-full w-full cursor-pointer border-0 bg-transparent p-0 outline-none transition-opacity hover:opacity-[0.98] focus-visible:opacity-[0.98] focus-visible:ring-2 focus-visible:ring-orange-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+        className="group relative block h-full w-full cursor-pointer border-0 bg-transparent p-0 outline-none transition-opacity hover:opacity-[0.98] focus-visible:opacity-[0.98] focus-visible:ring-2 focus-visible:ring-sky-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
       >
         <img src={src} alt={alt} className={imgClassName} loading="lazy" />
         <span
@@ -3607,15 +3596,7 @@ function CommercialTable({
         <table className="w-full min-w-0 border-collapse text-left text-[10px] sm:text-[11px]">
           <thead>
             <tr style={{ background: themeVars.cardInner }}>
-              {[
-                "Location",
-                "Screens",
-                "Duration",
-                "Production",
-                "Gross",
-                "Net",
-                "Total",
-              ].map((head) => (
+              {["Location", "Format", "Inventory", "Duration"].map((head) => (
                 <th
                   key={head}
                   className="whitespace-nowrap px-1.5 py-2 text-[9px] font-black uppercase tracking-[0.1em] sm:px-2 sm:py-2.5 sm:text-[10px] sm:tracking-[0.14em]"
@@ -3634,48 +3615,20 @@ function CommercialTable({
             {commercialRows.map((row) => (
               <tr key={row.location}>
                 <td
-                  className="max-w-[120px] px-1.5 py-2.5 font-bold sm:max-w-none sm:px-2 sm:py-3"
+                  className="max-w-[160px] px-1.5 py-2.5 font-bold sm:max-w-none sm:px-2 sm:py-3"
                   style={{ borderBottom: `1px solid ${themeVars.border}` }}
                 >
                   {row.location}
+                </td>
+
+                <td
+                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
+                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
+                >
+                  {row.format}
                   <div className="mt-0.5 text-[9px] font-medium opacity-60">
-                    {row.format}
+                    {row.type}
                   </div>
-                </td>
-
-                <td
-                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
-                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
-                >
-                  {row.screens}
-                </td>
-
-                <td
-                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
-                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
-                >
-                  {row.duration}
-                </td>
-
-                <td
-                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
-                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
-                >
-                  {row.productionFee}
-                </td>
-
-                <td
-                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
-                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
-                >
-                  {row.grossRate}
-                </td>
-
-                <td
-                  className="whitespace-nowrap px-1.5 py-2.5 sm:px-2 sm:py-3"
-                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
-                >
-                  {row.netRate}
                 </td>
 
                 <td
@@ -3685,7 +3638,14 @@ function CommercialTable({
                     borderBottom: `1px solid ${themeVars.border}`,
                   }}
                 >
-                  {row.totalFee}
+                  {row.screens}
+                </td>
+
+                <td
+                  className="px-1.5 py-2.5 sm:px-2 sm:py-3"
+                  style={{ borderBottom: `1px solid ${themeVars.border}` }}
+                >
+                  {row.duration}
                 </td>
               </tr>
             ))}
@@ -3700,11 +3660,11 @@ function CommercialTable({
           border: `1px solid ${themeVars.border}`,
         }}
       >
-        Kindly note: all rates are in USD. Prices exclude 5% VAT. Municipality
-        fee:
+        Kindly note: all rates are in AED and quoted per month. Prices exclude
+        5% VAT. Production & artwork delivery:
         <span style={{ color: themeVars.accent }}>
           {" "}
-          $141.59 per artwork.
+          included.
         </span>
       </div>
     </div>
