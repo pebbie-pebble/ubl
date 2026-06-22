@@ -29,8 +29,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "MAG × UBL · Q4 2026 OOH Plan",
-  description: "MAG International's Q4 2026 OOH media plan for UBL across Dubai's high-traffic corridors.",
+  title: "MAG × UBL · Sept – Nov 2026 OOH Plan",
+  description: "MAG International's Sept – Nov 2026 OOH media plan for UBL across Dubai's high-traffic corridors.",
   generator: "v0.app",
   icons: {
     icon: [

@@ -132,13 +132,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
   body {
     @apply bg-background text-foreground;
-  }
-  
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
   }
 }
 
@@ -240,16 +240,18 @@
 
   /* Viewport-height budget for media + panels (keeps every slide in frame) */
   .deck-slide-fit {
-    --deck-image-single: min(30dvh, 220px);
-    --deck-image-grid: min(17dvh, 148px);
-    --deck-image-wide: min(22dvh, 176px);
+    --deck-image-single: min(26dvh, 200px);
+    --deck-image-grid: min(14dvh, 128px);
+    --deck-image-wide: min(18dvh, 160px);
+    --deck-banner-row: min(48dvh, 440px);
   }
 
   @media (max-height: 900px) {
     .deck-slide-fit {
-      --deck-image-single: min(24dvh, 180px);
-      --deck-image-grid: min(14dvh, 120px);
-      --deck-image-wide: min(18dvh, 150px);
+      --deck-image-single: min(20dvh, 160px);
+      --deck-image-grid: min(11dvh, 100px);
+      --deck-image-wide: min(14dvh, 130px);
+      --deck-banner-row: min(40dvh, 380px);
     }
 
     .deck-slide-fit .deck-title {
@@ -278,13 +280,22 @@
 
   @media (max-height: 760px) {
     .deck-slide-fit {
-      --deck-image-single: min(20dvh, 150px);
-      --deck-image-grid: min(12dvh, 100px);
-      --deck-image-wide: min(16dvh, 130px);
+      --deck-image-single: min(16dvh, 130px);
+      --deck-image-grid: min(9dvh, 84px);
+      --deck-image-wide: min(12dvh, 110px);
+      --deck-banner-row: min(32dvh, 320px);
     }
 
     .deck-slide-fit .deck-stat {
       font-size: clamp(1.5rem, 2.5vw + 0.35rem, 2.25rem);
+    }
+
+    .deck-slide-fit .deck-title {
+      font-size: clamp(1.375rem, 1.6vw + 0.75rem, 2rem);
+    }
+
+    .deck-slide-fit .deck-title-cover {
+      font-size: clamp(1.5rem, 2.2vw + 0.7rem, 2.5rem);
     }
   }
 
@@ -329,6 +340,26 @@
   .deck-marquee-track {
     animation: deckMarquee 38s linear infinite;
     will-change: transform;
+  }
+
+  /* Slide viewport scroll — visible when content overflows the frame */
+  .deck-slide-scroll {
+    scrollbar-width: auto;
+    scrollbar-color: rgba(33, 153, 232, 0.55) rgba(255, 255, 255, 0.06);
+  }
+  .deck-slide-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  .deck-slide-scroll::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .deck-slide-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(33, 153, 232, 0.55);
+  }
+  .deck-slide-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(33, 153, 232, 0.75);
   }
   @media (prefers-reduced-motion: reduce) {
     .deck-marquee-track {

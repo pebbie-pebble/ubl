@@ -10,6 +10,7 @@ import {
   CalendarRange,
   ChevronRight,
   Compass,
+  ExternalLink,
   FileText,
   Globe2,
   Handshake,
@@ -17,6 +18,7 @@ import {
   Layers,
   LayoutGrid,
   LineChart,
+  Map,
   MapPinned,
   Megaphone,
   MonitorPlay,
@@ -40,6 +42,7 @@ import {
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -165,7 +168,9 @@ type Slide = {
   layout?: SlideLayout;
   imagePlaceholders?: number;
   videoPlaceholder?: boolean;
-  mediaLayout?: "standard" | "twoPlusVideo";
+  mediaLayout?: "standard" | "twoPlusVideo" | "bannerGrid";
+  /** How reference photos are cropped in image grids (bridge banners use contain). */
+  imageFit?: "cover" | "contain";
   /** Local `/public` paths or absolute URLs — one per image slot, in order. */
   billboardImages?: string[];
   /**
@@ -210,7 +215,13 @@ type Slide = {
   commercialExtras?: {
     breakdown: CommercialContributionRow[];
     total: number;
+    investmentTitle?: string;
+    investmentPeriod?: string;
     checklist: { iconKey: string; label: string }[];
+    rows?: CommercialRow[];
+    grandTotal?: string;
+    tableNote?: string;
+    mapLink?: { url: string; label?: string };
   };
   creative?: {
     columns: CreativeColumn[];
@@ -288,7 +299,7 @@ function buildDeckGallery(slides: Slide[]): {
   return { lightboxSlides, navBySlide };
 }
 
-const commercialRows: CommercialRow[] = [
+const packageACommercialRows: CommercialRow[] = [
   {
     location: "Deira / Old Dubai Corridor",
     format: "Bridge Banners (Pedestrian)",
@@ -311,31 +322,82 @@ const commercialRows: CommercialRow[] = [
     netRate: "AED 100,000",
     totalFee: "AED 100,000",
   },
+];
+
+const packageAGrandTotal = "AED 640,000";
+
+const packageBCommercialRows: CommercialRow[] = [
   {
-    location: "DIFC · One Central",
-    format: "DIFC Screens",
-    type: "Digital LED Screens",
-    screens: "62 Screens",
-    duration: "10s spot · every 2 min · 1 month",
+    location: "JAFZA / Jebel Ali",
+    format: "SZR Hoarding",
+    type: "Static Roadside Hoarding",
+    screens: "1 Face",
+    duration: "3 months · Sept – Nov",
     productionFee: "Included",
-    grossRate: "AED 100,000",
-    netRate: "AED 100,000",
-    totalFee: "AED 100,000",
-  },
-  {
-    location: "Business Bay",
-    format: "Elevator Screens",
-    type: "Digital LCD Network",
-    screens: "84 Screens",
-    duration: "12s spot · 4 min loop · 1 month",
-    productionFee: "Included",
-    grossRate: "AED 37,500",
-    netRate: "AED 37,500",
-    totalFee: "AED 37,500",
+    grossRate: "AED 360,000",
+    netRate: "AED 360,000",
+    totalFee: "AED 360,000",
   },
 ];
 
-const grandTotal = "AED 777,500";
+const packageBGrandTotal = "AED 360,000";
+
+const packageCCommercialRows: CommercialRow[] = [
+  {
+    location: "Bur Dubai · BurJuman",
+    format: "Roadside Hoarding",
+    type: "Static Hoarding",
+    screens: "1 Face",
+    duration: "3 months · Sept – Nov",
+    productionFee: "Included",
+    grossRate: "AED 650,000",
+    netRate: "AED 650,000",
+    totalFee: "AED 650,000",
+  },
+];
+
+const packageCGrandTotal = "AED 650,000";
+
+const packageDCommercialRows: CommercialRow[] = [
+  {
+    location: "Garhoud · Dubai Creek",
+    format: "Unipole",
+    type: "Static Unipole Billboard",
+    screens: "1 Face",
+    duration: "3 months · Sept – Nov",
+    productionFee: "Included",
+    grossRate: "AED 382,000",
+    netRate: "AED 382,000",
+    totalFee: "AED 382,000",
+  },
+];
+
+const packageDGrandTotal = "AED 382,000";
+
+const UBL_MAP_LINK = {
+  url: "https://www.google.com/maps/d/u/0/viewer?mid=1bB0xAiPyYJqyDKuvXJd1OPHoo1lLmBw&usp=sharing",
+  label: "Open site map",
+} as const;
+
+const PACKAGE_A_MAP_LINK = {
+  url: "https://www.google.com/maps/d/u/0/viewer?mid=1YuxSgADM7CRrI_BZYbBoXpWeAilpHOs&usp=sharing",
+  label: "Open site map",
+} as const;
+
+const PACKAGE_B_MAP_LINK = {
+  url: "https://www.google.com/maps/d/u/0/viewer?mid=1NMtFfGcfwO9j8acvKdZ9jMvX1_T-bPc&usp=sharing",
+  label: "Open site map",
+} as const;
+
+const PACKAGE_C_MAP_LINK = {
+  url: "https://www.google.com/maps/d/u/0/viewer?mid=1H1AvQATObpFmA8J6cFKqHvJCvh0P3oA&usp=sharing",
+  label: "Open site map",
+} as const;
+
+const PACKAGE_D_MAP_LINK = {
+  url: "https://www.google.com/maps/d/u/0/viewer?mid=1tOTjAELDj63rgbAAOSRbiqkAcZZXAA0&usp=sharing",
+  label: "Open site map",
+} as const;
 
 const ICON_REGISTRY: Record<string, LucideIcon> = {
   arrowUpRight: ArrowUpRight,
@@ -574,23 +636,23 @@ const slides: Slide[] = [
   {
     layout: "cover",
     eyebrow: "MAG × UBL",
-    title: "Q4 2026\nOOH Media Plan",
+    title: "Sept – Nov 2026\nOOH Media Plan",
     subtitle:
-      "A high-impact, month-by-month Out-of-Home plan placing UBL across Dubai's busiest commuter, business and pedestrian corridors throughout the fourth quarter.",
-    rightTitle: "Core Plan",
+      "A high-impact, month-by-month Out-of-Home plan placing UBL across Dubai's busiest commuter and arterial corridors from September through November.",
+    rightTitle: "Package Options",
     rightContent: [
-      "Deira / Old Dubai Bridge Banners",
-      "JAFZA · Sheikh Zayed Road Hoarding",
-      "DIFC Digital Screens · One Central",
-      "Business Bay Elevator Network",
+      "Package A · Deira bridges + JAFZA hoarding · AED 640k / mo",
+      "Package B · JAFZA hoarding only · AED 360k / Sept–Nov",
+      "Package C · Burjuman hoarding · AED 650k / Sept–Nov",
+      "Package D · Garhoud unipole · AED 382k / Sept–Nov",
     ],
     coverMarquee: [
-      "7 Pedestrian Bridge Banners · Deira",
-      "1 SZR Hoarding · JAFZA / Jebel Ali",
-      "62 Digital Screens · DIFC One Central",
-      "84 Elevator Screens · Business Bay",
-      "Q4 2026 · Oct – Dec",
-      "Monthly Investment · AED 777,500",
+      "Package A · 7 Bridge Banners + 1 SZR Hoarding",
+      "Package B · JAFZA Hoarding · Sept – Nov",
+      "Package C · Burjuman Hoarding · Sept – Nov",
+      "Package D · Garhoud Unipole · Sept – Nov",
+      "Sept – Nov 2026",
+      "From AED 360,000",
     ],
   },
   {
@@ -598,37 +660,37 @@ const slides: Slide[] = [
     eyebrow: "Brand Objective",
     title: "Keep UBL visible across Dubai's high-density Q4 corridors.",
     subtitle:
-      "Q4 concentrates seasonal salary cycles, year-end financial decisions and remittance peaks. The plan builds frequency on the routes UBL's target customers travel every day.",
+      "Q4 concentrates seasonal salary cycles, financial planning and remittance peaks. The plan builds frequency on the routes UBL's target customers travel every day.",
     objective: {
       intro:
-        "Combine pedestrian, roadside and premium digital touchpoints so UBL stays present across the full Dubai workday — commute, office and footfall zones — for the full quarter.",
+        "Combine pedestrian bridge banners and a premium roadside hoarding so UBL stays present on Dubai's highest-traffic commute routes from September through November.",
       steps: [
         {
           phase: "Commute layer",
           title: "Own the daily route",
-          body: "Bridge banners in Deira and the SZR hoarding capture residents and commuters on repeat journeys into the city.",
+          body: "Bridge banners in Deira capture residents and commuters on repeat journeys through Old Dubai's busiest pedestrian corridors.",
           metric: "Daily",
           iconKey: "trainFront",
         },
         {
-          phase: "Office layer",
-          title: "Reach the business district",
-          body: "DIFC and Business Bay deliver UBL to executives and corporate clients in the highest-value financial corridor in the UAE.",
-          metric: "Workdays",
-          iconKey: "building2",
+          phase: "Roadside layer",
+          title: "Anchor the arterial corridor",
+          body: "The JAFZA SZR hoarding puts UBL on Sheikh Zayed Road — the UAE's highest-traffic business and logistics artery.",
+          metric: "Daily",
+          iconKey: "mapPinned",
         },
         {
           phase: "Reinforcement",
-          title: "Hold presence across the quarter",
-          body: "A continuous monthly investment keeps UBL top of mind through October, November and December.",
-          metric: "Q4",
+          title: "Hold presence across the campaign",
+          body: "A continuous monthly investment keeps UBL top of mind through September, October and November.",
+          metric: "3 mo",
           iconKey: "calendarRange",
         },
       ],
       outcome: {
-        stat: "154",
-        statLabel: "Faces & Screens Live",
-        copy: "A single connected media layer working across commute, business district and high-footfall premium environments — every day of Q4.",
+        stat: "8",
+        statLabel: "Faces Live",
+        copy: "A connected commuter media layer working across Deira's bridge network and Sheikh Zayed Road — every day from September through November.",
       },
     },
     rightTitle: "Why this fits UBL",
@@ -644,13 +706,13 @@ const slides: Slide[] = [
     eyebrow: "Audience Strategy",
     title: "Reach UBL's customers where Dubai actually moves.",
     subtitle:
-      "Dubai's working population concentrates on a small number of high-traffic corridors. The Q4 plan layers UBL across the daily flow of residents, executives and high-footfall venues.",
+      "Dubai's working population concentrates on a small number of high-traffic corridors. The Sept – Nov plan layers UBL across the daily flow of residents, executives and high-footfall venues.",
     audience: {
       kpis: [
         {
           value: "3.7M+",
           label: "Dubai residents",
-          sublabel: "Across the active Q4 footfall radius",
+          sublabel: "Across the Sept – Nov campaign window",
           iconKey: "users",
         },
         {
@@ -662,7 +724,7 @@ const slides: Slide[] = [
         {
           value: "12x+",
           label: "Avg weekly frequency",
-          sublabel: "Across the four-channel monthly layer",
+          sublabel: "Across the two-channel monthly layer",
           iconKey: "lineChart",
         },
       ],
@@ -699,7 +761,7 @@ const slides: Slide[] = [
         },
       ],
       insight:
-        "The four channels intersect UBL's audience at the moments that matter — commute, workday and lifestyle footfall — every single day of Q4.",
+        "The two channels intersect UBL's audience on the daily commute — bridge footfall and arterial road traffic — every single day from September through November.",
     },
   },
   {
@@ -711,6 +773,7 @@ const slides: Slide[] = [
     stat: "7",
     statLabel: "Bridge Faces",
     imagePlaceholders: 1,
+    imageFit: "contain",
     billboardImages: ["/images/ubl/bridge-nad-al-hamar-face-a.png"],
     touchpointHero: {
       badge: "Touchpoint 01 · Commute Layer",
@@ -734,7 +797,8 @@ const slides: Slide[] = [
     stat: "3",
     statLabel: "Bridge Faces",
     imagePlaceholders: 3,
-    mediaLayout: "twoPlusVideo",
+    mediaLayout: "bannerGrid",
+    imageFit: "contain",
     billboardImages: [
       "/images/ubl/bridge-nad-al-hamar-face-a.png",
       "/images/ubl/bridge-nad-al-hamar-face-b.png",
@@ -754,25 +818,45 @@ const slides: Slide[] = [
   {
     layout: "mediaOnly",
     eyebrow: "Touchpoint 01 · Bridge Route · Pt. 2",
-    title: "Gold Souk, Omar Bin Khattab & Sheikh Rashid — central Deira loop.",
-    stat: "4",
+    title: "Gold Souk Bridge — both faces.",
+    stat: "2",
     statLabel: "Bridge Faces",
-    imagePlaceholders: 4,
-    mediaLayout: "twoPlusVideo",
+    imagePlaceholders: 2,
+    mediaLayout: "bannerGrid",
+    imageFit: "contain",
     billboardImages: [
       "/images/ubl/bridge-gold-souk-face-a.png",
       "/images/ubl/bridge-gold-souk-face-b.png",
-      "/images/ubl/bridge-omar-bin-khattab-face-a.png",
-      "/images/ubl/bridge-sheikh-rashid-face-b.png",
     ],
     mediaSceneLabels: [
       "Gold Souk Bridge · Face A · Al Shandagha → Naif",
       "Gold Souk Bridge · Face B · Naif → Al Shandagha",
+    ],
+    mediaStatRibbon: [
+      { value: "2", label: "Bridge faces" },
+      { value: "Daily", label: "Repeat exposure" },
+      { value: "1 mo", label: "Campaign window" },
+    ],
+  },
+  {
+    layout: "mediaOnly",
+    eyebrow: "Touchpoint 01 · Bridge Route · Pt. 3",
+    title: "Omar Bin Khattab & Sheikh Rashid — central Deira loop.",
+    stat: "2",
+    statLabel: "Bridge Faces",
+    imagePlaceholders: 2,
+    mediaLayout: "bannerGrid",
+    imageFit: "contain",
+    billboardImages: [
+      "/images/ubl/bridge-omar-bin-khattab-face-a.png",
+      "/images/ubl/bridge-sheikh-rashid-face-b.png",
+    ],
+    mediaSceneLabels: [
       "Omar Bin Khattab St. Bridge · Face A · Al Gurrair → Etisalat",
       "Sheikh Rashid Road Bridge · Face B · Towards Al Garhoud",
     ],
     mediaStatRibbon: [
-      { value: "4", label: "Bridge faces" },
+      { value: "2", label: "Bridge faces" },
       { value: "Daily", label: "Repeat exposure" },
       { value: "1 mo", label: "Campaign window" },
     ],
@@ -803,89 +887,198 @@ const slides: Slide[] = [
     },
   },
   {
-    layout: "touchpointMosaic",
+    layout: "touchpointHero",
     eyebrow: "Touchpoint 03",
-    title: "DIFC Digital Screens · One Central",
+    title: "Burjuman Hoarding",
     subtitle:
-      "62 digital screens across One Central in DIFC — UBL's natural environment of bankers, finance professionals and corporate decision-makers.",
-    stat: "62",
-    statLabel: "Digital Screens",
-    imagePlaceholders: 3,
-    billboardImages: [
-      "/images/ubl/difc-columns.png",
-      "/images/ubl/difc-one-central.png",
-      "/images/ubl/difc-columns-corridor.png",
-    ],
-    metro: {
-      statRibbon: [
-        { value: "62", label: "Digital Screens" },
-        { value: "10s", label: "Ad spot" },
-        { value: "1/2 min", label: "Frequency" },
-        { value: "1 mo", label: "Campaign" },
-      ],
-      zones: [
-        { name: "DIFC Lobbies", iconKey: "building2" },
-        { name: "One Central", iconKey: "compass" },
-        { name: "Columns", iconKey: "layers" },
-        { name: "Premium Halls", iconKey: "sparkles" },
+      "Large-format hoarding opposite BurJuman Mall on Sheikh Khalifa Bin Zayed Road — high visibility at one of Dubai's busiest retail and metro intersections.",
+    stat: "1",
+    statLabel: "Hoarding Face",
+    imagePlaceholders: 1,
+    billboardImages: ["/images/ubl/burjuman-hoarding.png"],
+    touchpointHero: {
+      badge: "Touchpoint 03 · Premium Retail Layer",
+      heroImage: "/images/ubl/burjuman-hoarding.png",
+      factSheet: [
+        { label: "Location", value: "Opposite BurJuman Mall · Bur Dubai", iconKey: "mapPinned" },
+        { label: "Format", value: "Static Roadside Hoarding", iconKey: "monitorPlay" },
+        { label: "Faces", value: "1 Face · Large Format", iconKey: "layers" },
+        { label: "Duration", value: "3 Months · Sept – Nov", iconKey: "calendarRange" },
+        { label: "Audience", value: "Metro commuters · mall footfall", iconKey: "users" },
+        { label: "Visibility", value: "Sheikh Khalifa Bin Zayed Rd", iconKey: "timer" },
       ],
       insight:
-        "High-frequency, high-relevance. Every spot lands in front of the exact decision-makers UBL's corporate and priority banking teams pursue.",
+        "Premium city-centre presence. The hoarding sits directly opposite BurJuman Mall and Burjuman Metro — capturing retail traffic, office workers and daily commuters through Bur Dubai.",
     },
+  },
+  {
+    layout: "mediaOnly",
+    eyebrow: "Touchpoint 03 · Site Map",
+    title: "Hoarding opposite BurJuman Mall.",
+    subtitle:
+      "Sheikh Khalifa Bin Zayed Road · adjacent to Burjuman Metro Station and the BurJuman retail district.",
+    stat: "Bur",
+    statLabel: "Bur Dubai",
+    imagePlaceholders: 1,
+    imageFit: "contain",
+    billboardImages: ["/images/ubl/burjuman-hoarding-map.png"],
+    mediaSceneLabels: ["Hoarding opposite BurJuman Mall"],
   },
   {
     layout: "touchpointHero",
     eyebrow: "Touchpoint 04",
-    title: "Business Bay Elevator Network",
+    title: "Garhoud Unipole",
     subtitle:
-      "84 elevator screens across Business Bay's residential and commercial towers — UBL in front of residents, professionals and visitors during the captive elevator ride.",
-    stat: "84",
-    statLabel: "Elevator Screens",
+      "Garhoud Unipole 4 on the Dubai Creek corridor — commanding Sheikh Zayed Road visibility between the airport, Deira and the city centre.",
+    stat: "1",
+    statLabel: "Unipole Face",
     imagePlaceholders: 1,
-    billboardImages: ["/images/ubl/business-bay-elevators.png"],
+    billboardImages: ["/images/ubl/garhoud-unipole.png"],
     touchpointHero: {
-      badge: "Touchpoint 04 · Lifestyle Layer",
-      heroImage: "/images/ubl/business-bay-elevators.png",
+      badge: "Touchpoint 04 · Arterial Layer",
+      heroImage: "/images/ubl/garhoud-unipole.png",
       factSheet: [
-        { label: "Location", value: "Business Bay · Residential & Office Towers", iconKey: "mapPinned" },
-        { label: "Format", value: "Digital LCD Elevator Screens", iconKey: "monitorPlay" },
-        { label: "Network", value: "84 Screens", iconKey: "tv" },
-        { label: "Loop Cycle", value: "4 minutes", iconKey: "timer" },
-        { label: "Ad Duration", value: "12 seconds per spot", iconKey: "zap" },
-        { label: "Monthly Rate", value: "AED 37,500", iconKey: "wallet" },
+        { label: "Location", value: "Garhoud · Dubai Creek corridor", iconKey: "mapPinned" },
+        { label: "Format", value: "Static Unipole Billboard", iconKey: "monitorPlay" },
+        { label: "Faces", value: "1 Face · Unipole 4", iconKey: "layers" },
+        { label: "Duration", value: "3 Months · Sept – Nov", iconKey: "calendarRange" },
+        { label: "Audience", value: "SZR commuters · airport traffic", iconKey: "users" },
+        { label: "Visibility", value: "Sheikh Zayed Road · Garhoud", iconKey: "timer" },
       ],
       insight:
-        "Captive attention environment. Daily repeat exposure to residents and office workers — high-value frequency at a low monthly cost.",
+        "High-impact arterial placement. Garhoud Unipole 4 anchors UBL on the Sheikh Zayed Road approach — the daily route for airport, Deira and downtown commuters.",
     },
   },
   {
-    layout: "commercial",
-    eyebrow: "Commercial Plan",
-    title: "Q4 2026 monthly media investment.",
+    layout: "mediaOnly",
+    eyebrow: "Touchpoint 04 · Site Map",
+    title: "Garhoud Unipole 4 · Dubai Creek corridor.",
     subtitle:
-      "A four-channel monthly package combining bridge banners, an SZR hoarding, DIFC digital screens and Business Bay elevators. Repeatable each month of Q4 — October, November, December.",
+      "Sheikh Zayed Road · near GGICO Metro, Dubai Creek and the Garhoud bridge approach.",
+    stat: "SZR",
+    statLabel: "Garhoud",
+    imagePlaceholders: 1,
+    imageFit: "contain",
+    billboardImages: ["/images/ubl/garhoud-unipole-map.png"],
+    mediaSceneLabels: ["Garhoud Unipole 4"],
+  },
+  {
+    layout: "commercial",
+    eyebrow: "Package A · Commercial Plan",
+    title: "Sept – Nov 2026 monthly media investment.",
+    subtitle:
+      "A two-channel monthly package combining bridge banners and an SZR hoarding. Repeatable each month of the campaign — September, October, November.",
     bullets: [
       "All rates are in AED",
       "Prices exclude 5% VAT",
       "Production & artwork: included",
-      "Monthly package total: AED 777,500",
+      "Monthly package total: AED 640,000",
     ],
     rightTitle: "Total Package",
     rightContent: [
       "Deira Bridge Banners · 7 faces",
       "JAFZA SZR Hoarding · 1 face",
-      "DIFC Screens · 62 screens",
-      "Business Bay · 84 elevator screens",
     ],
     commercialExtras: {
-      total: 777500,
+      total: 640000,
       breakdown: [],
       checklist: [
         { iconKey: "trainFront", label: "Commuter bridge layer" },
         { iconKey: "mapPinned", label: "SZR arterial hoarding" },
-        { iconKey: "building2", label: "DIFC premium digital" },
-        { iconKey: "tv", label: "Business Bay lifestyle network" },
       ],
+      rows: packageACommercialRows,
+      grandTotal: packageAGrandTotal,
+      mapLink: PACKAGE_A_MAP_LINK,
+    },
+  },
+  {
+    layout: "commercial",
+    eyebrow: "Package B · Commercial Plan",
+    title: "JAFZA hoarding · Sept – Nov commitment.",
+    subtitle:
+      "A single-channel package locking in the Sheikh Zayed Road hoarding for the full campaign — September, October and November.",
+    bullets: [
+      "All rates are in AED",
+      "Prices exclude 5% VAT",
+      "Production & artwork: included",
+      "Campaign package total: AED 360,000",
+    ],
+    rightTitle: "Total Package",
+    rightContent: ["JAFZA SZR Hoarding · 1 face · 3 months"],
+    commercialExtras: {
+      total: 360000,
+      investmentTitle: "Campaign Total Investment",
+      investmentPeriod: "Sept – Nov · 3 months · Excluding 5% VAT",
+      breakdown: [],
+      checklist: [
+        { iconKey: "mapPinned", label: "SZR arterial hoarding" },
+        { iconKey: "calendarRange", label: "Sept – Nov · 3 months" },
+      ],
+      rows: packageBCommercialRows,
+      grandTotal: packageBGrandTotal,
+      tableNote:
+        "Kindly note: all rates are in AED. Prices exclude 5% VAT. Production & artwork delivery: included. Package priced as a single Sept – Nov commitment (3 months).",
+      mapLink: PACKAGE_B_MAP_LINK,
+    },
+  },
+  {
+    layout: "commercial",
+    eyebrow: "Package C · Commercial Plan",
+    title: "Burjuman hoarding · Sept – Nov commitment.",
+    subtitle:
+      "A single premium hoarding opposite BurJuman Mall for the full campaign — September, October and November.",
+    bullets: [
+      "All rates are in AED",
+      "Prices exclude 5% VAT",
+      "Production & artwork: included",
+      "Campaign package total: AED 650,000",
+    ],
+    rightTitle: "Total Package",
+    rightContent: ["Burjuman Hoarding · 1 face · 3 months"],
+    commercialExtras: {
+      total: 650000,
+      investmentTitle: "Campaign Total Investment",
+      investmentPeriod: "Sept – Nov · 3 months · Excluding 5% VAT",
+      breakdown: [],
+      checklist: [
+        { iconKey: "mapPinned", label: "BurJuman retail corridor" },
+        { iconKey: "calendarRange", label: "Sept – Nov · 3 months" },
+      ],
+      rows: packageCCommercialRows,
+      grandTotal: packageCGrandTotal,
+      tableNote:
+        "Kindly note: all rates are in AED. Prices exclude 5% VAT. Production & artwork delivery: included. Package priced as a single Sept – Nov commitment (3 months).",
+      mapLink: PACKAGE_C_MAP_LINK,
+    },
+  },
+  {
+    layout: "commercial",
+    eyebrow: "Package D · Commercial Plan",
+    title: "Garhoud unipole · Sept – Nov commitment.",
+    subtitle:
+      "Garhoud Unipole 4 on Sheikh Zayed Road for the full campaign — September, October and November.",
+    bullets: [
+      "All rates are in AED",
+      "Prices exclude 5% VAT",
+      "Production & artwork: included",
+      "Campaign package total: AED 382,000",
+    ],
+    rightTitle: "Total Package",
+    rightContent: ["Garhoud Unipole 4 · 1 face · 3 months"],
+    commercialExtras: {
+      total: 382000,
+      investmentTitle: "Campaign Total Investment",
+      investmentPeriod: "Sept – Nov · 3 months · Excluding 5% VAT",
+      breakdown: [],
+      checklist: [
+        { iconKey: "trainFront", label: "SZR Garhoud corridor" },
+        { iconKey: "calendarRange", label: "Sept – Nov · 3 months" },
+      ],
+      rows: packageDCommercialRows,
+      grandTotal: packageDGrandTotal,
+      tableNote:
+        "Kindly note: all rates are in AED. Prices exclude 5% VAT. Production & artwork delivery: included. Package priced as a single Sept – Nov commitment (3 months).",
+      mapLink: PACKAGE_D_MAP_LINK,
     },
   },
   {
@@ -893,11 +1086,11 @@ const slides: Slide[] = [
     eyebrow: "Creative Strategy",
     title: "Adapt the message to each environment.",
     subtitle:
-      "Each channel reaches a different mindset. The creative should change in tone and call-to-action — but stay consistent in the brand cue — so UBL builds a single, layered impression across Q4.",
+      "Each channel reaches a different mindset. The creative should change in tone and call-to-action — but stay consistent in the brand cue — so UBL builds a single, layered impression across the campaign.",
     creative: {
       columns: [
         {
-          env: "Bridges & Hoarding",
+          env: "Bridge Banners",
           iconKey: "trainFront",
           headline: "Mass reach · daily commute",
           message: "Big logo, single benefit. Build the habit of seeing UBL on the daily route.",
@@ -905,20 +1098,12 @@ const slides: Slide[] = [
           legibility: "Readable from 10m+",
         },
         {
-          env: "DIFC Screens",
-          iconKey: "building2",
-          headline: "Corporate & premium banking",
-          message: "Lead with trust and service. Speak to finance professionals on their turf.",
-          copyRule: "≤ 7 words",
-          legibility: "Readable from 4m",
-        },
-        {
-          env: "Business Bay Elevators",
-          iconKey: "tv",
-          headline: "Captive · lifestyle frequency",
-          message: "Use the dwell time. Spotlight digital banking, cards or lifestyle offers.",
-          copyRule: "≤ 8 words",
-          legibility: "Readable from 1.5m",
+          env: "SZR Hoarding",
+          iconKey: "mapPinned",
+          headline: "Arterial road · long dwell",
+          message: "One bold statement on the UAE's busiest commercial corridor.",
+          copyRule: "≤ 5 words + CTA",
+          legibility: "Readable from 50m+",
         },
       ],
       hierarchy: [
@@ -931,21 +1116,21 @@ const slides: Slide[] = [
   },
   {
     layout: "closingTimeline",
-    eyebrow: "Q4 2026 · Campaign Calendar",
+    eyebrow: "Sept – Nov 2026 · Campaign Calendar",
     title: "Three months. One connected presence for UBL.",
     subtitle:
-      "Q4 covers the final salary cycle, year-end financial decisions and the seasonal remittance peak. Holding all four channels through October, November and December keeps UBL present at every moment that matters.",
+      "September through November covers key salary cycles, financial planning and the seasonal remittance peak. Holding both channels live keeps UBL present at every moment that matters.",
     closing: {
       dates: [
         {
-          badge: "01 OCT",
-          title: "Q4 Wave 1 Launch",
-          detail: "All four channels live · Month 1",
+          badge: "01 SEP",
+          title: "Campaign Launch",
+          detail: "All channels live · Month 1",
           iconKey: "calendarRange",
         },
         {
-          badge: "31 DEC",
-          title: "Q4 Campaign Close",
+          badge: "30 NOV",
+          title: "Campaign Close",
           detail: "Month 3 wrap · post-campaign report",
           iconKey: "sparkles",
         },
@@ -953,27 +1138,129 @@ const slides: Slide[] = [
       summary: [
         {
           phase: "Commute layer",
-          copy: "Deira bridge banners and the JAFZA SZR hoarding keep UBL on the daily route, all quarter.",
+          copy: "Deira bridge banners and the JAFZA SZR hoarding keep UBL on the daily route through September, October and November.",
           iconKey: "trainFront",
-        },
-        {
-          phase: "Workday layer",
-          copy: "DIFC One Central screens reach finance professionals and corporate decision-makers on every workday.",
-          iconKey: "building2",
-        },
-        {
-          phase: "Lifestyle layer",
-          copy: "Business Bay elevator screens deliver high-frequency, captive exposure in the residential and office network.",
-          iconKey: "tv",
         },
       ],
       farewell:
-        "MAG International is ready to launch UBL's Q4 plan across Dubai's most valuable corridors — an extension of your team for the full quarter.",
+        "MAG International is ready to launch UBL's campaign across Dubai's most valuable corridors — an extension of your team for the full Sept – Nov window.",
     },
   },
 ];
 
 const DECK_GALLERY = buildDeckGallery(slides);
+
+/** Minimum scale before we fall back to scrolling (keeps text readable). */
+const DECK_MIN_SCALE = 0.5;
+const DECK_FIT_PADDING = 0.96;
+
+function SlideViewportFit({
+  slideKey,
+  children,
+}: {
+  slideKey: string | number;
+  children: ReactNode;
+}) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [layout, setLayout] = useState({
+    scale: 1,
+    height: 0,
+  });
+
+  const measure = useCallback(() => {
+    const viewport = viewportRef.current;
+    const content = contentRef.current;
+    if (!viewport || !content) return;
+
+    content.style.transform = "none";
+    content.style.width = "";
+
+    const availH = viewport.clientHeight;
+    const availW = viewport.clientWidth;
+    const naturalH = content.scrollHeight;
+    const naturalW = content.scrollWidth;
+    if (naturalH <= 0 || naturalW <= 0 || availH <= 0 || availW <= 0) return;
+
+    const idealScale = Math.min(
+      1,
+      (availH / naturalH) * DECK_FIT_PADDING,
+      (availW / naturalW) * DECK_FIT_PADDING,
+    );
+
+    let scale = idealScale;
+    if (idealScale < DECK_MIN_SCALE) {
+      scale = DECK_MIN_SCALE;
+    }
+
+    setLayout({
+      scale,
+      height: Math.ceil(naturalH * scale),
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    viewportRef.current?.scrollTo(0, 0);
+    measure();
+    const viewport = viewportRef.current;
+    const content = contentRef.current;
+    if (!viewport || !content) return;
+
+    const scheduleMeasure = () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(measure);
+      });
+    };
+
+    const ro = new ResizeObserver(scheduleMeasure);
+    ro.observe(viewport);
+    ro.observe(content);
+
+    const imgs = content.querySelectorAll("img");
+    imgs.forEach((img) => {
+      if (!img.complete) {
+        img.addEventListener("load", scheduleMeasure, { once: true });
+      }
+    });
+
+    document.fonts?.ready.then(scheduleMeasure);
+
+    window.addEventListener("resize", scheduleMeasure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", scheduleMeasure);
+    };
+  }, [measure, slideKey]);
+
+  const { scale, height } = layout;
+  const isScaled = scale < 1;
+
+  return (
+    <div
+      ref={viewportRef}
+      className="deck-slide-scroll flex min-h-0 w-full flex-1 items-start justify-center overflow-x-hidden overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch]"
+    >
+      <div
+        className="w-full max-w-full shrink-0"
+        style={{
+          height: isScaled && height > 0 ? height : undefined,
+        }}
+      >
+        <div
+          ref={contentRef}
+          className="w-full max-w-full origin-top"
+          style={{
+            transform: isScaled ? `scale(${scale})` : undefined,
+            transformOrigin: "top center",
+            width: isScaled ? `${100 / scale}%` : "100%",
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Page() {
   const [current, setCurrent] = useState(0);
@@ -1122,8 +1409,8 @@ export default function Page() {
                 className="max-w-full truncate text-center text-[10px] font-bold uppercase tracking-[0.18em] opacity-60 sm:text-xs sm:tracking-[0.24em]"
                 style={{ color: themeVars.text }}
               >
-                <span className="sm:hidden">Q4 ’26</span>
-                <span className="hidden sm:inline">Q4 2026 · MAG × UBL</span>
+                <span className="sm:hidden">Sept–Nov ’26</span>
+                <span className="hidden sm:inline">Sept – Nov 2026 · MAG × UBL</span>
               </div>
             </div>
 
@@ -1201,18 +1488,20 @@ export default function Page() {
         </header>
 
         <section
-          className="relative z-10 flex min-h-0 flex-1 flex-col justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-[calc(5.25rem+env(safe-area-inset-top))] [-webkit-overflow-scrolling:touch] sm:px-6 sm:pb-28 sm:pt-[5.75rem] md:px-10 md:pt-24 lg:px-14 lg:pt-[6.25rem] xl:px-16 xl:pt-24"
+          className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-[calc(4.25rem+env(safe-area-inset-top))] sm:px-6 sm:pb-[4.75rem] sm:pt-[4.75rem] md:px-10 md:pt-20 lg:px-14 lg:pt-[5.25rem] xl:px-16"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          <SlideRenderer
-            slide={slide}
-            slideIndex={current}
-            theme={theme}
-            themeVars={themeVars}
-            galleryNav={galleryNav}
-            onOpenGallery={hasDeckGallery ? openGalleryAt : undefined}
-          />
+          <SlideViewportFit slideKey={`${current}-${theme}`}>
+            <SlideRenderer
+              slide={slide}
+              slideIndex={current}
+              theme={theme}
+              themeVars={themeVars}
+              galleryNav={galleryNav}
+              onOpenGallery={hasDeckGallery ? openGalleryAt : undefined}
+            />
+          </SlideViewportFit>
         </section>
 
         <nav
@@ -1367,7 +1656,7 @@ function SlideShell({
   return (
     <div
       key={`slide-${slideIndex}-${theme}`}
-      className={`deck-slide-fit mx-auto flex w-full max-w-full animate-[fadeUp_.45s_ease-out] flex-col gap-4 sm:gap-5 lg:max-w-6xl xl:max-w-7xl ${className}`}
+      className={`deck-slide-fit mx-auto flex w-full max-w-full animate-[fadeUp_.45s_ease-out] flex-col gap-2 sm:gap-3 lg:max-w-6xl xl:max-w-7xl ${className}`}
     >
       {children}
     </div>
@@ -1849,10 +2138,16 @@ function TouchpointHeroSlide({
   const t = slide.touchpointHero;
   if (!t) return null;
   const heroSrc = t.heroImage ?? slide.billboardImages?.[0];
+  const heroFit = slide.imageFit ?? "cover";
+  const heroImgClass =
+    heroFit === "contain"
+      ? "h-full w-full object-contain object-center"
+      : "h-full min-h-[clamp(9rem,24dvh,18rem)] w-full object-cover";
   return (
     <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
-      <div className="grid min-h-0 flex-1 gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-stretch lg:gap-6">
-        <div className="relative min-h-0 w-full overflow-hidden rounded-2xl"
+      <div className="grid min-h-0 flex-1 gap-2 sm:gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-stretch lg:gap-4">
+        <div
+          className={`relative min-h-0 w-full overflow-hidden rounded-2xl ${heroFit === "contain" ? "aspect-[1024/433] max-h-[min(32dvh,18rem)] sm:max-h-[min(34dvh,20rem)]" : "min-h-[clamp(9rem,24dvh,18rem)]"}`}
              style={{
                background: themeVars.cardInner,
                border: `1px solid ${themeVars.border}`,
@@ -1860,13 +2155,13 @@ function TouchpointHeroSlide({
           {heroSrc ? (
             <GalleryImageTrigger
               src={heroSrc}
-              alt="DXB Terminal 3 Arrivals reference"
+              alt="Touchpoint reference"
               globalIndex={galleryNav?.images[0]}
               onOpenGallery={onOpenGallery}
-              imgClassName="h-full min-h-[18rem] w-full object-cover sm:min-h-[22rem]"
+              imgClassName={heroImgClass}
             />
           ) : (
-            <div className="flex h-full min-h-[18rem] items-center justify-center text-xs font-black uppercase tracking-[0.22em]"
+            <div className="flex h-full min-h-[clamp(9rem,24dvh,18rem)] items-center justify-center text-xs font-black uppercase tracking-[0.22em]"
                  style={{ color: themeVars.accent }}>
               Touchpoint Reference
             </div>
@@ -2506,7 +2801,7 @@ function CommercialSlide({
   const extras = slide.commercialExtras;
   return (
     <SlideShell themeVars={themeVars} theme={theme} slideIndex={slideIndex}>
-      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:items-start lg:gap-6">
+      <div className="grid gap-2 sm:gap-3 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:items-start lg:gap-4">
         <div className="min-w-0">
           <EyebrowChip slide={slide} themeVars={themeVars} />
           <h1 className="deck-title mt-3 font-black">{slide.title}</h1>
@@ -2552,7 +2847,7 @@ function CommercialSlide({
                     style={{ color: themeVars.accent }}
                   >
                     <Wallet className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden />
-                    Monthly Investment
+                    {extras.investmentTitle ?? "Monthly Investment"}
                   </div>
                   <div
                     className="mt-1.5 text-3xl font-black leading-none sm:text-4xl"
@@ -2564,7 +2859,7 @@ function CommercialSlide({
                     className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.18em] opacity-65"
                     style={{ color: themeVars.text }}
                   >
-                    Per month · Excluding 5% VAT
+                    {extras.investmentPeriod ?? "Per month · Excluding 5% VAT"}
                   </div>
                 </div>
               )}
@@ -2605,11 +2900,28 @@ function CommercialSlide({
                   );
                 })}
               </div>
+
+              {extras.mapLink ? (
+                <div className="mt-3">
+                  <MapLinkButton
+                    url={extras.mapLink.url}
+                    label={extras.mapLink.label}
+                    themeVars={themeVars}
+                    variant="inline"
+                  />
+                </div>
+              ) : null}
             </>
           ) : null}
         </div>
 
-        <CommercialTable themeVars={themeVars} slideIndex={slideIndex} />
+        <CommercialTable
+          themeVars={themeVars}
+          slideIndex={slideIndex}
+          rows={extras?.rows ?? packageACommercialRows}
+          grandTotal={extras?.grandTotal ?? packageAGrandTotal}
+          tableNote={extras?.tableNote}
+        />
       </div>
     </SlideShell>
   );
@@ -2916,7 +3228,7 @@ function ClosingTimelineSlide({
                   className="text-[10px] font-black uppercase tracking-[0.18em] opacity-75"
                   style={{ color: themeVars.accent }}
                 >
-                  Q4 ’26
+                  Sept–Nov ’26
                 </span>
                 <span
                   className="text-sm font-black leading-tight sm:text-base"
@@ -3046,13 +3358,14 @@ function MediaOnlySlide({
   galleryNav: SlideGalleryNav | null;
   onOpenGallery?: (index: number) => void;
 }) {
+  const isBannerGrid = slide.mediaLayout === "bannerGrid";
   return (
     <div
       key={`media-only-${slideIndex}`}
       className="deck-slide-fit mx-auto w-full max-w-full animate-[fadeUp_.45s_ease-out] lg:max-w-7xl"
     >
       <div
-        className="deck-panel-dense w-full rounded-xl p-3 sm:rounded-2xl sm:p-3.5 md:p-4"
+        className={`deck-panel-dense w-full rounded-xl sm:rounded-2xl ${isBannerGrid ? "p-2.5 sm:p-3" : "p-3 sm:p-3.5 md:p-4"}`}
         style={{
           background: themeVars.panel,
           border: `1px solid ${themeVars.border}`,
@@ -3064,7 +3377,7 @@ function MediaOnlySlide({
         }}
       >
         <div
-          className="deck-eyebrow mb-2 inline-flex items-center gap-2 rounded-full px-3 py-1 font-black uppercase sm:mb-2.5 sm:gap-2.5 sm:px-3.5 sm:py-1.5"
+          className={`deck-eyebrow inline-flex items-center gap-2 rounded-full px-3 py-1 font-black uppercase ${isBannerGrid ? "mb-1.5 sm:mb-2" : "mb-2 sm:mb-2.5 sm:gap-2.5 sm:px-3.5 sm:py-1.5"}`}
           style={{
             color: themeVars.accent,
             background: themeVars.accentSoft,
@@ -3079,23 +3392,25 @@ function MediaOnlySlide({
           {slide.eyebrow}
         </div>
 
-        <div className="mb-2.5 flex flex-col gap-3 sm:mb-3 md:grid md:grid-cols-[1fr_auto] md:items-center md:gap-x-5 lg:gap-x-6">
+        <div
+          className={`flex flex-col gap-2 md:grid md:grid-cols-[1fr_auto] md:items-center md:gap-x-4 lg:gap-x-5 ${isBannerGrid ? "mb-2 sm:mb-2.5" : "mb-2.5 sm:mb-3 md:gap-x-5 lg:gap-x-6"}`}
+        >
           <h2
-            className="deck-panel-heading min-w-0 font-black leading-[1.08]"
+            className={`deck-panel-heading min-w-0 font-black leading-[1.08] ${isBannerGrid ? "deck-clamp-2" : ""}`}
             style={{ color: themeVars.text }}
           >
             {slide.title}
           </h2>
 
           <div
-            className="min-w-0 shrink-0 rounded-lg px-3 py-2 sm:rounded-xl sm:px-3.5 sm:py-2.5 md:min-w-[8.5rem] lg:min-w-[9.5rem]"
+            className="min-w-0 shrink-0 rounded-lg px-3 py-1.5 sm:rounded-xl sm:px-3 sm:py-2 md:min-w-[7.5rem] lg:min-w-[8.5rem]"
             style={{
               background: themeVars.accentSoft,
               border: `1px solid ${themeVars.accentLine}`,
             }}
           >
             <div
-              className="deck-stat text-center font-black leading-none"
+              className={`text-center font-black leading-none ${isBannerGrid ? "text-xl sm:text-2xl" : "deck-stat"}`}
               style={{ color: themeVars.accent }}
             >
               {slide.stat ? (
@@ -3106,7 +3421,7 @@ function MediaOnlySlide({
                 />
               ) : null}
             </div>
-            <div className="deck-stat-label mt-1 text-center font-black uppercase opacity-65 sm:mt-1.5">
+            <div className="deck-stat-label mt-0.5 text-center font-black uppercase opacity-65 sm:mt-1">
               {slide.statLabel}
             </div>
           </div>
@@ -3117,6 +3432,7 @@ function MediaOnlySlide({
           themeVars={themeVars}
           videoPlaceholder={slide.videoPlaceholder}
           mediaLayout={slide.mediaLayout}
+          imageFit={slide.imageFit}
           billboardImages={slide.billboardImages}
           billboardVideoPoster={slide.billboardVideoPoster}
           galleryNav={galleryNav}
@@ -3125,11 +3441,13 @@ function MediaOnlySlide({
         />
 
         {slide.mediaSceneLabels && slide.mediaSceneLabels.length > 0 ? (
-          <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-2.5">
+          <div
+            className={`flex flex-wrap items-center gap-1.5 sm:gap-2 ${isBannerGrid ? "mt-2" : "mt-3"}`}
+          >
             {slide.mediaSceneLabels.map((label, i) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] sm:text-[11px]"
+                className={`inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 font-black uppercase tracking-[0.14em] ${isBannerGrid ? "text-[9px] sm:text-[10px]" : "px-2.5 py-1 text-[10px] sm:text-[11px] tracking-[0.16em]"}`}
                 style={{
                   background: themeVars.cardInner,
                   border: `1px solid ${themeVars.border}`,
@@ -3137,7 +3455,7 @@ function MediaOnlySlide({
                 }}
               >
                 <span
-                  className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-black"
+                  className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[7px] font-black sm:h-4 sm:w-4 sm:text-[8px]"
                   style={{
                     background: themeVars.accentSoft,
                     border: `1px solid ${themeVars.accentLine}`,
@@ -3146,7 +3464,7 @@ function MediaOnlySlide({
                 >
                   {i + 1}
                 </span>
-                {label}
+                <span className="deck-clamp-1">{label}</span>
               </span>
             ))}
           </div>
@@ -3154,7 +3472,7 @@ function MediaOnlySlide({
 
         {slide.mediaStatRibbon && slide.mediaStatRibbon.length > 0 ? (
           <div
-            className="mt-3 grid grid-cols-3 overflow-hidden rounded-xl"
+            className={`grid grid-cols-3 overflow-hidden rounded-xl ${isBannerGrid ? "mt-2" : "mt-3"}`}
             style={{
               background: themeVars.cardInner,
               border: `1px solid ${themeVars.border}`,
@@ -3163,7 +3481,7 @@ function MediaOnlySlide({
             {slide.mediaStatRibbon.map((s, i) => (
               <div
                 key={s.label}
-                className="flex flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-center sm:py-3"
+                className={`flex flex-col items-center justify-center gap-0.5 px-2 text-center ${isBannerGrid ? "py-1.5 sm:py-2" : "py-2.5 sm:py-3"}`}
                 style={{
                   borderRight:
                     i < slide.mediaStatRibbon!.length - 1
@@ -3172,13 +3490,13 @@ function MediaOnlySlide({
                 }}
               >
                 <div
-                  className="text-sm font-black leading-none sm:text-base"
+                  className={`font-black leading-none ${isBannerGrid ? "text-xs sm:text-sm" : "text-sm sm:text-base"}`}
                   style={{ color: themeVars.accent }}
                 >
                   {s.value}
                 </div>
                 <div
-                  className="text-[9px] font-black uppercase tracking-[0.18em] opacity-70"
+                  className="text-[8px] font-black uppercase tracking-[0.16em] opacity-70 sm:text-[9px]"
                   style={{ color: themeVars.text }}
                 >
                   {s.label}
@@ -3199,13 +3517,16 @@ function GalleryImageTrigger({
   globalIndex,
   onOpenGallery,
   imgClassName,
+  eager = false,
 }: {
   src: string;
   alt: string;
   globalIndex: number | null | undefined;
   onOpenGallery?: (index: number) => void;
   imgClassName: string;
+  eager?: boolean;
 }) {
+  const loading = eager ? "eager" : "lazy";
   if (onOpenGallery != null && globalIndex != null) {
     return (
       <button
@@ -3214,7 +3535,7 @@ function GalleryImageTrigger({
         aria-label={`Open image viewer: ${alt}`}
         className="group relative block h-full w-full cursor-pointer border-0 bg-transparent p-0 outline-none transition-opacity hover:opacity-[0.98] focus-visible:opacity-[0.98] focus-visible:ring-2 focus-visible:ring-sky-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
       >
-        <img src={src} alt={alt} className={imgClassName} loading="lazy" />
+        <img src={src} alt={alt} className={imgClassName} loading={loading} />
         <span
           className="pointer-events-none absolute inset-0 rounded-[inherit] bg-black/0 transition-colors group-hover:bg-black/8 group-focus-visible:bg-black/8"
           aria-hidden
@@ -3222,7 +3543,7 @@ function GalleryImageTrigger({
       </button>
     );
   }
-  return <img src={src} alt={alt} className={imgClassName} loading="lazy" />;
+  return <img src={src} alt={alt} className={imgClassName} loading={loading} />;
 }
 
 function ImagePlaceholderGrid({
@@ -3237,11 +3558,12 @@ function ImagePlaceholderGrid({
   statInGrid,
   fitToViewport = false,
   embedded = false,
+  imageFit = "cover",
 }: {
   count: number;
   themeVars: any;
   videoPlaceholder?: boolean;
-  mediaLayout?: "standard" | "twoPlusVideo";
+  mediaLayout?: "standard" | "twoPlusVideo" | "bannerGrid";
   billboardImages?: string[];
   billboardVideoPoster?: string;
   galleryNav: SlideGalleryNav | null;
@@ -3254,10 +3576,19 @@ function ImagePlaceholderGrid({
   };
   fitToViewport?: boolean;
   embedded?: boolean;
+  imageFit?: "cover" | "contain";
 }) {
   const slotSrc = (i: number) => billboardImages?.[i];
   const cellRound = "rounded-md sm:rounded-lg";
   const videoRound = "rounded-lg sm:rounded-xl";
+  const fitClass =
+    imageFit === "contain"
+      ? "h-full w-full object-contain object-center"
+      : "h-full w-full object-cover object-top";
+  const singleFitClass =
+    imageFit === "contain"
+      ? "h-full w-full object-contain object-center"
+      : "h-full w-full object-cover";
   const singleImageClass = fitToViewport
     ? "h-[var(--deck-image-single)] min-h-[7.5rem]"
     : "aspect-video";
@@ -3267,6 +3598,58 @@ function ImagePlaceholderGrid({
   const wideMediaClass = fitToViewport
     ? "h-[var(--deck-image-wide)] min-h-[6.5rem]"
     : "h-[150px] sm:h-[176px] md:h-[200px]";
+
+  if (mediaLayout === "bannerGrid") {
+    const gridClass =
+      count >= 3
+        ? "grid-cols-3"
+        : count === 2
+          ? "grid-cols-2"
+          : "grid-cols-1";
+    const bannerCellClass = fitToViewport
+      ? "h-[var(--deck-banner-row)] min-h-[17rem]"
+      : "aspect-[1024/433] max-h-[min(28dvh,15rem)] sm:max-h-[min(30dvh,17rem)]";
+
+    return (
+      <div className={`grid gap-2 sm:gap-2.5 ${gridClass}`}>
+        {Array.from({ length: count }).map((_, i) => {
+          const src = slotSrc(i);
+          return (
+            <div
+              key={i}
+              className={`relative w-full min-w-0 overflow-hidden ${cellRound}`}
+              style={{
+                background: themeVars.cardInner,
+                border: src
+                  ? `1px solid ${themeVars.border}`
+                  : `1px dashed ${themeVars.accentLine}`,
+              }}
+            >
+              <div className={`relative w-full ${bannerCellClass}`}>
+                {src ? (
+                  <GalleryImageTrigger
+                    src={src}
+                    alt={`Reference billboard ${i + 1}`}
+                    globalIndex={galleryNav?.images[i]}
+                    onOpenGallery={onOpenGallery}
+                    imgClassName={fitClass}
+                    eager
+                  />
+                ) : (
+                  <div
+                    className="flex h-full items-center justify-center text-center text-xs font-black uppercase tracking-[0.22em]"
+                    style={{ color: themeVars.accent }}
+                  >
+                    Image Placeholder {i + 1}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   if (mediaLayout === "twoPlusVideo") {
     const flexRowCount = count >= 2 && count <= 3 ? count : 0;
@@ -3301,7 +3684,7 @@ function ImagePlaceholderGrid({
                         alt={`Reference billboard ${i + 1}`}
                         globalIndex={galleryNav?.images[i]}
                         onOpenGallery={onOpenGallery}
-                        imgClassName="h-full w-full object-cover object-top"
+                        imgClassName={fitClass}
                       />
                     ) : (
                       <div
@@ -3340,7 +3723,7 @@ function ImagePlaceholderGrid({
                       alt={`Reference billboard ${i + 1}`}
                       globalIndex={galleryNav?.images[i]}
                       onOpenGallery={onOpenGallery}
-                      imgClassName="h-full w-full object-cover object-top"
+                      imgClassName={fitClass}
                     />
                   ) : (
                     <div
@@ -3390,9 +3773,15 @@ function ImagePlaceholderGrid({
 
   if (count === 1) {
     const src = slotSrc(0);
+    const singleContainClass =
+      imageFit === "contain" && fitToViewport
+        ? "aspect-[1024/577] w-full max-h-[min(52dvh,28rem)]"
+        : imageFit === "contain"
+          ? "aspect-[1024/577] w-full max-h-[28rem]"
+          : singleImageClass;
     return (
       <div
-        className={`relative w-full max-w-full overflow-hidden ${singleImageClass} ${embedded ? "mb-0 h-full min-h-[7.5rem]" : "mb-3 sm:mb-4"} ${videoRound}`}
+        className={`relative w-full max-w-full overflow-hidden ${singleContainClass} ${embedded ? "mb-0 h-full min-h-[7.5rem]" : "mb-3 sm:mb-4"} ${videoRound}`}
         style={{
           background: themeVars.cardInner,
           border: src
@@ -3406,7 +3795,7 @@ function ImagePlaceholderGrid({
             alt="Reference billboard"
             globalIndex={galleryNav?.images[0]}
             onOpenGallery={onOpenGallery}
-            imgClassName="h-full w-full object-cover"
+            imgClassName={singleFitClass}
           />
         ) : (
           <div
@@ -3476,7 +3865,7 @@ function ImagePlaceholderGrid({
                 alt={`Reference billboard ${i + 1}`}
                 globalIndex={galleryNav?.images[i]}
                 onOpenGallery={onOpenGallery}
-                imgClassName="h-full w-full object-cover"
+                imgClassName={fitClass}
               />
             ) : (
               <div
@@ -3528,12 +3917,75 @@ function InfoPill({ text, themeVars }: { text: string; themeVars: any }) {
   );
 }
 
+function MapLinkButton({
+  url,
+  label = "Open site map",
+  themeVars,
+  variant = "inline",
+  className = "",
+}: {
+  url: string;
+  label?: string;
+  themeVars: any;
+  variant?: "overlay" | "inline";
+  className?: string;
+}) {
+  const isOverlay = variant === "overlay";
+  return (
+    <a
+      data-no-swipe
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] transition-[transform,box-shadow,background] duration-200 hover:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:px-3.5 sm:py-2 sm:text-[11px] ${className}`}
+      style={
+        isOverlay
+          ? {
+              background: "rgba(13,20,32,0.82)",
+              border: `1px solid ${themeVars.accentLine}`,
+              color: "#fff",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+            }
+          : {
+              background: themeVars.accentSoft,
+              border: `1px solid ${themeVars.accentLine}`,
+              color: themeVars.accent,
+            }
+      }
+      aria-label={label}
+      title={label}
+    >
+      <Map
+        className="h-3.5 w-3.5"
+        strokeWidth={2.35}
+        style={isOverlay ? { color: themeVars.accent } : undefined}
+        aria-hidden
+      />
+      <span className="hidden sm:inline">{label}</span>
+      <span className="sm:hidden">Map</span>
+      <ExternalLink
+        className="h-3 w-3 opacity-80"
+        strokeWidth={2.4}
+        aria-hidden
+      />
+    </a>
+  );
+}
+
 function CommercialTable({
   themeVars,
   slideIndex,
+  rows,
+  grandTotal,
+  tableNote,
 }: {
   themeVars: any;
   slideIndex: number;
+  rows: CommercialRow[];
+  grandTotal: string;
+  tableNote?: string;
 }) {
   return (
     <div
@@ -3590,7 +4042,7 @@ function CommercialTable({
 
       <div
         data-no-swipe
-        className="-mx-1 overflow-x-auto rounded-lg [scrollbar-width:thin] sm:mx-0 sm:rounded-xl"
+        className="-mx-1 overflow-hidden rounded-lg sm:mx-0 sm:rounded-xl"
         style={{ border: `1px solid ${themeVars.border}` }}
       >
         <table className="w-full min-w-0 border-collapse text-left text-[10px] sm:text-[11px]">
@@ -3612,7 +4064,7 @@ function CommercialTable({
           </thead>
 
           <tbody>
-            {commercialRows.map((row) => (
+            {rows.map((row) => (
               <tr key={row.location}>
                 <td
                   className="max-w-[160px] px-1.5 py-2.5 font-bold sm:max-w-none sm:px-2 sm:py-3"
@@ -3660,12 +4112,14 @@ function CommercialTable({
           border: `1px solid ${themeVars.border}`,
         }}
       >
-        Kindly note: all rates are in AED and quoted per month. Prices exclude
-        5% VAT. Production & artwork delivery:
-        <span style={{ color: themeVars.accent }}>
-          {" "}
-          included.
-        </span>
+        {tableNote ??
+          "Kindly note: all rates are in AED and quoted per month. Prices exclude 5% VAT. Production & artwork delivery:"}
+        {!tableNote ? (
+          <span style={{ color: themeVars.accent }}>
+            {" "}
+            included.
+          </span>
+        ) : null}
       </div>
     </div>
   );
